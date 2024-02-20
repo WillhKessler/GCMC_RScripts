@@ -22,9 +22,6 @@
 ## 3. Submit a the job using SLURM via the command: sbR -v 4.1.0 ExtractPRISM_VITAL.R
 ########READ ME##############################################
 
-
-
-
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME<-"Bellavia_polygon_LINKAGE" # string with a project name
 #rasterdir<- "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
@@ -47,12 +44,10 @@ library(batchtools)
 require(terra)
 require(tools)
 
-##REQUIRED##
-##REQUIRED##
-
 #Create a temporary registry item
 if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
   reg = loadRegistry(paste(PROJECT_NAME,"Registry",sep="_"),writeable = TRUE)
+  reg$cluster.functions=makeClusterFunctionsSocket()
 }else{
   reg = makeRegistry(file.dir = paste(PROJECT_NAME,"Registry",sep="_"), seed = 42)
   reg$cluster.functions=makeClusterFunctionsSocket()
@@ -64,7 +59,7 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 
 
 ##---- The function to perform the extraction
-source("S:/GCMC/_Code/R/GCMC_Rscripts/Functions_RasterExtraction.R")
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_Rscripts/main/Functions_RasterExtraction.R")
 ##############################################################
 ##---- Set up the batch processing jobs
 ##REQUIRED##
