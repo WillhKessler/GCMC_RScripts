@@ -34,7 +34,7 @@ cohort<-read.csv(cohortdir,header=TRUE,stringsAsFactors = FALSE)
 allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
 head(allFilePaths)
 
-#---- Determine Unique Dates
+#---- Determine Unique Raster Dates
 dates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(allFilePaths)),"_"),FUN = function(x){x[2]}))
 dates<-dates[order(dates)]
 
