@@ -44,10 +44,8 @@ weights = NA # string specifying file path to raster weights, should only be use
 
 #### R batchtools
 library(batchtools)
-require(sp)
 require(terra)
 require(tools)
-require(parallel)
 
 ##REQUIRED##
 ##REQUIRED##
