@@ -41,7 +41,7 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 ##########Input PROCESSING HERE####################################################
 ##---- Call Desired functions from Functions_RasterExtraction source file
 ##---- The desired functions are called in batchMap
-source("S:/GCMC/_Code/R/GCMC_Rscripts/Functions_RasterExtraction.R")
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_Rscripts/main/Functions_RasterExtraction.R")
 
 
 ##---- Set up the batch processing jobs
