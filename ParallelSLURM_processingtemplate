@@ -15,21 +15,18 @@ weights = NA # string specifying file path to raster weights, should only be use
 
 
 
-#### R batchtools
+##---- Required Packages
 library(batchtools)
 require(terra)
 require(tools)
 
 ##REQUIRED##
-##REQUIRED##
-#Initialize conf files and template
-#Initialize batchtools configuration files and template
+##---- Initialize batchtools configuration files and template
 if(!file.exists("slurm.tmpl")){
   download.file("https://bit.ly/3Oh9dRO","slurm.tmpl")
 }else{
   print("template exists")
 }
-
 if(!file.exists("batchtools.conf.R")){
   download.file("https://bit.ly/3KPBwou", "batchtools.conf.R")
 }else{
@@ -43,6 +40,77 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
   reg = makeRegistry(file.dir = paste(PROJECT_NAME,"Registry",sep="_"), seed = 42,conf.file="batchtools.conf.R")
 }
 
+##########Input PROCESSING HERE####################################################
+## Call Desired functions from Functions_RasterExtraction source file
+## The desired functions are mapped in creating the jobs via batchMap
+source("S:/GCMC/_Code/R/GCMC_Rscripts/Functions_RasterExtraction.R")
+
+##############################################################
+##---- Set up the batch processing jobs
+##---- Use the 'batchgrid' function to create a grid of variable combinations to process over. function considers input rasters, input features, and any weighting layers
+batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
+  require("tools")
+  
+  ##---- Set up the batch processing jobs
+  pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
+  
+  if(file_ext(extractionlayer)=="csv"){
+    feature<-unique(read.csv(extractionlayer)[,IDfield])
+    layername = NA
+    weightslayers = NA
+  }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
+    require('terra')
+    vectorfile<- vect(x=extractionlayer,layer=layername)
+    feature<- unlist(unique(values(vectorfile[,IDfield])))
+    Xfield = NA
+    Yfield = NA
+  }
+  
+  output<- expand.grid(vars = pvars,
+                     piece = feature,
+                     rasterdir = rasterdir,
+                     extractionlayer = extractionlayer,
+                     layername = layername,
+                     IDfield = IDfield,
+                     Xfield = Xfield,
+                     Yfield = Yfield,
+                     startdatefield = startdatefield,
+                     enddatefield = enddatefield,
+                     predays = predays,
+                     weightslayers = weightslayers,
+                     stringsAsFactors = FALSE)
+  return(output)
+}
+
+##----  Make sure registry is empty
+clearRegistry(reg)
+
+##----  create jobs from variable grid
+jobs<- batchMap(fun = extract.rast,
+                batchgrid(rasterdir = rasterdir,
+                          extractionlayer = extractionlayer,
+                          layername = layername,
+                          IDfield = IDfield, 
+                          Xfield = Xfield,
+                          Yfield = Yfield,
+                          startdatefield = startdatefield,
+                          enddatefield = enddatefield,
+                          predays = predays,
+                          weightslayers = weights),
+                reg = reg)
+jobs$chunk<-chunk(jobs$job.id,chunk.size = 90)
+setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
+
+getJobTable()
+getStatus()
+
+##---- Submit jobs to scheduler
+done <- batchtools::submitJobs(jobs, 
+                               reg=reg, 
+                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=80000))
+getStatus()
+
+waitForJobs() # Wait until jobs are completed
 
 
 
