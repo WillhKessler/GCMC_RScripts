@@ -43,11 +43,12 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 ##########Input PROCESSING HERE####################################################
 ## Call Desired functions from Functions_RasterExtraction source file
 ## The desired functions are mapped in creating the jobs via batchMap
-source("S:/GCMC/_Code/R/GCMC_Rscripts/Functions_RasterExtraction.R")
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_Rscripts/main/Functions_RasterExtraction.R")
 
 ##############################################################
 ##---- Set up the batch processing jobs
 ##---- Use the 'batchgrid' function to create a grid of variable combinations to process over. function considers input rasters, input features, and any weighting layers
+
 batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
   require("tools")
   
