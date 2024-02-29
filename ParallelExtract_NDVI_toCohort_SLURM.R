@@ -24,10 +24,9 @@
 ## Run this code in an interactive session from your current unix directory, where the created registry directory is located. 
 ## REQUIRED INPUTS##
 PROJECT_NAME<-"VITAL_NDVI_LINKAGE"
-#rasterdir<-"/pc/n3mhs00/Landsat/2018_2019_2020"
-rasterdir<-"/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an"
-#cohortfilepath<-"/pc/nhair0a/VITAL/Feb2023/VITAL_geo_startstop_20230418.csv"
-cohortfilepath<-"S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv"
+rasterdir<-"/d/tmp/nhairs/nhair0a/NDVI_30m"
+cohortfilepath<-"/pc/nhair0a/VITAL/Feb2023/VITAL_geo_startstop_20230418.csv"
+#cohortfilepath<-"S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv"
 IDfield<-"subject_ID"
 startdatefield = "start_date"
 enddatefield = "stop_date"
@@ -104,11 +103,12 @@ extract.rast= function(vars,piece,rasterdir,cohortfilepath,IDfield,startdatefiel
   
   ##---- Initialize raster list
   allRasterPaths<- list.files(path = rasterdir,
-                              pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9][0-1][0-9][0-3][0-9].bil$",sep=""),
+                              pattern = paste(vars,".*[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9].tif$",sep=""),
                               all.files = TRUE,
                               full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
   allFilePaths<- list.files(path = rasterdir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
   allRasterPaths<-allFilePaths
+  
   #---- Determine Unique Raster Dates
   rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(allFilePaths)),"_"),FUN = function(x){x[2]}))
   rdates<-rdates[order(rdates)]
