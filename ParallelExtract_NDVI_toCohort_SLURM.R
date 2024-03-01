@@ -24,9 +24,12 @@
 ## Run this code in an interactive session from your current unix directory, where the created registry directory is located. 
 ## REQUIRED INPUTS##
 PROJECT_NAME<-"VITAL_NDVI_LINKAGE"
-rasterdir<-"/d/tmp/nhairs/nhair0a/NDVI_30m"
-cohortfilepath<-"/pc/nhair0a/VITAL/Feb2023/VITAL_geo_startstop_20230418.csv"
-#cohortfilepath<-"S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv"
+# rasterdir<-"/d/tmp/nhairs/nhair0a/NDVI_30m"
+rasterdir<-"S:/GCMC/Data/Greenness/NDVI/30m"
+rasterdir<-"S:/GCMC/Data/Climate/PRISM/daily"
+rvars<-c("ppt","tmax","tmin","tmean","tdmean","vpdmax","vpdmin")
+#cohortfilepath<-"/pc/nhair0a/VITAL/Feb2023/VITAL_geo_startstop_20230418.csv"
+cohortfilepath<-"S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv"
 IDfield<-"subject_ID"
 startdatefield = "start_date"
 enddatefield = "stop_date"
@@ -35,7 +38,8 @@ predays = 365
 ##REQUIRED##
 
 ##---- Set up the batch processing jobs
-pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
+pvars = rvars
+#pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
 feature = unique(read.csv(cohortfilepath)[,IDfield])
 pars<- expand.grid(vars=pvars,
                    piece=feature,
@@ -103,11 +107,10 @@ extract.rast= function(vars,piece,rasterdir,cohortfilepath,IDfield,startdatefiel
   
   ##---- Initialize raster list
   allRasterPaths<- list.files(path = rasterdir,
-                              pattern = paste(vars,".*[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9].tif$",sep=""),
+                              pattern = paste(vars,".*[1-2][0-9][0-9][0-9]-?[0-1][0-9]-?[0-3][0-9].(tif|bil)$",sep=""),
                               all.files = TRUE,
                               full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
-  allFilePaths<- list.files(path = rasterdir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
-  allRasterPaths<-allFilePaths
+  allFilePaths<-allRasterPaths
   
   #---- Determine Unique Raster Dates
   rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(allFilePaths)),"_"),FUN = function(x){x[2]}))
@@ -116,7 +119,6 @@ extract.rast= function(vars,piece,rasterdir,cohortfilepath,IDfield,startdatefiel
   ##---- Create rdate ranges for points
   cohortstartSeasonIndex<- sapply(cohort$extract_start, function(i) which((as.Date(rdates)-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates)-as.Date(i))[(as.Date(rdates)-as.Date(i)) <= 0])])
   cohortendSeasonIndex<- sapply(cohort$stop_date, function(i) which((as.Date(rdates)-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates)-as.Date(i))[(as.Date(rdates)-as.Date(i)) <= 0])])
-  
   cohort$first_extract<-as.Date(rdates[cohortstartSeasonIndex])
   cohort$last_extract<-as.Date(rdates[cohortendSeasonIndex])
   
@@ -158,17 +160,7 @@ extract.rast= function(vars,piece,rasterdir,cohortfilepath,IDfield,startdatefiel
         
         ## Loop through each raster in the list, extract values to points (will introduce NA for points outside the raster extents) 
         output<-as.data.frame(do.call(cbind,lapply(seasonalRasters,function(path){extract(x=path,y=subcohort,ID=FALSE)})))
-        # extractoutput<-subcohort
-        # for (r in seasonalRasters){
-        #   message("the Date d:", rasterDateRange[d])
-        #   message("the seasonal Rasters: ", sources(r[[1]]))
-        #   
-        #   ## The extraction output
-        #   output <-extract(x = r[[1]], y = subcohort,ID=FALSE)
-        #   ## add extraction column to the subcohort df
-        #   #subcohort<-cbind(subcohort,output)
-        #   extractoutput<-cbind(extractoutput,output)
-        # }
+        
         ## calculate the mean value for any points where their extraction was in multiple Rasters (maybe instances in edge cases where rasters overlap)
         t<- rowMeans(output,na.rm =TRUE)
         subcohort<-cbind(subcohort,as.data.frame(t))
