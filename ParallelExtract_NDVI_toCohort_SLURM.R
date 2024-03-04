@@ -26,10 +26,10 @@
 PROJECT_NAME<-"VITAL_NDVI_LINKAGE"
 # rasterdir<-"/d/tmp/nhairs/nhair0a/NDVI_30m"
 rasterdir<-"S:/GCMC/Data/Greenness/NDVI/30m"
-rasterdir<-"S:/GCMC/Data/Climate/PRISM/daily"
+#rasterdir<-"S:/GCMC/Data/Climate/PRISM/daily"
 rvars<-c("ppt","tmax","tmin","tmean","tdmean","vpdmax","vpdmin")
-#cohortfilepath<-"/pc/nhair0a/VITAL/Feb2023/VITAL_geo_startstop_20230418.csv"
-cohortfilepath<-"S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv"
+cohortfilepath<-"/pc/nhair0a/VITAL/Feb2023/VITAL_geo_startstop_20230418.csv"
+#cohortfilepath<-"S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv"
 IDfield<-"subject_ID"
 startdatefield = "start_date"
 enddatefield = "stop_date"
@@ -44,11 +44,12 @@ feature = unique(read.csv(cohortfilepath)[,IDfield])
 pars<- expand.grid(vars=pvars,
                    piece=feature,
                    rasterdir = rasterdir,
-                   cohortfilepath=cohortfilepath,
+                   cohortfilepath = cohortfilepath,
                    IDfield = IDfield,
                    startdatefield = startdatefield,
                    enddatefield = enddatefield,
-                   predays = predays
+                   predays = predays,
+                   stringsAsFactors = FALSE
                    )
 
 
