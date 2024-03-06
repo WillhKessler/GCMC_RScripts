@@ -1,9 +1,11 @@
-# An example Function
+##---- An example Function
 get_random_mean <- function(mu, sigma, ...){
   x <- rnorm(100, mean = mu, sd = sigma)
   c(sample_mean = mean(x), sample_sd = sd(x))
 }
-# An example Function
+
+
+##---- An example Function
 myFct <- function(cpucore) {
   Sys.sleep(10) # to see job in queue, pause for 10 sec
   result <- cbind(iris[cpucore, 1:4,],
@@ -12,8 +14,23 @@ myFct <- function(cpucore) {
   return(result)
 }
 
-# An example inner Parallel Function
+
+##---- An example inner Parallel Function
 innerParallel <- function(cpu){
+  
+  #Must supply inner function inside the outer function
+  myFct <- function(cpucore) {
+    stim<-Sys.time() # logging clock time shows that the inner function is called at the same time across all cores, not sequentially
+    Sys.sleep(10) # to see job in queue, pause for 10 sec
+    etim<-Sys.time()
+    result <- cbind(iris[cpucore, 1:4,],
+                    Node=system("hostname", intern=TRUE),
+                    Rversion=paste(R.Version()[6:7], collapse="."),
+                    start = stim,
+                    end = etim)
+    return(result)
+  }
+  
   parallelMap::parallelMap(myFct,1:cpu)
 }
 
