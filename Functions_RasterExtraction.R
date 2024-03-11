@@ -31,7 +31,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   
   ##---- Climate Rasters
   rastfiles<-rasterdir
-  climvars<-list.files(file.path(rastfiles,vars,"daily"),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\\.bil$",sep=""),recursive=TRUE,full.names=TRUE)
+  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\\.bil$",sep=""),recursive=TRUE,full.names=TRUE)
   # Determine unique raster dates
   rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars)),"_"),FUN = function(x){x[length(x)]}))
   rdates<-rdates[order(rdates)]
