@@ -60,5 +60,5 @@ getJobTable()
 getStatus()
 
 ##---- Submit Jobs
-batchtools::submitJobs()
+batchtools::submitJobs(resources = c(memory=80000),reg = reg)
 waitForJobs()
