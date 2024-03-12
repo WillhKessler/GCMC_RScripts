@@ -73,8 +73,10 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     extlayer<-extlayer[extlayer[IDField]==piece,]
     polygons<- vect(x = extlayer,geom = c(Xfield,Yfield), atts = extlayer)
-  }else if (file_ext(extractionlayer) %in% c("shp","gdb")){
+  }else if (file_ext(extractionlayer) %in% c("gdb")){
     polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
+  }else if (file_ext(extractionlayer) %in% c("shp")){
+    polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
   }
   polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])))-predays)
   polygons$stop_date<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield]))))

@@ -99,7 +99,9 @@ clearRegistry(reg)
 #                           predays = predays,
 #                           weightslayers = weights),
 #                 reg = reg)
-jobs<-batchMap(fun=innerParallel,cpu =1:4)
+
+jobs<-batchMap(fun=innerParallel,cpu =4)
+
 jobs$chunk<-chunk(jobs$job.id,chunk.size = 90)
 setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
