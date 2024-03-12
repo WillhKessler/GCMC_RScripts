@@ -23,12 +23,12 @@ require(tools)
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
 if(!file.exists("slurm.tmpl")){
-  download.file("https://bit.ly/3Oh9dRO","slurm.tmpl")
+  download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/slurm.tmpl","slurm.tmpl")
 }else{
   print("template exists")
 }
 if(!file.exists("batchtools.conf.R")){
-  download.file("https://bit.ly/3KPBwou", "batchtools.conf.R")
+  download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/batchtools.conf.R", "batchtools.conf.R")
 }else{
   print("conf file exists")
 }
