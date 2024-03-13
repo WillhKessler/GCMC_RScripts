@@ -1,14 +1,16 @@
 ##---- An example Function
 get_random_mean <- function(mu, sigma, ...){
+  stim<-Sys.time()
   x <- rnorm(100, mean = mu, sd = sigma)
-  c(sample_mean = mean(x), sample_sd = sd(x))
+  out<- c(sample_mean = mean(x), sample_sd = sd(x), Node=system("hostname", intern=TRUE),
+                  Rversion=paste(R.Version()[6:7], collapse="."),starttime=stim,endtime=Sys.time())
 }
 
 
 ##---- An example Function
 myFct <- function(cpucore) {
   Sys.sleep(10) # to see job in queue, pause for 10 sec
-  result <- cbind(iris[cpucore, 1:4,],
+  result <- cbind(iris[cpucore, 1:4],
                   Node=system("hostname", intern=TRUE),
                   Rversion=paste(R.Version()[6:7], collapse="."))
   return(result)
