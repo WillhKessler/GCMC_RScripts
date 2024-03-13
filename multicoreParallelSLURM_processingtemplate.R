@@ -3,7 +3,6 @@ PROJECT_NAME<-"innerParallelTest" # string with a project name
 #rasterdir<- "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
 rasterdir<-"S:/GCMC/Data/Climate/PRISM/"
 #extractionlayer = "/d/tmp/nhairs/nhair0a/BellaviaLinkage/sites_10M/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
-extractionlayer = "C:/Users/wik191/OneDrive - Harvard University/_Projects/Andrea_Bellavia/sites_10M.shp"
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
 IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
 Xfield<- "X"
@@ -59,9 +58,16 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
     feature<-unique(read.csv(extractionlayer)[,IDfield])
     layername = NA
     weightslayers = NA
-  }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
+  }else if(file_ext(extractionlayer) %in% c("gdb")){
     require('terra')
     vectorfile<- vect(x=extractionlayer,layer=layername)
+    feature<- unlist(unique(values(vectorfile[,IDfield])))
+    Xfield = NA
+    Yfield = NA
+  }
+  else if(file_ext(extractionlayer) %in% c("shp")){
+    require('terra')
+    vectorfile<- vect(x=extractionlayer)
     feature<- unlist(unique(values(vectorfile[,IDfield])))
     Xfield = NA
     Yfield = NA
