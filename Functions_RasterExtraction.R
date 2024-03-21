@@ -67,6 +67,8 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   rdates<-rdates[order(rdates)]
   print(rdates)
   
+  ##---- Load Rasters
+  rasters<-rast(climvars)
   
   ##---- Extraction Features Layer
   if(file_ext(extractionlayer)=='csv'){
@@ -91,10 +93,11 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   
   ##---- Determine which raster dates fall within the data range
   rasterDateRange<-rdates[as.Date(rdates,tryFormats = "%Y%m%d")>=min(feature$first_extract) & as.Date(rdates,tryFormats = "%Y%m%d")<=max(feature$last_extract)]
-  # Load Climate Rasters
+  ## Load Climate Rasters
   print("loading the climvars to rast()")
-  climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
-  rasters<- rast(climvars2)
+  #climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
+  #rasters<- rast(climvars2)
+  
   #################################################################
   #################################################################
   ##---- Weights Rasters for spatial weights
