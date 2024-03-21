@@ -27,6 +27,7 @@ lines(us,col="red")
 #Create 100m subpolygons in each grid
 test<-vect()
 nrow(xpolys)
+writeVector(x=xpolys,filename=paste("S:/GCMC/Data/BuiltEnvironment/NETS/100m_Grid/",paste0("ParentGrid",".shp"),sep=""))
 for( p in 1:nrow(xpolys)){
   #intersecting states
   states<-us[xpolys[p,],]
