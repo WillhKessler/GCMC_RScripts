@@ -61,7 +61,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   
   ##---- Climate Rasters
   rastfiles<-rasterdir
-  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\\.bil$",sep=""),recursive=TRUE,full.names=TRUE)
+  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9]-?[0-1][0-9]-?[0-3][0-9]\\.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
   # Determine unique raster dates
   rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars)),"_"),FUN = function(x){x[length(x)]}))
   rdates<-rdates[order(rdates)]
@@ -72,25 +72,25 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   if(file_ext(extractionlayer)=='csv'){
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     extlayer<-extlayer[extlayer[IDField]==piece,]
-    polygons<- vect(x = extlayer,geom = c(Xfield,Yfield), atts = extlayer)
+    feature<- vect(x = extlayer,geom = c(Xfield,Yfield), atts = extlayer)
   }else if (file_ext(extractionlayer) %in% c("gdb")){
-    polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
+    feature<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
   }else if (file_ext(extractionlayer) %in% c("shp")){
-    polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
+    feature<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
   }
-  polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])))-predays)
-  polygons$stop_date<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield]))))
+  feature$extract_start<- as.character(as.Date(unlist(as.data.frame(feature[,startdatefield])))-predays)
+  feature$stop_date<-as.character(as.Date(unlist(as.data.frame(feature[,enddatefield]))))
   
   
   ##---- Create extraction date ranges for points
-  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i))[(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0])])
-  polygonsendSeasonIndex<- sapply(polygons$stop_date, function(i) which((as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i))[(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0])])
-  polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats="%Y%m%d")
-  polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats="%Y%m%d")
+  featuretartSeasonIndex<- sapply(feature$extract_start, function(i) which((as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i))[(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0])])
+  featureendSeasonIndex<- sapply(feature$stop_date, function(i) which((as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i))[(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0])])
+  feature$first_extract<-as.Date(rdates[featuretartSeasonIndex],tryFormats="%Y%m%d")
+  feature$last_extract<-as.Date(rdates[featureendSeasonIndex],tryFormats="%Y%m%d")
   
   
   ##---- Determine which raster dates fall within the data range
-  rasterDateRange<-rdates[as.Date(rdates,tryFormats = "%Y%m%d")>=min(polygons$first_extract) & as.Date(rdates,tryFormats = "%Y%m%d")<=max(polygons$last_extract)]
+  rasterDateRange<-rdates[as.Date(rdates,tryFormats = "%Y%m%d")>=min(feature$first_extract) & as.Date(rdates,tryFormats = "%Y%m%d")<=max(feature$last_extract)]
   # Load Climate Rasters
   print("loading the climvars to rast()")
   climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
@@ -98,7 +98,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   #################################################################
   #################################################################
   ##---- Weights Rasters for spatial weights
-  calc.spatialweights<- function(weightslayers,rasters,polygons){
+  calc.spatialweights<- function(weightslayers,rasters,feature){
     rweights<-list.files(weightslayers,full.names = TRUE)
     print(rweights)
     
@@ -109,11 +109,11 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     
     ## Reproject everything to the same resolution and CRS
     print('reprojecting clim vars')
-    crs(polygons)<-crs(rasters[1])
+    crs(feature)<-crs(rasters[1])
     crs(weightrast)<-crs(rasters[1])
     
     print('cropping weightrasters')
-    weightrast<-crop(weightrast,polygons,snap="out")
+    weightrast<-crop(weightrast,feature,snap="out")
     
     ## Create a composite population raster at the same crs and extent of the climate variables
     weightrast2<-sum(weightrast)
@@ -132,17 +132,17 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     rasters2<-resample(rasters2,weightrast2,method='bilinear')
     output<-data.frame()
     print('cropping the weightrast2 to polygon')  
-    weightzone = crop(x= weightrast2,y= polygons, touches=FALSE,mask=TRUE)
+    weightzone = crop(x= weightrast2,y= feature, touches=FALSE,mask=TRUE)
     
     #Scale the population weights to sum to 1
     print('scaling the population weights')
     weights = weightzone*(1/sum(values(weightzone,na.rm=TRUE)))
     weights<-extend(weights,rasters2,fill=NA)
-    weightedavg<-zonal(x=rasters2,z=polygons,w=weights, fun = mean,na.rm=TRUE)
+    weightedavg<-zonal(x=rasters2,z=feature,w=weights, fun = mean,na.rm=TRUE)
     
     print("the weights average: ")
     print(weightedavg)
-    output<-rbind(c(values(polygons[,IDfield]),weightedavg))
+    output<-rbind(c(values(feature[,IDfield]),weightedavg))
     return (output)
   }
   
@@ -150,16 +150,16 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   #################################################################
   
   ##---- Perform Extractions
-  if(is.polygons(polygons)){
+  if(is.feature(feature)){
     if(is.na(weightslayers)){
-      rasters2<- crop(x = rasters, y = polygons,snap = 'out')
-      tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE)
-      output<-rbind(c(values(polygons[,IDfield]),tempoutput))
-    }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
-  }else if(is.points(polygons)){
-    output<-extract(x = rasters,y = polygons,ID=FALSE)
+      rasters2<- crop(x = rasters, y = feature,snap = 'out')
+      tempoutput<-zonal(x=rasters2,z=feature,fun=mean,na.rm=TRUE)
+      output<-rbind(c(values(feature[,IDfield]),tempoutput))
+    }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,feature= feature)}
+  }else if(is.points(feature)){
+    output<-extract(x = rasters,y = feature,ID=FALSE)
     names(output)<-names(rasters)
-    output<-cbind(polygons,output)
+    output<-cbind(feature,output)
     
     "Do the extract for points" 
   }  
