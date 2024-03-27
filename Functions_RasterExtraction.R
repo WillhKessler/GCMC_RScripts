@@ -51,9 +51,10 @@ innerParallel <- function(cpu){
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME<-"Bellavia_polygon_LINKAGE" # string with a project name
 rasterdir<- "S:/GCMC/Data/Climate/PRISM/daily" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-extractionlayer = "S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB
-layername = NA # Layer name used when extraction layer is a GDB
-IDfield<-"subject_ID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
+#extractionlayer = "S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB
+extractionlayer = "S:/GCMC/_Code/TESTING_datasets/shp/sites_10m.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB
+layername = "sites_10m" # Layer name used when extraction layer is a GDB, or NA
+IDfield<-"tempID" # Field in extraction layer specifying IDs for features, MUST be unique, used to chunk up processing for parallelization
 Xfield<- "x"
 Yfield<- "y"
 startdatefield = "start_date" # Field in extraction layer specifying first date of observations
@@ -85,11 +86,12 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
   if(file_ext(extractionlayer)=='csv'){
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     extlayer<- vect(x = extlayer,geom = c(Xfield,Yfield))
-    extlayer<-terra::subset(x = extlayer,extlayer[IDfield] %in% pieces)
+    extlayer<-terra::subset(x = extlayer,extlayer$OID %in% pieces)
   }else if (file_ext(extractionlayer) %in% c("gdb")){
-    extlayer<-vect(x=extractionlayer,layer = layername) 
+    extlayer<-vect(x=extractionlayer,query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," IN (",paste(shQuote(pieces,type="sh"),collapse=", "),")"))
   }else if (file_ext(extractionlayer) %in% c("shp")){
     extlayer<-vect(x=extractionlayer)
+    extlayer<-terra::subset(x = extlayer, subset =  unlist(extlayer[[IDfield]]) %in% pieces) 
   }
   extlayer$extract_start<-as.Date(apply(as.data.frame(extlayer[,startdatefield]),1,function(x){as.character(as.Date(x)-predays)}))
   extlayer$stop_date<-as.Date(apply(as.data.frame(extlayer[,enddatefield]),1,function(x){as.character(as.Date(x))}))
@@ -193,7 +195,11 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
     
     ##---- Perform Extractions
     
-    if(is.na(weightslayers)){
+    if(!is.na(weightslayers) & !is.points(extlayer)){
+      output<-calc.spatialweights(weightslayers= weightslayers,
+                                  rsubset= rsubset,
+                                  extlayer = extlayer)
+    }else{
         output<-terra::extractRange(x=rasters,
                                     y=extlayer,
                                     first=mstart,
@@ -201,11 +207,9 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
                                     geom_fun=mean,
                                     na.rm=TRUE,
                                     bind=TRUE)
-    }else{
-      output<-calc.spatialweights(weightslayers= weightslayers,
-                                  rsubset= rsubset,
-                                  extlayer = extlayer)
-      }
+    }
+      
+     
      
   return(list(exposure=vars,pieces=pieces,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   
