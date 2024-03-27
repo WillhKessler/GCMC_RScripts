@@ -59,7 +59,8 @@ Yfield<- "y"
 startdatefield = "start_date" # Field in extraction layer specifying first date of observations
 enddatefield = "stop_date" # Field in extraction layer specifying last date of observations
 predays = 365 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
-weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
+weights = "S:/GCMC/Data/Population/WorldPop/USA/usa_ppp_2020_constrained.tif" # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer, or NA
+
 extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
   ##---- Load required packages, needs to be inside function for batch jobs
@@ -84,6 +85,7 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
   if(file_ext(extractionlayer)=='csv'){
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     extlayer<- vect(x = extlayer,geom = c(Xfield,Yfield))
+    extlayer<-terra::subset(x = extlayer,extlayer[IDfield] %in% pieces)
   }else if (file_ext(extractionlayer) %in% c("gdb")){
     extlayer<-vect(x=extractionlayer,layer = layername) 
   }else if (file_ext(extractionlayer) %in% c("shp")){
@@ -126,15 +128,14 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
     #################################################################
     #################################################################
     ##---- Weights Rasters for spatial weights
-    calc.spatialweights<- function(weightslayers,rsubset,feature){
-      
-      for(featurenum in 1:length(pieces)){
-        feature<- extlayer[which(as.data.frame(extlayer[IDfield])==pieces[featurenum]),]
+    calc.spatialweights<- function(weightslayers,rasters,extlayer){
+      out<-vect()
+      for(featurenum in 1:length(extlayer)){
+        feature<- extlayer[featurenum,]
         
         ##---- Determine which raster dates fall within the data range
         rsubset<- subset(rasters,time(rasters)>=min(feature$first_extract) & time(rasters)<=max(feature$last_extract))
-        rsubset<- subset(rasters,time(rasters)>=min(extlayer$first_extract) & time(rasters)<=max(extlayer$last_extract))
-        
+       
         #rasterDateRange<-rdates[as.Date(rdates,tryFormats = "%Y%m%d")>=feature$first_extract & as.Date(rdates,tryFormats = "%Y%m%d")<=feature$last_extract]
         ##---- Read in weights Rasters
         rweights<-list.files(weightslayers,full.names = TRUE)
@@ -150,8 +151,9 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
         crs(feature)<-crs(rsubset)
         crs(weightrast)<-crs(rsubset)
         
+        
         #print('cropping weightrasters')
-        #weightrast<-crop(weightrast,feature,snap="out")
+        weightrast<-crop(weightrast,feature,snap="out")
         
         ## Create a composite population raster at the same crs and extent of the climate variables
         weightrast2<-sum(weightrast)
@@ -169,20 +171,21 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
         #print("starting resample")
         rsubset2<-resample(weightrast2,rsubset2,method='bilinear')
         output<-data.frame()
-        print('cropping the weightrast2 to polygon')  
+        # print('cropping the weightrast2 to polygon')  
         weightzone = crop(x= weightrast2,y= feature, touches=FALSE,mask=TRUE)
         
         #Scale the population weights to sum to 1
-        print('scaling the population weights')
+        # print('scaling the population weights')
         weights = weightzone*(1/sum(values(weightzone,na.rm=TRUE)))
         weights<-extend(weights,rsubset2,fill=NA)
-        weightedavg<-zonal(x=rsubset2,z=feature,w=weights, fun = mean,na.rm=TRUE)
+        weightedavg<-zonal(x=rsubset2,z=feature,w=weights, fun = mean,na.rm=TRUE,as.polygons=TRUE)
         
         print("the weights average: ")
         print(weightedavg)
-        output<-rbind(c(values(feature[,IDfield]),weightedavg))
-        return (output)
+        output<-c(output,weightedavg)
       }
+      return(output)
+      
     }
     
     #################################################################
@@ -201,10 +204,10 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
     }else{
       output<-calc.spatialweights(weightslayers= weightslayers,
                                   rsubset= rsubset,
-                                  feature= feature)
+                                  extlayer = extlayer)
       }
      
-  return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,pieces=pieces,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   
 }
 
