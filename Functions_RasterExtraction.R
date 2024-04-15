@@ -80,8 +80,8 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
     extlayer<-vect(x=extractionlayer)
     extlayer<-terra::subset(x = extlayer, subset =  unlist(extlayer[["OID"]]) %in% pieces) 
   }
-  extlayer$extract_start<-as.Date(apply(as.data.frame(extlayer[,startdatefield]),1,function(x){as.character(as.Date(x)-predays)}))
-  extlayer$stop_date<-as.Date(apply(as.data.frame(extlayer[,enddatefield]),1,function(x){as.character(as.Date(x))}))
+  extlayer$extract_start<-as.Date(apply(as.data.frame(extlayer[,startdatefield]),1,function(x){as.character(as.Date(x,try=c("%m/%d/%Y"))-predays)}))
+  extlayer$stop_date<-as.Date(apply(as.data.frame(extlayer[,enddatefield]),1,function(x){as.character(as.Date(x,try=c("%m/%d/%Y")))}))
   
   
   
