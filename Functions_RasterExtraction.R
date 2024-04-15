@@ -65,8 +65,8 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
   
   ##---- Load Rasters,set names, define time
   rasters<-rast(climvars)
-  names(rasters)<-gsub("^.*_","",names(rasters))
-  rtime<-as.Date(names(rasters),try="%Y%m%d")
+  names(rasters)<-gsub("^.*_","",climvars)
+  rtime<-as.Date(names(rasters),try=c("%Y%m%d","%Y-%m-%d"))
   time(rasters)<-rtime
   
   ##---- Extraction Features Layer
@@ -106,14 +106,10 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
   mstart<-match(extlayer$first_extract,time(rasters))
   mend<-match(extlayer$last_extract,time(rasters))
   
-  
-  
-  
   ##---- Perform the extractions
   
  
    
-    
     #################################################################
     #################################################################
     ##---- Weights Rasters for spatial weights
