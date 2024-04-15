@@ -43,7 +43,7 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 ##########Input PROCESSING HERE####################################################
 ## Call Desired functions from Functions_RasterExtraction source file
 ## The desired functions are mapped in creating the jobs via batchMap
-source("https://raw.githubusercontent.com/WillhKessler/GCMC_Rscripts/main/Functions_RasterExtraction.R")
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_Rscripts/innerParallel/Functions_RasterExtraction.R")
 
 ##############################################################
 ##---- Set up the batch processing jobs
@@ -56,19 +56,26 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
   pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
   
   if(file_ext(extractionlayer)=="csv"){
-    feature<-unique(read.csv(extractionlayer)[,IDfield])
+    feature<-read.csv(extractionlayer,stringsAsFactors = FALSE)
+    feature$OID<-1:nrow(feature)
+    write.csv(x = feature,file = paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv"),row.names = FALSE)
+    feature<-feature$OID
     layername = NA
     weightslayers = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
   }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
     require('terra')
     vectorfile<- vect(x=extractionlayer,layer=layername)
-    feature<- unlist(unique(values(vectorfile[,IDfield])))
+    vectorfile$OID<-1:nrow(vectorfile)
+    writeVector(x = vectorfile,filename = paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer)),layer=layername,overwrite=TRUE)
+    feature<- unlist(unique(values(vectorfile[,"OID"])))
     Xfield = NA
     Yfield = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
   }
   
   output<- expand.grid(vars = pvars,
-                     piece = feature,
+                     pieces = feature,
                      rasterdir = rasterdir,
                      extractionlayer = extractionlayer,
                      layername = layername,
