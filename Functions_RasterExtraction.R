@@ -48,19 +48,6 @@ innerParallel <- function(cpu){
 #enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 #predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 #weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
-##---- REQUIRED INPUTS ----##
-PROJECT_NAME<-"Bellavia_polygon_LINKAGE" # string with a project name
-rasterdir<- "S:/GCMC/Data/Climate/PRISM/daily" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-#extractionlayer = "S:/GCMC/_Code/TESTING_datasets/VITAL_toycohort57.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB
-extractionlayer = "S:/GCMC/_Code/TESTING_datasets/shp/sites_10m.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB
-layername = "sites_10m" # Layer name used when extraction layer is a GDB, or NA
-IDfield<-"tempID" # Field in extraction layer specifying IDs for features, MUST be unique, used to chunk up processing for parallelization
-Xfield<- "x"
-Yfield<- "y"
-startdatefield = "start_date" # Field in extraction layer specifying first date of observations
-enddatefield = "stop_date" # Field in extraction layer specifying last date of observations
-predays = 365 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
-weights = "S:/GCMC/Data/Population/WorldPop/USA/usa_ppp_2020_constrained.tif" # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer, or NA
 
 extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
