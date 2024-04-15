@@ -31,7 +31,7 @@ log.file = fs::path_expand(log.file)
 #SBATCH --cpus-per-task=<%= resources$ncpus %>
 #SBATCH --mem-per-cpu=<%= resources$memory %>
 #SBATCH --partition=<%= resources$partition %>
-#SBATCH --exclude=chandl03.bwh.harvard.edu,chandl02.bwh.harvard.edu,chanslurm-compute-test
+##SBATCH --exclude=chandl03.bwh.harvard.edu,chandl02.bwh.harvard.edu,chanslurm-compute-test
 
 <%= if (!is.null(resources$partition)) sprintf(paste0("#SBATCH --partition='", resources$partition, "'")) %>
 <%= if (array.jobs) sprintf("#SBATCH --array=1-%i", nrow(jobs)) else "" %>
