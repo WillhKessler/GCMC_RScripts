@@ -1,0 +1,1 @@
+The primary code provided in this repository is a workflow for using the 'terra' R package to extract raster data to points or polygons based on a given time interval. It is set up to run in Parallel on a compute cluster using the SLURM job Manager, or 
