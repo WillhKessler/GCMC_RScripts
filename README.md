@@ -66,7 +66,8 @@ The next section contains any functions necessary for your processing job. Here,
 ## The desired functions are mapped in creating the jobs via batchMap
 source("https://raw.githubusercontent.com/WillhKessler/GCMC_Rscripts/main/Functions_RasterExtraction.R")
 ```
-The final section is where the processing jobs are constructed and submitted to the cluster, or your local machine for processing. First, the user inputs and processing function(s) are inserted into a matrix of all possible combinations using the `batchgrid()` function. This function is specific to this workflow and is essentially a wrapper for `expand.grid()` This constitutes all the jobs that will be run. The jobs are then chunked and finally submitted using the specified resources.  
+The final section is where the processing jobs are constructed and submitted to the cluster, or your local machine for processing. First, the user inputs and processing function(s) are inserted into a matrix of all possible combinations using the `batchgrid()` function. This function is specific to this workflow and is essentially a wrapper for `expand.grid()` This constitutes all the jobs that will be run. The jobs are then chunked and finally submitted using the specified resources. 
+All user inputs must be explicitly specified to ensure they are passed on to child processes on the cluster. 
 ```
 ##############################################################
 ##---- Set up the batch processing jobs
@@ -136,7 +137,72 @@ getStatus()
 
 waitForJobs() # Wait until jobs are completed
 ```
+`waitForJobs()` will often return FALSE when using SLURM as the jobs can sometimes get lost by the manager. But don't worry, they're still running. However, due to this quirk, we don't rely on this script for subsequent processing. 
+
 ## slurm.tmpl
-asdfsf
+This is a brew template which is a bash script telling the slurm job scheduler how to allocate resources. Double `##` are comments and not interpreted by the bash script. Anything denoted by a single `#SBATCH` is interpreted by SLURM and passed to the unix system in the bash script.  
+Notice here we are loading R module 4.3.0 which on my system contains all the necessary packages
+Further note that all the information passed to SLURM with `#SBATCH` should be specified in the ParallelXXXXXX_processingtemplate.R
+
+```
+#!/bin/bash -l
+
+## Job Resource Interface Definition
+##
+## ntasks [integer(1)]:       Number of required tasks,
+##                            Set larger than 1 if you want to further parallelize
+##                            with MPI within your job.
+## ncpus [integer(1)]:        Number of required cpus per task,
+##                            Set larger than 1 if you want to further parallelize
+##                            with multicore/parallel within each task.
+## walltime [integer(1)]:     Walltime for this job, in seconds.
+##                            Must be at least 60 seconds.
+## memory   [integer(1)]:     Memory in megabytes for each cpu.
+##                            Must be at least 100 (when I tried lower values my
+##                            jobs did not start at all).
+##
+## Default resources can be set in your .batchtools.conf.R by defining the variable
+## 'default.resources' as a named list.
+
+<%
+# relative paths are not handled well by Slurm
+log.file = fs::path_expand(log.file)
+-%>
+
+
+#SBATCH --job-name=<%= job.name %>
+#SBATCH --output=<%= log.file %>
+#SBATCH --error=<%= log.file %>
+#SBATCH --time=<%= ceiling(resources$walltime / 60) %>
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=<%= resources$ncpus %>
+#SBATCH --mem-per-cpu=<%= resources$memory %>
+#SBATCH --partition=<%= resources$partition %>
+#SBATCH --exclude=chandl03.bwh.harvard.edu,chandl02.bwh.harvard.edu,chanslurm-compute-test
+
+<%= if (!is.null(resources$partition)) sprintf(paste0("#SBATCH --partition='", resources$partition, "'")) %>
+<%= if (array.jobs) sprintf("#SBATCH --array=1-%i", nrow(jobs)) else "" %>
+
+## Initialize work environment like
+## source /etc/profile
+## module add ...
+## module load R/4.0.1
+module load R/4.3.0
+
+## Export value of DEBUGME environemnt var to slave
+export DEBUGME=<%= Sys.getenv("DEBUGME") %>
+
+<%= sprintf("export OMP_NUM_THREADS=%i", resources$omp.threads) -%>
+<%= sprintf("export OPENBLAS_NUM_THREADS=%i", resources$blas.threads) -%>
+<%= sprintf("export MKL_NUM_THREADS=%i", resources$blas.threads) -%>
+
+## Run R:
+## we merge R output with stdout from SLURM, which gets then logged via --output option
+Rscript -e 'batchtools::doJobCollection("<%= uri %>")'
+
+```
 ## batchtools.conf.R
-asfasfdsfd
+This is a configuration file for R that allows you to pass specific information to R. This file is only required for this workflow when using the SLURM implementation. It tells R the `cluster.function` to be used is the SLURM function, and that the template is provided as `slurm.tmpl`
+```
+cluster.functions = makeClusterFunctionsSlurm(template="slurm.tmpl")
+```
