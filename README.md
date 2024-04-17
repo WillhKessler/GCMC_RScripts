@@ -1,13 +1,64 @@
 # READ ME:
-The principal code provided in this repository is a workflow for using the 'terra' R package to extract raster data to points or polygons based on specific time intervals. It was originally written to assist in linking public health cohort data to environmental exposure data in the form of daily or monthly raster data. It is implemented with `batchtools` in R to run in Parallel on a compute cluster using the SLURM job manager, or in parallel or serial locally. 
+The principal code provided in this repository is a workflow for using the 'terra' R package to extract raster data to points or polygons based on specific time intervals. It was originally written to assist in linking public health cohort data to environmental exposure data in the form of daily or monthly raster data. A user supplies a CSV, SHAPEFILE, or GDB feature class containing point or polygon features and start and end observation dates, as well as a set of raster layers with the file name ending with an observation date. The workflow identifies which rasters fall within a given input feature's observation period and extracts the raster values corresponding to the feature's location. For Polygon features, a weighting raster can be supplied to generate a weighted average within the feature, e.g. a population-weighted average temperature exposure within a census tract. This workflow is implemented with `batchtools` in R to run in Parallel on a compute cluster using the SLURM job manager, or in parallel or serial locally. 
 
-There are up to 5 files necessary for the workflow:
+This github repository contains up to 5 files that are necessary for the workflow, depending on your implementation:
 1. ParallelXXXXX_processingtemplate.R
 2. Functions_RasterExtraction.R
 3. slurm.tmpl
 4. batchtools.conf.R
 5. Recombineoutputs.R
-   
+
+In addition, a user will need to supply the following:
+1. A directory of one or more child directories containing the rasters to be extracted. The child directory names will be used to differentiate variables timeseries rasters. For example, the following tree would allow for the extraction of the variables NO2, Ozone, and PM_2.5:
+```
+└── ~\AirPollution/
+    ├── Methane
+    ├── NO2/
+    │   └── Daily/
+    │       ├── 2001/
+    │       │   ├── NO2_Daily_20010101.tif
+    │       │   ├── NO2_Daily_20010102.tif
+    │       │   └── NO2_Daily_20010103.tif
+    │       └── 2002/
+    │           ├── NO2_Daily_20020101.tif
+    │           ├── NO2_Daily_20020102.tif
+    │           └── NO2_Daily_20020103.tif
+    ├── Ozone/
+    │   └── Daily/
+    │       ├── 2001/
+    │       │   ├── NO2_Daily_20010101.tif
+    │       │   ├── NO2_Daily_20010102.tif
+    │       │   └── NO2_Daily_20010103.tif
+    │       └── 2002/
+    │           ├── NO2_Daily_20020101.tif
+    │           ├── NO2_Daily_20020102.tif
+    │           └── NO2_Daily_20020103.tif
+    └── PM_25/
+        └── Daily/
+            ├── 2001/
+            │   ├── NO2_Daily_20010101.tif
+            │   ├── NO2_Daily_20010102.tif
+            │   └── NO2_Daily_20010103.tif
+            └── 2002/
+                ├── NO2_Daily_20020101.tif
+                ├── NO2_Daily_20020102.tif
+                └── NO2_Daily_20020103.tif
+```
+  
+2. A file containing the features to which the rasters will be extracted. This can be a CSV, shapefile, or GDB feature class. The file should contain at a minimum the following fields:
+   ```
+   IDfield<-A Field in extraction layer specifying IDs for features
+   Xfield<- A Field containing the X coordinate (Longitude), in decimal degrees
+   Yfield<- A Field containing the Y coordinate (Latitude), in decimal degrees
+   startdatefield<- A field name in extraction layer specifying first date of observations
+   enddatefield<- A field name in extraction layer specifying last date of observations
+   ```
+4. If desired, A directory containing one or more weights raster layers. For example to weight by population over age of 65, these weights will be summed and scaled to sum to 1 within each feature. 
+   ```
+   └── ~\Population/
+       ├── US_M_population_over65.tif
+       └── US_F_population_over65.tif
+   ```
 The ParallelXXXXX_processingtemplate.R contains all organizational information required for `batchtools` to set up and execute your processing jobs; they are fairly standard implementations of `batchtools` workflows with additional user inputs for running this workflow. Next, you will need an R file containing one or more functions you wish to run. These functions can be placed directly in the ParallelXXXXX_processingtemplate.R or sourced from an external file. In this workflow, the required functions are sourced from an external file called `Functions_RasterExtraction.R`. Thirdly, depending on whether you are implementing the workflow on a computing cluster with the SLURM job manager, or locally with either multisocket or interactive workflows. You may also need an R configuration file, and a `brew` `slurm.tmpl` template.   
 # The Workflow:
 The following example shows the workflow implemented on a computing cluster with the SLURM job manager. The process is nearly identical for submitting to a local multi-socket cluster or if run in series on your local machine. 
