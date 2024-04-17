@@ -84,7 +84,8 @@ Or hit 'run' in your RStudio session if running locally
 There are 3 versions of this template depending on your implementation. 
 1. ParallelSLURM_processingtemplate.R- for implementing on a compute cluster with the SLURM job scheduler
 2. ParallelSocket_processingtemplate.R- For multicored local machine implementations
-3. Parallel_processingtemplate.R- For singlecore/serial jobs on a local machine
+3. ParallelInteractive_processingtemplate.R- For singlecore/serial jobs on a local machine
+   
 The Parallel Processing Template is located here: 
 Download in Unix with ```wget xxxxxxx```
 
