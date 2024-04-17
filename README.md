@@ -79,7 +79,9 @@ sbR -v 4.3.0 -o "12hour" ParallelXXXX_processingtemplate.R
 
 ```
 Or hit 'run' in your RStudio session if running locally
-6.  
+
+6. Run CombineOutputs.R to reconstitute your results
+7. asdf
 ## 1. Download the Parallel Processing Template, update the necessary inputs
 There are 3 versions of this template depending on your implementation. 
 1. ParallelSLURM_processingtemplate.R- for implementing on a compute cluster with the SLURM job scheduler
