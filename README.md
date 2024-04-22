@@ -78,7 +78,7 @@ The following example explains each file used in the workflow implemented on a c
     ```
 4. Open your favorite unix text editor or open the Parallel Processing Template in RStudio and update the required inputs, adjust the resources in batchtools::submitJobs() as necessary
 5. Run the R script ParallelXXXX_processingtemplate.R as normal. On the BWH Channing cluster, you can use the homegrown command `sbR` as such, specifying you want R version 4.3.0, and queue option as the "12hour" queque.
-   On other systems you may need to write a batch script and submit to your cluster with `SBATCH`. On a local system, run the R file from the command line or open the file in an interactive R session and run it that way. 
+   On other systems you may need to write a batch script and submit to your cluster with `SBATCH`. 
 ```
 sbR -v 4.3.0 -o "12hour" ParallelXXXX_processingtemplate.R
 
@@ -94,7 +94,7 @@ There are 3 versions of this template depending on your implementation.
 3. ParallelInteractive_processingtemplate.R- For singlecore/serial jobs on a local machine
    
 The Parallel Processing Template is located here: 
-Download in Unix with ```wget xxxxxxx```
+Download from terminal with ```wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSLURM_processingtemplate.R"```
 
 The following is an example of how to update the required inputs. To use the raster extraction processes outlined here, the following inputs are required. 
 ```
