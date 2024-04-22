@@ -73,7 +73,8 @@ The following example explains each file used in the workflow implemented on a c
     wget xxxxxxxxx
     ```
 4. Open your favorite unix text editor or open the Parallel Processing Template in RStudio and update the required inputs, adjust the resources in batchtools::submitJobs() as necessary
-5. Run the R script ParallelXXXX_processingtemplate.R as normal
+5. Run the R script ParallelXXXX_processingtemplate.R as normal. On the BWH Channing cluster, you can use the homegrown command `sbR` as such, specifying you want R version 4.3.0, and queue option as the "12hour" queque.
+   On other systems you may need to write a batch script and submit to your cluster with `SBATCH`. On a local system, run the R file from the command line or open the file in an interactive R session and run it that way. 
 ```
 sbR -v 4.3.0 -o "12hour" ParallelXXXX_processingtemplate.R
 
