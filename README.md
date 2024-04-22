@@ -70,7 +70,11 @@ The following example explains each file used in the workflow implemented on a c
 3. Open a terminal and download the appropriate Parallel Processing Template from this repository
    
     ```
-    wget xxxxxxxxx
+    wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSLURM_processingtemplate.R"
+    OR
+    wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelInteractive_processingtemplate.R"
+    OR
+    wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSocket_processingtemplate.R"
     ```
 4. Open your favorite unix text editor or open the Parallel Processing Template in RStudio and update the required inputs, adjust the resources in batchtools::submitJobs() as necessary
 5. Run the R script ParallelXXXX_processingtemplate.R as normal. On the BWH Channing cluster, you can use the homegrown command `sbR` as such, specifying you want R version 4.3.0, and queue option as the "12hour" queque.
