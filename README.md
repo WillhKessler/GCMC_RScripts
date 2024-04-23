@@ -4,6 +4,12 @@ This workflow is implemented with `batchtools` in R to run in parallel on a comp
 
 This github repository contains up to 5 files that are necessary for the workflow, depending on your implementation:
 1. ParallelXXXXX_processingtemplate.R
+   
+   a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
+   
+   b. For a multi-core standalone machine use `ParallelSocket_processingtemplate.R`
+   
+   c. For a normal desktop or laptop machine, use `ParallelInteractive_processingtemplate.R`
 3. Functions_RasterExtraction.R
 4. slurm.tmpl
 5. batchtools.conf.R
@@ -63,11 +69,17 @@ In addition, a user will need to supply the following:
        └── US_F_population_over65.tif
    ```
 The ParallelXXXXX_processingtemplate.R contains all organizational information required for `batchtools` to set up and execute your processing jobs; they are fairly standard implementations of `batchtools` workflows with additional user inputs specific to the raster extraction procedure outlined here. Next, you will need an R file containing one or more functions you wish to run. These functions can be placed directly in the ParallelXXXXX_processingtemplate.R or sourced from an external file. In this workflow, the required raster extraction functions are sourced from an external file called `Functions_RasterExtraction.R`. Thirdly, depending on whether you are implementing the workflow on a computing cluster with the SLURM job manager, or locally with either multisocket or interactive workflows. You may also need an R configuration file, and a `brew` `slurm.tmpl` template.   
-# The Workflow:
+# The Workflow Overview:
 The following example explains each file used in the workflow implemented on a computing cluster with the SLURM job manager. The process is nearly identical for submitting to a local multi-socket cluster or if run in series on your local machine. 
 1. Log into whatever machine you will be using for your computing.
 2. Get your input features and raster data organized as necessary. 
-3. Open a terminal and download the appropriate Parallel Processing Template from this repository
+3. Open a terminal and download the appropriate Parallel Processing Template from this repository.
+
+   a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
+   
+   b. For a multi-core standalone machine use `ParallelSocket_processingtemplate.R`
+   
+   c. For a normal desktop or laptop machine, use `ParallelInteractive_processingtemplate.R`
    
     ```
     wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSLURM_processingtemplate.R"
@@ -76,8 +88,8 @@ The following example explains each file used in the workflow implemented on a c
     OR
     wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSocket_processingtemplate.R"
     ```
-4. Open your favorite unix text editor or open the Parallel Processing Template in RStudio and update the required inputs, adjust the resources in batchtools::submitJobs() as necessary
-5. Run the R script ParallelXXXX_processingtemplate.R as normal. On the BWH Channing cluster, you can use the homegrown command `sbR` as such, specifying you want R version 4.3.0, and queue option as the "12hour" queque.
+5. Open your favorite unix text editor or open the Parallel Processing Template in RStudio and update the required inputs, adjust the resources in `batchtools::submitJobs()` as necessary
+6. Run the R script ParallelXXXX_processingtemplate.R as normal. This script does the heavy lifting of the workflow. Other files and functions are sourced as necessary from within the script. On the BWH Channing cluster, you can use the homegrown command `sbR` as such, specifying you want R version 4.3.0, and the queue option as the "12hour" queue.
    On other systems you may need to write a batch script and submit to your cluster with `SBATCH`. 
 ```
 sbR -v 4.3.0 -o "12hour" ParallelXXXX_processingtemplate.R
@@ -87,11 +99,11 @@ Or hit 'run' in your RStudio session if running locally
 
 6. Run CombineOutputs.R to reconstitute your results
 7. asdf
-## 1. Download the Parallel Processing Template, update the necessary inputs
+## An Example of the Parallel Processing Template, update the necessary inputs
 There are 3 versions of this template depending on your implementation. 
 1. ParallelSLURM_processingtemplate.R- for implementing on a compute cluster with the SLURM job scheduler
 2. ParallelSocket_processingtemplate.R- For multicored local machine implementations
-3. ParallelInteractive_processingtemplate.R- For singlecore/serial jobs on a local machine
+3. ParallelInteractive_processingtemplate.R- For singlecore/serial jobs on a local machine. This framework is designed for a parallel implementation, so utilizing this on a local machine may be VERY slow. 
    
 The Parallel Processing Template is located here: 
 Download from terminal with ```wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSLURM_processingtemplate.R"```
