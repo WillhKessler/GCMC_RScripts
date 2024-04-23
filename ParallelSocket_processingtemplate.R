@@ -4,9 +4,9 @@
 # The required inputs are standardized for ALL functions defined in the Raster Extractions R source file 
 
 ##---- REQUIRED INPUTS ----##
-PROJECT_NAME<-"GCMC2_ParallelTest" # string with a project name
-rasterdir<-"S:/GCMC/Data/Climate/PRISM/"
-extractionlayer = "C:/Users/wik191/OneDrive - Harvard University/_Projects/Andrea_Bellavia/sites_10M.shp"
+PROJECT_NAME<-"Bellavia_polygon_LINKAGE" # string with a project name
+rasterdir<-"S:/GCMC/Data/Climate/PRISM/" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
+extractionlayer = "C:/Users/wik191/OneDrive - Harvard University/_Projects/Andrea_Bellavia/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
 IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
 Xfield<- "X"
@@ -15,6 +15,7 @@ startdatefield = "start_date" # Field in extraction layer specifying first date 
 enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
+
 
 
 
@@ -39,20 +40,71 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 
 
 ##########Input PROCESSING HERE####################################################
-##---- Call Desired functions from Functions_RasterExtraction source file
-##---- The desired functions are called in batchMap
-source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/Functions_RasterExtraction.R")
+## Call Desired functions from Functions_RasterExtraction source file
+## The desired functions are mapped in creating the jobs via batchMap
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_Rscripts/innerParallel/Functions_RasterExtraction.R")
 
-
+##############################################################
 ##---- Set up the batch processing jobs
-##---- grid should contain columns for all desired variable combinations
-par_grid <- expand.grid(mu = -5:5, sigma = seq(3, 33, 10), nrep = 1:100)
+##---- Use the 'batchgrid' function to create a grid of variable combinations to process over. function considers input rasters, input features, and any weighting layers
 
-##---- Clear the R registry
+batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
+  require("tools")
+  
+  ##---- Set up the batch processing jobs
+  pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
+  
+  if(file_ext(extractionlayer)=="csv"){
+    feature<-read.csv(extractionlayer,stringsAsFactors = FALSE)
+    feature$OID<-1:nrow(feature)
+    write.csv(x = feature,file = paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv"),row.names = FALSE)
+    feature<-feature$OID
+    layername = NA
+    weightslayers = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
+  }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
+    require('terra')
+    vectorfile<- vect(x=extractionlayer,layer=layername)
+    vectorfile$OID<-1:nrow(vectorfile)
+    writeVector(x = vectorfile,filename = paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer)),layer=layername,overwrite=TRUE)
+    feature<- unlist(unique(values(vectorfile[,"OID"])))
+    Xfield = NA
+    Yfield = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
+  }
+  
+  output<- expand.grid(vars = pvars,
+                       pieces = feature,
+                       rasterdir = rasterdir,
+                       extractionlayer = extractionlayer,
+                       layername = layername,
+                       IDfield = IDfield,
+                       Xfield = Xfield,
+                       Yfield = Yfield,
+                       startdatefield = startdatefield,
+                       enddatefield = enddatefield,
+                       predays = predays,
+                       weightslayers = weightslayers,
+                       stringsAsFactors = FALSE)
+  return(output)
+}
+
+##----  Make sure registry is empty
 clearRegistry(reg)
 
-##---- Create jobs
-jobs <- batchMap(fun = examplefunction,args = par_grid)
+##----  create jobs from variable grid
+jobs<- batchMap(fun = extract.rast,
+                batchgrid(rasterdir = rasterdir,
+                          extractionlayer = extractionlayer,
+                          layername = layername,
+                          IDfield = IDfield, 
+                          Xfield = Xfield,
+                          Yfield = Yfield,
+                          startdatefield = startdatefield,
+                          enddatefield = enddatefield,
+                          predays = predays,
+                          weightslayers = weights),
+                reg = reg)
 jobs$chunk <- chunk(jobs$job.id, chunk.size = 1000)
 
 
