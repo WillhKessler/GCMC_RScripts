@@ -3,17 +3,17 @@ The principal code provided in this repository is a workflow for using the 'terr
 This workflow is implemented with `batchtools` in R to run in parallel on a compute cluster using the SLURM job manager, or in parallel or serial locally. 
 
 This github repository contains up to 5 files that are necessary for the workflow, depending on your implementation:
-1. ParallelXXXXX_processingtemplate.R
+1. `ParallelXXXXX_processingtemplate.R`
    
    a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
    
    b. For a multi-core standalone machine use `ParallelSocket_processingtemplate.R`
    
    c. For a normal desktop or laptop machine, use `ParallelInteractive_processingtemplate.R`
-3. Functions_RasterExtraction.R
-4. slurm.tmpl
-5. batchtools.conf.R
-6. Recombineoutputs.R
+3. `Functions_RasterExtraction.R`
+4. `slurm.tmpl`
+5. `batchtools.conf.R`
+6. `ParallelOutputs_Combine.R`
 
 In addition, a user will need to supply the following:
 1. A directory of one or more child directories containing the rasters to be extracted. The child directory names will be used to differentiate variables timeseries rasters. For example, the following tree would allow for the extraction of the variables NO2, Ozone, and PM_2.5:
@@ -73,7 +73,7 @@ The ParallelXXXXX_processingtemplate.R contains all organizational information r
 The following example explains each file used in the workflow implemented on a computing cluster with the SLURM job manager. The process is nearly identical for submitting to a local multi-socket cluster or if run in series on your local machine. 
 1. Log into whatever machine you will be using for your computing.
 2. Get your input features and raster data organized as necessary. 
-3. Open a terminal and download the appropriate Parallel Processing Template from this repository.
+3. Open a terminal and download the appropriate Parallel Processing Template from this repository. See section ABOUT 
 
    a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
    
@@ -97,9 +97,10 @@ sbR -v 4.3.0 -o "12hour" ParallelXXXX_processingtemplate.R
 ```
 Or hit 'run' in your RStudio session if running locally
 
-6. Run CombineOutputs.R to reconstitute your results
-7. asdf
-## An Example of the Parallel Processing Template, update the necessary inputs
+6. Run ParallelOutputs_Combine.R to reconstitute your results into a single file. The output creates a csv.
+
+
+## ABOUT Parallel Processing Template
 There are 3 versions of this template depending on your implementation. 
 1. ParallelSLURM_processingtemplate.R- for implementing on a compute cluster with the SLURM job scheduler
 2. ParallelSocket_processingtemplate.R- For multicored local machine implementations
@@ -232,10 +233,10 @@ waitForJobs() # Wait until jobs are completed
 ```
 `waitForJobs()` will often return FALSE when using SLURM as the jobs can sometimes get lost by the manager. But don't worry, they're still running. However, due to this quirk, we don't rely on this script for subsequent processing. 
 
-## Functions_RasterExtraction.R
+## ABOUT Functions_RasterExtraction.R
 This file is the source for the raster extraction procedure implemented in this workflow. This file isn't downloaded directly, but `ParallelXXXXX_processingtemplate.R` sources functions from this file. 
 
-## slurm.tmpl
+## ABOUT slurm.tmpl
 This is a brew template which is a bash script telling the slurm job scheduler how to allocate resources. Double `##` are comments and not interpreted by the bash script. Anything denoted by a single `#SBATCH` is interpreted by SLURM and passed to the unix system in the bash script.  
 Notice here we are loading R module 4.3.0 which on my system contains all the necessary packages
 Further note that all the information passed to SLURM with `#SBATCH` should be specified in the ParallelXXXXXX_processingtemplate.R
@@ -298,7 +299,7 @@ Rscript -e 'batchtools::doJobCollection("<%= uri %>")'
 
 ```
 
-## batchtools.conf.R
+## ABOUT batchtools.conf.R
 This is a configuration file for R that allows you to pass specific information to R. This file is only required for this workflow when using the SLURM implementation. It tells R the `cluster.function` to be used is the SLURM function, and that the template is provided as `slurm.tmpl`
 ```
 cluster.functions = makeClusterFunctionsSlurm(template="slurm.tmpl")
