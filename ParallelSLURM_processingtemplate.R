@@ -19,9 +19,13 @@ weights = NA # string specifying file path to raster weights, should only be use
 
 
 ##---- Required Packages
-library(batchtools)
-require(terra)
-require(tools)
+listOfPackages <- c("batchtools","terra","tools")
+for (i in listOfPackages){
+     if(! i %in% installed.packages()){
+         install.packages(i, dependencies = TRUE)
+     }
+     require(i)
+}
 
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
