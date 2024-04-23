@@ -1,8 +1,28 @@
 # READ ME:
-The principal code provided in this repository is a workflow for using the 'terra' R package to extract raster data to points or polygons based on specific time intervals. It was originally written to assist in linking public health cohort data to environmental exposure data in the form of daily or monthly raster data. A user supplies a CSV, SHAPEFILE, or GDB feature class containing point or polygon features with start and end observation dates, and a set of raster layers with the file name ending with an observation date. The workflow identifies which rasters fall within a given input feature's observation period and extracts the raster values corresponding to the feature's location. For Polygon features, a weighting raster can be supplied to generate a weighted average within the feature, e.g. a population-weighted average temperature exposure within a census tract. Care should be taken to ensure that the input features and raster data are in the same coordinate reference system as those transformations are not handled here. 
-This workflow is implemented with `batchtools` in R to run in parallel on a compute cluster using the SLURM job manager, or in parallel or serial locally. 
+The principal code provided in this repository is a workflow for using the 'terra' R package to extract raster data to points or polygons based on specific time intervals. It was originally written to assist in linking public health cohort data to environmental exposure data in the form of daily or monthly raster data. A user supplies a CSV, SHAPEFILE, or GDB feature class containing point or polygon features with start and end observation dates, and a set of raster layers with the file name ending with an observation date. The workflow identifies which rasters fall within a given input feature's observation period and extracts the raster values corresponding to the feature's location. For Polygon features, a weighting raster can be supplied to generate a weighted average within the feature, e.g. a population-weighted average temperature exposure within a census tract. Care should be taken to ensure that the input features and raster data are in the same coordinate reference system as those transformations are not handled here. This workflow is implemented with `batchtools` in R to run in parallel on a compute cluster using the SLURM job manager, or in parallel or serial locally. 
+```mermaid
+flowchart TD
+    A[Timeseries Rasters] -->|Get Variable Names|B
+    AA[Geocoded Cohort Data] -->|Get Features & observation period|B
 
-This github repository contains up to 5 files that are necessary for the workflow, depending on your implementation:
+    BBB[slurm.tmpl]-->|configures|C
+    B[ParallelXXXXX_processingtemplate.R]--> |Submit Jobs to Cluster|C
+    B--> |downloads|BBB
+    B--> |downloads|BB
+    BB[batchtools.conf.R]-->|configures|C 
+    C{Cluster Job Manager} -->|Functions_RasterExtractions::extract.rast|D(Feature 1) 
+    C -->|Functions_RasterExtractions::extract.rast| E(Feature 2)
+    C -->|Functions_RasterExtractions::extract.rast| F(Feature 3)
+    C -->|Functions_RasterExtractions::extract.rast| G(Feature ... n)
+    
+    H[ParallelCombine_Outputs.R]
+    D-->H
+    E-->H
+    F-->H
+    G-->H
+    H-->|combine results|I[Cohort Linked to Raster Values]
+```
+This github repository contains all the files that are necessary for this workflow. Depending on your implementation up to 5 files are utilized, however you should only need to directly download number 1, and number 6:
 1. `ParallelXXXXX_processingtemplate.R`
    
    a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
@@ -68,9 +88,32 @@ In addition, a user will need to supply the following:
        ├── US_M_population_over65.tif
        └── US_F_population_over65.tif
    ```
-The ParallelXXXXX_processingtemplate.R contains all organizational information required for `batchtools` to set up and execute your processing jobs; they are fairly standard implementations of `batchtools` workflows with additional user inputs specific to the raster extraction procedure outlined here. Next, you will need an R file containing one or more functions you wish to run. These functions can be placed directly in the ParallelXXXXX_processingtemplate.R or sourced from an external file. In this workflow, the required raster extraction functions are sourced from an external file called `Functions_RasterExtraction.R`. Thirdly, depending on whether you are implementing the workflow on a computing cluster with the SLURM job manager, or locally with either multisocket or interactive workflows. You may also need an R configuration file, and a `brew` `slurm.tmpl` template.   
+The ParallelXXXXX_processingtemplate.R contains all organizational information required for `batchtools` to set up and execute your processing jobs; they are fairly standard implementations of `batchtools` workflows with additional user inputs specific to the raster extraction procedure outlined here. Next, you will need an R file containing one or more functions you wish to run. These functions can be placed directly in the ParallelXXXXX_processingtemplate.R or sourced from an external file. In this workflow, the required raster extraction functions are sourced from an external file called `Functions_RasterExtraction.R`. Thirdly, depending on whether you are implementing the workflow on a computing cluster with the SLURM job manager, or locally with either multisocket or interactive workflows. You may also need an R configuration file, and a `brew` `slurm.tmpl` template. 
+
 # The Workflow Overview:
-The following example explains each file used in the workflow implemented on a computing cluster with the SLURM job manager. The process is nearly identical for submitting to a local multi-socket cluster or if run in series on your local machine. 
+The following example explains each file used in the workflow implemented on a computing cluster with the SLURM job manager. The process is nearly identical for submitting to a local multi-socket cluster or if run in series on your local machine.
+```mermaid
+flowchart TD
+    A[Timeseries Rasters] -->|Get Variable Names|B
+    AA[Geocoded Cohort Data] -->|Get Features & observation period|B
+
+    BBB[slurm.tmpl]-->|configures|C
+    B[ParallelXXXXX_processingtemplate.R]--> |Submit Jobs to Cluster|C
+    B--> |downloads|BBB
+    B--> |downloads|BB
+    BB[batchtools.conf.R]-->|configures|C 
+    C{Cluster Job Manager} -->|Functions_RasterExtractions::extract.rast|D(Feature 1) 
+    C -->|Functions_RasterExtractions::extract.rast| E(Feature 2)
+    C -->|Functions_RasterExtractions::extract.rast| F(Feature 3)
+    C -->|Functions_RasterExtractions::extract.rast| G(Feature ... n)
+    
+    H[ParallelCombine_Outputs.R]
+    D-->H
+    E-->H
+    F-->H
+    G-->H
+    H-->|combine results|I[Cohort Linked to Raster Values]
+```
 1. Log into whatever machine you will be using for your computing.
 2. Get your input features and raster data organized as necessary. 
 3. Open a terminal and download the appropriate Parallel Processing Template from this repository. See section ABOUT 
