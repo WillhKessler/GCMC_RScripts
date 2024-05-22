@@ -85,14 +85,14 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   
   
   ##---- Create extraction date ranges for points
-  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i))[(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0])])
-  polygonsendSeasonIndex<- sapply(polygons$stop_date, function(i) which((as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i))[(as.Date(rdates,tryFormats = "%Y%m%d")-as.Date(i)) <= 0])])
-  polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats="%Y%m%d")
-  polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats="%Y%m%d")
+  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygonsendSeasonIndex<- sapply(polygons$stop_date, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
+  polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   
   
   ##---- Determine which raster dates fall within the data range
-  rasterDateRange<-rdates[as.Date(rdates,tryFormats = "%Y%m%d")>=min(polygons$first_extract) & as.Date(rdates,tryFormats = "%Y%m%d")<=max(polygons$last_extract)]
+  rasterDateRange<-rdates[as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))>=min(polygons$first_extract) & as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))<=max(polygons$last_extract)]
   # Load Climate Rasters
   print("loading the climvars to rast()")
   climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
