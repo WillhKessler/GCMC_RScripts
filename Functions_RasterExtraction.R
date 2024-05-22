@@ -97,6 +97,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   print("loading the climvars to rast()")
   climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
   rasters<- rast(climvars2)
+  names(rasters)<-rasterDateRange
   #################################################################
   #################################################################
   ##---- Weights Rasters for spatial weights
