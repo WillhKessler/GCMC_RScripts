@@ -80,8 +80,8 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   }else if (file_ext(extractionlayer) %in% c("shp")){
     polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
   }
-  polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%Y","%Y%m%d"))-predays)
-  polygons$stop_date<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%Y","%Y%m%d")))
+  polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays)
+  polygons$stop_date<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%Y","%Y%m%d","%Y/%m/%d")))
   
   
   ##---- Create extraction date ranges for points
