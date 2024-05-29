@@ -112,8 +112,8 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     
     ## Reproject everything to the same resolution and CRS
     print('reprojecting clim vars')
-    crs(polygons)<-crs(rasters[1])
-    crs(weightrast)<-crs(rasters[1])
+    crs(polygons)<-crs(rasters)
+    crs(weightrast)<-crs(rasters)
     
     print('cropping weightrasters')
     weightrast<-crop(weightrast,polygons,snap="out")
