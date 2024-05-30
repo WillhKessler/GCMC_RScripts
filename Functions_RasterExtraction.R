@@ -167,6 +167,8 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     "Do the extract for points" 
   }  
   
-  return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=piece,result=wrap(output),node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+
 }
 
