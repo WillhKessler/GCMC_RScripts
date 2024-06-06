@@ -132,7 +132,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     print(getwd())
     
     print("starting resample")
-    rasters2<-resample(rasters2,weightrast2,method='bilinear',wopt=list(gdal=c("BIGTIFF=YES")))
+    rasters2<-resample(rasters2,weightrast2,method='bilinear')
     output<-data.frame()
     print('cropping the weightrast2 to polygon')  
     weightzone = crop(x= weightrast2,y= polygons, touches=FALSE,mask=TRUE)
