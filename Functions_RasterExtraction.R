@@ -141,11 +141,12 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     print('scaling the population weights')
     weights = weightzone*(1/sum(values(weightzone,na.rm=TRUE)))
     weights<-extend(weights,rasters2,fill=NA)
-    weightedavg<-zonal(x=rasters2,z=polygons,w=weights, fun = mean,na.rm=TRUE)
+    weightedavg<-zonal(x=rasters2,z=polygons,w=weights, fun = mean,na.rm=TRUE,as.polygons=TRUE)
     
     print("the weights average: ")
     print(weightedavg)
-    output<-rbind(c(values(polygons[,IDfield]),weightedavg))
+    #output<-rbind(c(values(polygons[,IDfield]),weightedavg))
+    output<-weightedavg
     return (output)
   }
   
@@ -156,8 +157,9 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   if(is.polygons(polygons)){
     if(is.na(weightslayers)){
       rasters2<- crop(x = rasters, y = polygons,snap = 'out')
-      tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE)
-      output<-rbind(c(values(polygons[,IDfield]),tempoutput))
+      tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
+      output<-tempoutput
+      #output<-rbind(c(values(polygons[,IDfield]),tempoutput))
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
     output<-extract(x = rasters,y = polygons,ID=FALSE)
