@@ -67,7 +67,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   # Determine unique raster dates
   rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars)),"_"),FUN = function(x){x[length(x)]}))
   rdates<-rdates[order(rdates)]
-  print(rdates)
+  #print(rdates)
   
   
   ##---- Extraction Features Layer
@@ -113,7 +113,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     ## Reproject everything to the same resolution and CRS
     print('reprojecting clim vars')
     polygons<-project(polygons,crs(rasters))
-    weightrast<-project(weightrast,crs(rasters))
+    crs(weightrast)<-crs(rasters)
     
     print('cropping weightrasters')
     weightrast<-crop(weightrast,polygons,snap="out")
@@ -144,8 +144,9 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     weightedavg<-zonal(x=rasters2,z=polygons,w=weights, fun = mean,na.rm=TRUE,as.polygons=TRUE)
     print(str(weightedavg))
     print("the weights average: ")
-    print(weightedavg)
+    #print(weightedavg)
     output<-cbind(polygons,weightedavg)
+    print(str(output))
     #output<-weightedavg
     return(output)
   }
