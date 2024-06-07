@@ -112,8 +112,8 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     
     ## Reproject everything to the same resolution and CRS
     print('reprojecting clim vars')
-    crs(polygons)<-crs(rasters)
-    crs(weightrast)<-crs(rasters)
+    polygons<-project(polygons,crs(rasters))
+    weightrast<-project(weightrast,crs(rasters))
     
     print('cropping weightrasters')
     weightrast<-crop(weightrast,polygons,snap="out")
@@ -145,8 +145,8 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     print(str(weightedavg))
     print("the weights average: ")
     print(weightedavg)
-    #output<-rbind(c(values(polygons[,IDfield]),weightedavg))
-    output<-weightedavg
+    output<-cbind(polygons,weightedavg)
+    #output<-weightedavg
     return(output)
   }
   
@@ -158,7 +158,8 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     if(is.na(weightslayers)){
       rasters2<- crop(x = rasters, y = polygons,snap = 'out')
       tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
-      output<-tempoutput
+      output<-cbind(polygons,tempoutput)
+      #output<-tempoutput
       #output<-rbind(c(values(polygons[,IDfield]),tempoutput))
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
