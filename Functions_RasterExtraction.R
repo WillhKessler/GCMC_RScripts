@@ -142,12 +142,12 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     weights = weightzone*(1/sum(values(weightzone,na.rm=TRUE)))
     weights<-extend(weights,rasters2,fill=NA)
     weightedavg<-zonal(x=rasters2,z=polygons,w=weights, fun = mean,na.rm=TRUE,as.polygons=TRUE)
-    
+    print(str(weightedavg))
     print("the weights average: ")
     print(weightedavg)
     #output<-rbind(c(values(polygons[,IDfield]),weightedavg))
     output<-weightedavg
-    return (output)
+    return(output)
   }
   
   #################################################################
