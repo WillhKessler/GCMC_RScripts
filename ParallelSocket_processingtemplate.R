@@ -5,7 +5,7 @@
 
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME<-"GCMC2_ParallelTest" # string with a project name
-rasterdir<-"S:/GCMC/Data/Climate/PRISM/"
+rasterdir<-"S:/GCMC/Data/Climate/PRISM/" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
 extractionlayer = "C:/Users/wik191/OneDrive - Harvard University/_Projects/Andrea_Bellavia/sites_10M.shp"
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
 IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
