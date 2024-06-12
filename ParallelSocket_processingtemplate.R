@@ -125,4 +125,8 @@ waitForJobs()
 # If any of the jobs failed, they will be displayed here as 'Errors"
 getStatus()
 
+# Look at the Error Messages to see what the errors are:
+getErrorMessages()
+
+
 
