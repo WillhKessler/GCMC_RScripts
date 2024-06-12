@@ -46,13 +46,59 @@ source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/Functi
 
 ##---- Set up the batch processing jobs
 ##---- grid should contain columns for all desired variable combinations
-par_grid <- expand.grid(mu = -5:5, sigma = seq(3, 33, 10), nrep = 1:100)
+batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
+  require("tools")
+
+  ##---- Set up the batch processing jobs
+  pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
+
+  if(file_ext(extractionlayer)=="csv"){
+    feature<-unique(read.csv(extractionlayer)[,IDfield])
+    layername = NA
+    weightslayers = NA
+  }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
+    require('terra')
+    vectorfile<- vect(x=extractionlayer,layer=layername)
+    feature<- unlist(unique(values(vectorfile[,IDfield])))
+    Xfield = NA
+    Yfield = NA
+  }
+
+  output<- expand.grid(vars = pvars,
+                       piece = feature,
+                       rasterdir = rasterdir,
+                       extractionlayer = extractionlayer,
+                       layername = layername,
+                       IDfield = IDfield,
+                       Xfield = Xfield,
+                       Yfield = Yfield,
+                       startdatefield = startdatefield,
+                       enddatefield = enddatefield,
+                       predays = predays,
+                       weightslayers = weightslayers,
+                       stringsAsFactors = FALSE)
+  return(output)
+}
+
 
 ##---- Clear the R registry
 clearRegistry(reg)
 
 ##---- Create jobs
-jobs <- batchMap(fun = examplefunction,args = par_grid)
+##----  create jobs from variable grid
+jobs<- batchMap(fun = extract.rast,
+                batchgrid(rasterdir = rasterdir,
+                          extractionlayer = extractionlayer,
+                          layername = layername,
+                          IDfield = IDfield,
+                          Xfield = Xfield,
+                          Yfield = Yfield,
+                          startdatefield = startdatefield,
+                          enddatefield = enddatefield,
+                          predays = predays,
+                          weightslayers = weights),
+                reg = reg)
+
 jobs$chunk <- chunk(jobs$job.id, chunk.size = 1000)
 
 
@@ -62,3 +108,8 @@ getStatus()
 ##---- Submit Jobs
 batchtools::submitJobs(resources = list(memory=80000),reg = reg)
 waitForJobs()
+
+# If any of the jobs failed, they will be displayed here as 'Errors"
+getStatus()
+
+
