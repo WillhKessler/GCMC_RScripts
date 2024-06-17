@@ -176,3 +176,11 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
 
 }
 
+
+#####Recombine Outputs from Parallelization
+append.results= function(x){
+  
+}
+
+                                  
+
