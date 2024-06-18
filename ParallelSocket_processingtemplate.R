@@ -5,8 +5,8 @@
 
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME<-"Bellavia_polygon_LINKAGE" # string with a project name
-rasterdir<-"S:/GCMC/Data/Climate/PRISM/" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-extractionlayer = "C:/Users/wik191/OneDrive - Harvard University/_Projects/Andrea_Bellavia/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
+rasterdir<-"~/Data/Climate/PRISM/" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
+extractionlayer = "~/_Projects/Andrea_Bellavia/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
 IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
 Xfield<- "X"
@@ -20,9 +20,14 @@ weights = NA # string specifying file path to raster weights, should only be use
 
 
 ##---- Required Packages
-library(batchtools)
-require(terra)
-require(tools)
+listOfPackages <- c("batchtools","terra","tools")
+for (i in listOfPackages){
+     if(! i %in% installed.packages()){
+         install.packages(i, dependencies = TRUE)
+     }
+     require(i,character.only=TRUE)
+}
+
 
 
 ##REQUIRED##
