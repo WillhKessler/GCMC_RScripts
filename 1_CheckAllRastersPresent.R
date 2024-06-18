@@ -10,17 +10,18 @@ allRegions <-c("Arizona", "ArkansasLouisiana", "CaliPart1", "CaliPart2", "Colora
 allRegions<- allRegions[order(allRegions)]
 allDays<-c("01")
 allMonths<-c("01","04","07","10")
-allYears<-c("1984","1985","1986","1987","1988","1989","1990","1991","1992",
-            "1993","1994","1995","1996","1997","1998","1999","2000","2001",
-            "2002","2003","2004","2005","2006","2007","2008","2009","2010",
-            "2011","2012","2013","2014","2015","2016","2017","2018")
+allYears<-c("1985","1986","1987","1988","1989",
+            "1990","1991","1992","1993","1994","1995","1996","1997","1998","1999",
+            "2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+            "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019",
+            "2020","2021","2022","2023")
 allDates<-apply(expand.grid(allYears,allMonths,allDays),1,paste,collapse="-")
 allDates<-allDates[order(allDates)]
 
 
 
 ## Input Directory
-greennessDir<- "S:/GCMC/Data/Greenness/NDVI"
+greennessDir<- "S:/GCMC/Data/Greenness/NDVI/30m/"
 
 #Recursively list all paths to TIFF rasters in the directory
 allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
@@ -85,8 +86,14 @@ for (r in row_names){
   }
 }
 
-rasterchecklistdf["Kent",is.na(rasterchecklistdf["Kent",])]
-
-
-
+# List incomplete rows
+rasterchecklistdf[!complete.cases(rasterchecklistdf),]
+out<-rasterchecklistdf
+out<-out[!complete.cases(out),unique(which(is.na(out),arr.ind = TRUE)[,2])]
+print("The following are missnamed: ")
+print(region[!(region %in% allRegions)])
+print("The following regions are missing one or more NDVI tiles: ")
+out<-out[do.call(order,c(out,na.last=FALSE)),]
+print(out)
+View(out)
                
