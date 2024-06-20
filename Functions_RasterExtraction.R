@@ -54,7 +54,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   
   ##---- Load required packages, needs to be inside function for batch jobs
   require(terra)
-  #require(sp)
+  require(data.table)
   require(tools)
   require(ids)
   print(system("hostname",intern=TRUE))
@@ -159,20 +159,23 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     if(is.na(weightslayers)){
       rasters2<- crop(x = rasters, y = polygons,snap = 'out')
       tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
+      tempnames<-names(tempoutput)
+      
       output<-cbind(polygons,tempoutput)
-      #output<-tempoutput
-      #output<-rbind(c(values(polygons[,IDfield]),tempoutput))
+      longoutput<-data.table::melt(output,id.vars=names(polygons) ,variable.names=pvars,na.rm=FALSE)
+      
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
     output<-extract(x = rasters,y = polygons,ID=FALSE)
     names(output)<-names(rasters)
     output<-cbind(polygons,output)
+    longoutput<-data.table::melt(output,id.vars=names(polygons),variable.names=pvars,na.rm=FALSE)
     
-    "Do the extract for points" 
+    
   }  
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,piece=piece,result=wrap(output),node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
 
 }
 
