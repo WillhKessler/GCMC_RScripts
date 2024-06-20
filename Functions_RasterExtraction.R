@@ -54,7 +54,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   
   ##---- Load required packages, needs to be inside function for batch jobs
   require(terra)
-  require(data.table)
+  require(reshape2)
   require(tools)
   require(ids)
   print(system("hostname",intern=TRUE))
@@ -162,14 +162,14 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
       tempnames<-names(tempoutput)
       
       output<-cbind(polygons,tempoutput)
-      longoutput<-data.table::melt(output,id.vars=names(polygons) ,variable.names=pvars,na.rm=FALSE)
+      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
       
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
     output<-extract(x = rasters,y = polygons,ID=FALSE)
     names(output)<-names(rasters)
     output<-cbind(polygons,output)
-    longoutput<-data.table::melt(output,id.vars=names(polygons),variable.names=pvars,na.rm=FALSE)
+    longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
     
     
   }  
