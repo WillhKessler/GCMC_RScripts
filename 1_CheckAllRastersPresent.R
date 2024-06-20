@@ -21,7 +21,7 @@ allDates<-allDates[order(allDates)]
 
 
 ## Input Directory
-greennessDir<- "S:/GCMC/Data/Greenness/NDVI/30m/"
+greennessDir<- "S:/GCMC/Data/Greenness/NDVI/focalstats_270m/"
 
 #Recursively list all paths to TIFF rasters in the directory
 allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
@@ -96,4 +96,3 @@ print("The following regions are missing one or more NDVI tiles: ")
 out<-out[do.call(order,c(out,na.last=FALSE)),]
 print(out)
 View(out)
-               
