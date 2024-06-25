@@ -6,6 +6,7 @@ require('tools')
 #List all NDVI files
 files<- list.files("H:\\My Drive\\NDVI",pattern = "*.tif$",full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
 outdir<-"S:\\GCMC\\Data\\Greenness\\NDVI\\"
+
 #Loop through files
 for(i in files){
   #Check that file name roughly follows correct format
