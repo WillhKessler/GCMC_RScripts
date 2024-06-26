@@ -1,6 +1,7 @@
 ##---- An example Function
 get_random_mean <- function(mu, sigma, ...){
   stim<-Sys.time()
+  Sys.sleep(runif(1)*22)
   x <- rnorm(100, mean = mu, sd = sigma)
   out<- c(sample_mean = mean(x), sample_sd = sd(x), Node=system("hostname", intern=TRUE),
                   Rversion=paste(R.Version()[6:7], collapse="."),starttime=stim,endtime=Sys.time())
