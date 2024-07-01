@@ -4,11 +4,14 @@ require('stringdist')
 require('tools')
 
 #List all NDVI files
-files<- list.files("H:\\My Drive\\NDVI",pattern = "*.tif$",full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
+files<- list.files("E:\\.shortcut-targets-by-id\\1h9cmIyzx_TtG1VTHvrQ_Cq2IQrJzIwqF\\NDVI",pattern = "*.tif$",full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
 outdir<-"S:\\GCMC\\Data\\Greenness\\NDVI\\"
 
+n=1
 #Loop through files
+nfiles<- length(files)
 for(i in files){
+  print(paste("processing:", n, "of ",nfiles,sep=""))
   #Check that file name roughly follows correct format
   if(length(strsplit(basename(i),"_")[[1]])>2){
     
@@ -63,5 +66,5 @@ for(i in files){
   }else{
   print("filename doesn't follow the standard NDVI naming convention from Google Earth Engine Code- Check file names follow form 'region_Xm_YYYY-mm-dd.tif'")
   print(i)}
-     
+n=n+1     
 }
