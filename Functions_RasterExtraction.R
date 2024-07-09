@@ -163,14 +163,14 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
       tempnames<-names(tempoutput)
       
       output<-cbind(polygons,tempoutput)
-      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
+      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
       
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
     output<-extract(x = rasters,y = polygons,ID=FALSE)
     names(output)<-names(rasters)
     output<-cbind(polygons,output)
-    longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
+    longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     
     
   }  
