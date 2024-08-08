@@ -180,11 +180,33 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
 
 }
 
+##---- An example inner Parallel Function
+p.extract.rast <- function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA,cpu=cpu){
+  
+  #Must supply inner function inside the outer function
+  # myFct <- function(cpucore) {
+  #   stim<-Sys.time() # logging clock time shows that the inner function is called at the same time across all cores, not sequentially
+  #   Sys.sleep(10) # to see job in queue, pause for 10 sec
+  #   etim<-Sys.time()
+  #   result <- cbind(iris[cpucore, 1:4,],
+  #                   Node=system("hostname", intern=TRUE),
+  #                   Rversion=paste(R.Version()[6:7], collapse="."),
+  #                   start = stim,
+  #                   end = etim)
+  #   return(result)
+  # }
+  
+  parallelMap::parallelMap(extract.rast,pieces,more.args = c(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA))
+}
 
-#####Recombine Outputs from Parallelization
+
+
+##---- Recombine Outputs from Parallelization
 append.results= function(x){
   
 }
+
+
 
                                   
 
