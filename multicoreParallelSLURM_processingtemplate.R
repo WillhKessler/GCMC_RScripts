@@ -81,7 +81,6 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
                          x = split(x = feature, f = ceiling(seq_along(feature)/100)),
                          f = ceiling(seq_along(split(feature, ceiling(seq_along(feature)/100)))/sum(length(pbatch),length(cpu)))
                          ),
-                       #pieces = split(feature, ceiling(seq_along(feature)/sum(length(pbatch),length(cpu)))),
                        #piece = feature,
                        rasterdir = rasterdir,
                        extractionlayer = extractionlayer,

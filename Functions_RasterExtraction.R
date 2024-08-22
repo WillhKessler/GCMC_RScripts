@@ -19,14 +19,17 @@ myFct <- function(cpucore) {
 
 
 ##---- An example inner Parallel Function
-innerParallel <- function(cpu){
+innerParallel <- function(cpu,a,b,c){
   
   #Must supply inner function inside the outer function
-  myFct <- function(cpucore) {
+  myFct <- function(cpucore,a,b,c) {
     stim<-Sys.time() # logging clock time shows that the inner function is called at the same time across all cores, not sequentially
     Sys.sleep(10) # to see job in queue, pause for 10 sec
     etim<-Sys.time()
     result <- cbind(iris[cpucore, 1:4,],
+                    a,
+                    b,
+                    c
                     Node=system("hostname", intern=TRUE),
                     Rversion=paste(R.Version()[6:7], collapse="."),
                     start = stim,
@@ -34,7 +37,7 @@ innerParallel <- function(cpu){
     return(result)
   }
   
-  parallelMap::parallelMap(myFct,1:cpu)
+  parallelMap::parallelMap(myFct,1:cpu,more.args = list(a,b,c))
 }
 
 
@@ -181,22 +184,138 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
 }
 
 ##---- An example inner Parallel Function
-p.extract.rast <- function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA,cpu=cpu){
+p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
-  #Must supply inner function inside the outer function
-  # myFct <- function(cpucore) {
-  #   stim<-Sys.time() # logging clock time shows that the inner function is called at the same time across all cores, not sequentially
-  #   Sys.sleep(10) # to see job in queue, pause for 10 sec
-  #   etim<-Sys.time()
-  #   result <- cbind(iris[cpucore, 1:4,],
-  #                   Node=system("hostname", intern=TRUE),
-  #                   Rversion=paste(R.Version()[6:7], collapse="."),
-  #                   start = stim,
-  #                   end = etim)
-  #   return(result)
-  # }
+  multicore.extract.rast<-function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
+  ##---- Load required packages, needs to be inside function for batch jobs
+  require(terra)
+  require(reshape2)
+  require(tools)
+  require(ids)
+  print(system("hostname",intern=TRUE))
+  print(paste('Current working directory:',getwd()))
+  print(paste('Current temp directory:',tempdir()))
   
-  parallelMap::parallelMap(extract.rast,pieces,more.args = c(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA))
+  ##---- Climate Rasters
+  rastfiles<-rasterdir
+  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9]-?[0-1][0-9]-?[0-3][0-9]\\.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
+  # Determine unique raster dates
+  rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars)),"_"),FUN = function(x){x[length(x)]}))
+  rdates<-rdates[order(rdates)]
+  #print(rdates)
+  
+  for(piece in pieces){
+  ##---- Extraction Features Layer
+  if(file_ext(extractionlayer)=='csv'){
+    extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
+    extlayer<-extlayer[extlayer[IDfield]==piece,]
+    polygons<- vect(x = extlayer,geom = c(Xfield,Yfield), keepgeom=TRUE)
+  }else if (file_ext(extractionlayer) %in% c("gdb")){
+    polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
+  }else if (file_ext(extractionlayer) %in% c("shp")){
+    polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
+  }
+  polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays)
+  polygons$stop_date<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")))
+  
+  
+  ##---- Create extraction date ranges for points
+  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygonsendSeasonIndex<- sapply(polygons$stop_date, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
+  polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
+  
+  
+  ##---- Determine which raster dates fall within the data range
+  rasterDateRange<-rdates[as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))>=min(polygons$first_extract) & as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))<=max(polygons$last_extract)]
+  # Load Climate Rasters
+  print("loading the climvars to rast()")
+  climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
+  rasters<- rast(climvars2)
+  names(rasters)<-rasterDateRange
+  #################################################################
+  #################################################################
+  ##---- Weights Rasters for spatial weights
+  calc.spatialweights<- function(weightslayers,rasters,polygons){
+    rweights<-list.files(weightslayers,full.names = TRUE)
+    print(rweights)
+    
+    ## Rasterize the Weights data
+    print('the weights rasters')
+    weightrast<- rast(rweights)
+    print(weightrast)
+    
+    ## Reproject everything to the same resolution and CRS
+    print('reprojecting clim vars')
+    polygons<-project(polygons,crs(rasters))
+    crs(weightrast)<-crs(rasters)
+    
+    print('cropping weightrasters')
+    weightrast<-crop(weightrast,polygons,snap="out")
+    
+    ## Create a composite population raster at the same crs and extent of the climate variables
+    weightrast2<-sum(weightrast)
+    print(weightrast2)
+    
+    # Crop and resample climate rasters to weights
+    print("croppings rasters with weightrast2") 
+    rasters2<-crop(rasters, weightrast2,snap='out')
+    print("resampling rasters2")
+    print("the tempdir(): ")
+    print(tempdir())
+    print("the current working directory")
+    print(getwd())
+    
+    print("starting resample")
+    rasters2<-resample(rasters2,weightrast2,method='bilinear',wopt=list(gdal = c("BIGTIFF=YES")))
+    output<-data.frame()
+    print('cropping the weightrast2 to polygon')  
+    weightzone = crop(x= weightrast2,y= polygons, touches=FALSE,mask=TRUE)
+    
+    #Scale the population weights to sum to 1
+    print('scaling the population weights')
+    weights = weightzone*(1/sum(values(weightzone,na.rm=TRUE)))
+    weights<-extend(weights,rasters2,fill=NA)
+    weightedavg<-zonal(x=rasters2,z=polygons,w=weights, fun = mean,na.rm=TRUE,as.polygons=TRUE)
+    print(str(weightedavg))
+    print("the weights average: ")
+    #print(weightedavg)
+    output<-cbind(polygons,weightedavg)
+    print(str(output))
+    #output<-weightedavg
+    return(output)
+  }
+  }
+  
+  #################################################################
+  #################################################################
+  
+  ##---- Perform Extractions
+  if(is.polygons(polygons)){
+    if(is.na(weightslayers)){
+      rasters2<- crop(x = rasters, y = polygons,snap = 'out')
+      tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
+      tempnames<-names(tempoutput)
+      
+      output<-cbind(polygons,tempoutput)
+      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
+      
+    }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
+  }else if(is.points(polygons)){
+    output<-extract(x = rasters,y = polygons,ID=FALSE)
+    names(output)<-names(rasters)
+    output<-cbind(polygons,output)
+    longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
+    
+    
+  }  
+  
+  #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  
+}
+  
+  parallelMap::parallelMap(multicore.extract.rast,pieces,more.args = c(vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA))
 }
 
 
