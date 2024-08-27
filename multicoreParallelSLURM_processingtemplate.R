@@ -45,35 +45,37 @@ source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/Functi
 ##############################################################
 ##---- Set up the batch processing jobs
 ##---- Use the 'batchgrid' function to create a grid of variable combinations to process over. function considers input rasters, input features, and any weighting layers
-jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers,pbatch){
+jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers,partition){
   require("tools")
   
   ##---- Set up the batch processing jobs
   pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
   
   if(file_ext(extractionlayer)=="csv"){
-    vectorfile<-read.csv(extractionlayer)
-    feature<-vectorfile[,IDfield]
-    #feature<-unique(vectorfile[,IDfield])
+    feature<-read.csv(extractionlayer,stringsAsFactors = FALSE)
+    feature$OID<-1:nrow(feature)
+    write.csv(x = feature,file = paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv"),row.names = FALSE)
+    feature<-feature$OID
     layername = NA
     weightslayers = NA
-    cpu = c(1:4)
-    if(partition=="linux01"){
-      pbatch = c(1:10)
-    }
-    
-  }else if(file_ext(extractionlayer) %in% c("gdb")){
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
+  }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
     require('terra')
     vectorfile<- vect(x=extractionlayer,layer=layername)
-    feature<- unlist(unique(values(vectorfile[,IDfield])))
+    vectorfile$OID<-1:nrow(vectorfile)
+    writeVector(x = vectorfile,filename = paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer)),layer=layername,overwrite=TRUE)
+    feature<- unlist(unique(values(vectorfile[,"OID"])))
     Xfield = NA
     Yfield = NA
-  }else if(file_ext(extractionlayer) %in% c("shp")){
-    require('terra')
-    vectorfile<- vect(x=extractionlayer)
-    feature<- unlist(unique(values(vectorfile[,IDfield])))
-    Xfield = NA
-    Yfield = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
+  }
+  
+  if(partition=="linux01"){
+    pbatch=c(1:10)
+    cpu = 4
+  }else if (partition == "linux12h"){
+    pbatch = c(1:30)
+    cpu = 4
   }
   
   output<- expand.grid(vars = pvars,
