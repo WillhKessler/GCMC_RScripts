@@ -29,7 +29,7 @@ innerParallel <- function(cpu,a,b,c){
     result <- cbind(iris[cpucore, 1:4,],
                     a,
                     b,
-                    c
+                    c,
                     Node=system("hostname", intern=TRUE),
                     Rversion=paste(R.Version()[6:7], collapse="."),
                     start = stim,
@@ -41,19 +41,19 @@ innerParallel <- function(cpu,a,b,c){
 }
 
 
-# Function to extract Raster Data to points or polygons weighted/unweighted based on other rasters
-##---- REQUIRED INPUTS ----##
-#PROJECT_NAME<-"Example_Project" # string with a project name
-#rasterdir<- "~/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-#extractionlayer = "~/sites_10M/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
-#layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
-#IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
-#Xfield<- "X"
-#Yfield<- "Y"
-#startdatefield = "start_date" # Field in extraction layer specifying first date of observations
-#enddatefield = "end_date" # Field in extraction layer specifying last date of observations
-#predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
-#weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
+##---- Function to extract Raster Data to points or polygons weighted/unweighted based on other rasters
+  ##---- REQUIRED INPUTS ----##
+  #PROJECT_NAME<-"Example_Project" # string with a project name
+  #rasterdir<- "~/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
+  #extractionlayer = "~/sites_10M/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
+  #layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
+  #IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
+  #Xfield<- "X"
+  #Yfield<- "Y"
+  #startdatefield = "start_date" # Field in extraction layer specifying first date of observations
+  #enddatefield = "end_date" # Field in extraction layer specifying last date of observations
+  #predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
+  #weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
 extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
   ##---- Load required packages, needs to be inside function for batch jobs
@@ -174,14 +174,18 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     names(output)<-names(rasters)
     output<-cbind(polygons,output)
     longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
-    
-    
   }  
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
 
 }
+
+
+
+
+
+
 
 ##---- An example inner Parallel Function
 p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
@@ -285,7 +289,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     #output<-weightedavg
     return(output)
   }
-  }
+  
   
   #################################################################
   #################################################################
@@ -308,14 +312,19 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
     
     
-  }  
-  
+  }
+  #######Append results of each For Loop cycle
+  }
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   
-}
   
-  parallelMap::parallelMap(multicore.extract.rast,pieces,more.args = c(vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA))
+  }
+  
+  parallelMap::parallelMap(
+    fun=multicore.extract.rast,
+    args= pieces,
+    more.args = c(vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers))
 }
 
 
