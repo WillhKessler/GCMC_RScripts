@@ -51,7 +51,7 @@ innerParallel <- function(cpu,a,b,c){
     return(jobout)
   }
   
-  parallelMap::parallelMap(myFct,1:cpu,more.args = list(a,b,c))
+  parallelMap::parallelMap(myFct,1:cpu,more.args = list(a,b,c),simplify=FALSE)
 }
 
 
