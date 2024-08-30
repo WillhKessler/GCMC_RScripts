@@ -26,15 +26,20 @@ innerParallel <- function(cpu,a,b,c){
     stim<-Sys.time() # logging clock time shows that the inner function is called at the same time across all cores, not sequentially
     Sys.sleep(10) # to see job in queue, pause for 10 sec
     etim<-Sys.time()
+    jobout<-data.frame()
+    for(i in a){
     result <- cbind(iris[cpucore, 1:4,],
                     a,
+                    i,
                     b,
                     c,
                     Node=system("hostname", intern=TRUE),
                     Rversion=paste(R.Version()[6:7], collapse="."),
                     start = stim,
                     end = etim)
-    return(result)
+    
+      jobout<-rbind(jobout,result}
+    return(jobout)
   }
   
   parallelMap::parallelMap(myFct,1:cpu,more.args = list(a,b,c))
