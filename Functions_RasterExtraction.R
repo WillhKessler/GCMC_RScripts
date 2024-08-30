@@ -37,7 +37,7 @@ innerParallel <- function(cpu,a,b,c){
     jobout<-data.frame()
     for(i in a){
     result <- cbind(iris = iris[cpucore, 1:4,],
-                    avar = I(a),
+                    #avar = I(a),
                     loopvar = i,
                     bvar = b,
                     cvar = c,
