@@ -36,11 +36,11 @@ innerParallel <- function(cpu,a,b,c){
     etim<-Sys.time()
     jobout<-data.frame()
     for(i in a){
-    result <- cbind(iris[cpucore, 1:4,],
-                    a,
-                    i,
-                    b,
-                    c,
+    result <- cbind(iris = iris[cpucore, 1:4,],
+                    avar = a,
+                    loopvar = i,
+                    bvar = b,
+                    cvar = c,
                     Node=system("hostname", intern=TRUE),
                     Rversion=paste(R.Version()[6:7], collapse="."),
                     start = stim,
