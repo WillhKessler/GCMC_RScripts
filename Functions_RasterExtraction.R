@@ -37,7 +37,7 @@ innerParallel <- function(cpu,a,b,c){
     jobout<-data.frame()
     for(i in a){
     result <- cbind(iris = iris[cpucore, 1:4,],
-                    avar = a,
+                    avar = I(a),
                     loopvar = i,
                     bvar = b,
                     cvar = c,
@@ -51,7 +51,7 @@ innerParallel <- function(cpu,a,b,c){
     return(jobout)
   }
   
-  parallelMap::parallelMap(myFct,1:cpu,more.args = list(a,b,c),simplify=FALSE)
+  parallelMap::parallelMap(myFct,1:cpu,more.args = list(a,b,c))
 }
 
 
