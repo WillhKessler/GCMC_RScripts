@@ -38,7 +38,7 @@ innerParallel <- function(cpu,a,b,c){
                     start = stim,
                     end = etim)
     
-      jobout<-rbind(jobout,result}
+      jobout<-rbind(jobout,result)}
     return(jobout)
   }
   
