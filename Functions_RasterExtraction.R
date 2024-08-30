@@ -20,9 +20,17 @@ myFct <- function(cpucore) {
 
 ##---- An example inner Parallel Function
 innerParallel <- function(cpu,a,b,c){
+  print("outer")
+  print(a)
+  print(b)
+  print(c)
   
   #Must supply inner function inside the outer function
   myFct <- function(cpucore,a,b,c) {
+    print("inner")
+    print(a)
+    print(b)
+    print(c)
     stim<-Sys.time() # logging clock time shows that the inner function is called at the same time across all cores, not sequentially
     Sys.sleep(10) # to see job in queue, pause for 10 sec
     etim<-Sys.time()
@@ -37,8 +45,9 @@ innerParallel <- function(cpu,a,b,c){
                     Rversion=paste(R.Version()[6:7], collapse="."),
                     start = stim,
                     end = etim)
-    
-      jobout<-rbind(jobout,result)}
+    print(result)
+      jobout<-rbind(jobout,result)
+    }
     return(jobout)
   }
   
