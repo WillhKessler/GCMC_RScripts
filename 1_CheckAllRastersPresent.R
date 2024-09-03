@@ -3,7 +3,7 @@ require(tools)
 
 ##Constants
 allRegions <-c("Arizona", "ArkansasLouisiana", "CaliPart1", "CaliPart2", "Colorado","Florida", "Idaho", "Illinois", "IndianaOhio", 
-               "Kansas", "KentuckyTennessee", "Michigan", "Minnesota", "MississippiAlabama", "MissouriIowa", "MontanaPart1", "MontanaPart2",
+               "Kansas", "KentuckyTennessee", "Michigan", "Minnesota", "MississippiAlabama", "MissouriIowa", "Montana","MontanaPart1", "MontanaPart2",
                "Nebraska", "Nevada",   "NewMexico", "NewEngland", "NorthCarolina1","NorthCarolina2","NorthSouthDakota", 
                "Oklahoma", "SouthCarolinaGeorgia", "Texas1","Texas2","Texas3","Utah",  
                "WashingtonOregon", "Wisconsin","Wyoming", "MiddleAtlantic", "SouthAtlantic1")
@@ -21,7 +21,7 @@ allDates<-allDates[order(allDates)]
 
 
 ## Input Directory
-greennessDir<- "S:/GCMC/Data/Greenness/NDVI/focalstats_1230m/"
+greennessDir<- "S:/GCMC/Data/Greenness/NDVI/focalstats_270m/"
 
 #Recursively list all paths to TIFF rasters in the directory
 allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
