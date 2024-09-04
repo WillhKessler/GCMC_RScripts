@@ -1,7 +1,7 @@
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME<-"innerParallelTest" # string with a project name
 rasterdir<-  "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-extractionlayer = "/udd/nhwhk/testmulticore/VITAL_toycohort57.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
+extractionlayer = "/udd/nhwhk/PROJECTS/testmulticore/VITAL_toycohort57.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
 IDfield<-"subject_ID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
 Xfield<- "x"
@@ -15,7 +15,7 @@ partition = "linux12h"
 ##---- Required Packages
 library(batchtools)
 require(terra)
-require(tools
+require(tools)
 
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
@@ -116,7 +116,7 @@ jobs<- batchMap(fun = p.extract.rast,
                           weightslayers = weights,
                           partition=partition),
                 reg = reg)
-
+#
 
 
 jobs$chunk<-chunk(jobs$job.id,n.chunks = length(50))
