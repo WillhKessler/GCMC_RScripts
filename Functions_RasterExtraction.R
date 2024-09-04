@@ -226,7 +226,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
   #print(rdates)
   
   ##---- Create Empty Data Frame to hold looped extractions
-  jobout<-data.frame()
+  jobout<-c()
  
   
 
@@ -336,20 +336,21 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
       print("cbinding output")
       output<-cbind(polygons,output)
       print("melting to longoutput")
-      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+      #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     }
   #######Append results of each For Loop cycle
-    print("creating final dataframe output")  
-    loopresult<- cbind(output = wrap(output),longoutput=longoutput)
-    print(loopresult)
-                                    print("finaloutput")
-    jobout<-rbind(jobout,loopresult)
+    jobout<-c(jobout,output)
     print(jobout)
     }
+  print(finalout)
+  finalout<-vect("jobout")    
+  print("longout")
+  longoutput<-reshape2::melt(as.data.frame(finalout),id.vars=names(finalout),variable.names="date",value.name=vars,na.rm=FALSE)
+  
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   #return(list(exposure=vars,piece=pieces2,result=jobout,longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,piece=pieces2,result=jobout,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=pieces2,result=finalout,longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   
   
   }
