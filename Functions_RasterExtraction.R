@@ -204,7 +204,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
 ##---- An example inner Parallel Function
 p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
-  multicore.extract.rast<-function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
+  multicore.extract.rast<-function(piece,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   ##---- Load required packages, needs to be inside function for batch jobs
   require(terra)
   require(reshape2)
