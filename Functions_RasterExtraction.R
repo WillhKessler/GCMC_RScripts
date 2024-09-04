@@ -222,7 +222,10 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
   rdates<-rdates[order(rdates)]
   #print(rdates)
   
-  finaloutput<-data.frame()
+  ##---- Create Empty Data Frame to hold looped extractions
+  jobout<-data.frame()
+  
+  
   for(piece in pieces){
   ##---- Extraction Features Layer
     if(file_ext(extractionlayer)=='csv'){
@@ -327,11 +330,12 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
       longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=pvars,na.rm=FALSE)
     }
   #######Append results of each For Loop cycle
-  finaloutput<-rbind(finaloutput,)
+    loopresult<- cbind(output = wrap(output),longoutput=longoutput)
+    jobout<-rbind(jobout,loopresult)
     }
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=pieces,result=jobout,longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   
   
   }
