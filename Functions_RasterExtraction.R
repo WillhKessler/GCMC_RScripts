@@ -204,7 +204,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
 ##---- An example inner Parallel Function
 p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
-  multicore.extract.rast<-function(pieces2,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
+  multicore.extract.rast<-function(pid,pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   ##---- Load required packages, needs to be inside function for batch jobs
   require(terra)
   require(reshape2)
@@ -224,7 +224,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
   
   ##---- Create Empty Data Frame to hold looped extractions
   jobout<-data.frame()
-  
+  pieces2<-pieces[[pid]]
   
   for(piece in pieces2){
   ##---- Extraction Features Layer
@@ -335,15 +335,15 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     }
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,piece=pieces2,result=jobout,longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=pid,result=jobout,longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   
   
   }
   
   parallelMap::parallelMap(
     fun=multicore.extract.rast,
-    args= pieces,
-    more.args = list(vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers))
+    args= 1:length(pieces),
+    more.args = list(pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers))
 }
 
 
