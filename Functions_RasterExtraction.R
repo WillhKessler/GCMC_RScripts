@@ -343,7 +343,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
   parallelMap::parallelMap(
     fun=multicore.extract.rast,
     args= pieces,
-    more.args = c(vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers))
+    more.args = list(vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers))
 }
 
 
