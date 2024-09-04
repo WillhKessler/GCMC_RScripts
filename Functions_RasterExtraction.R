@@ -231,7 +231,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
   
 
   for(piece in pieces2){
-    print(paste("piece:",as.character(piece))
+    print(paste("piece:",as.character(piece)))
   ##---- Extraction Features Layer
     if(file_ext(extractionlayer)=='csv'){
       extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
