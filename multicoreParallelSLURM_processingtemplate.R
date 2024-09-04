@@ -1,16 +1,16 @@
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME<-"innerParallelTest" # string with a project name
-rasterdir<- "S:/GCMC/Data/Climate/PRISM/daily" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-extractionlayer = "S:\\GCMC\\_Code\\TESTING_datasets\\csv\\toyCohort_nurses51.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
+rasterdir<-  "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
+extractionlayer = "/udd/nhwhk/testmulticore/toyCohort_nurses51.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
-IDfield<-"UUID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
-Xfield<- "longitude"
-Yfield<- "latitude"
+IDfield<-"subject_ID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
+Xfield<- "x"
+Yfield<- "y"
 startdatefield = "start_date" # Field in extraction layer specifying first date of observations
-enddatefield = "end_date" # Field in extraction layer specifying last date of observations
-predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
+enddatefield = "stop_date" # Field in extraction layer specifying last date of observations
+predays = 5 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
-partition = "linux01"
+partition = "linux12h"
 
 ##---- Required Packages
 library(batchtools)
@@ -74,7 +74,7 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
     pbatch=c(1:10)
     cpu = 4
   }else if (partition == "linux12h"){
-    pbatch = c(1:30)
+    pbatch = c(1:50)
     cpu = 4
   }
   
@@ -83,7 +83,6 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
                          x = split(x = feature, f = ceiling(seq_along(feature)/100)),
                          f = ceiling(seq_along(split(feature, ceiling(seq_along(feature)/100)))/sum(length(pbatch),length(cpu)))
                          ),
-                       #piece = feature,
                        rasterdir = rasterdir,
                        extractionlayer = extractionlayer,
                        layername = layername,
@@ -98,46 +97,7 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
   return(output)
   }
 
-# batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
-#   require("tools")
-#   
-#   ##---- Set up the batch processing jobs
-#   pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
-#   
-#   if(file_ext(extractionlayer)=="csv"){
-#     feature<-unique(read.csv(extractionlayer)[,IDfield])
-#     layername = NA
-#     weightslayers = NA
-#   }else if(file_ext(extractionlayer) %in% c("gdb")){
-#     require('terra')
-#     vectorfile<- vect(x=extractionlayer,layer=layername)
-#     feature<- unlist(unique(values(vectorfile[,IDfield])))
-#     Xfield = NA
-#     Yfield = NA
-#   }
-#   else if(file_ext(extractionlayer) %in% c("shp")){
-#     require('terra')
-#     vectorfile<- vect(x=extractionlayer)
-#     feature<- unlist(unique(values(vectorfile[,IDfield])))
-#     Xfield = NA
-#     Yfield = NA
-#   }
-#   
-#   output<- expand.grid(vars = pvars,
-#                      piece = feature,
-#                      rasterdir = rasterdir,
-#                      extractionlayer = extractionlayer,
-#                      layername = layername,
-#                      IDfield = IDfield,
-#                      Xfield = Xfield,
-#                      Yfield = Yfield,
-#                      startdatefield = startdatefield,
-#                      enddatefield = enddatefield,
-#                      predays = predays,
-#                      weightslayers = weightslayers,
-#                      stringsAsFactors = FALSE)
-#   return(output)
-# }
+
 
 ##----  Make sure registry is empty
 clearRegistry(reg)
@@ -158,21 +118,21 @@ clearRegistry(reg)
 
 jobs<-batchMap(fun=innerParallel,cpu =4)
 
-jobs$chunk<-chunk(jobs$job.id,chunk.size = 90)
+jobs$chunk<-chunk(jobs$job.id,chunk.size = length(pbatch))
 setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
 getStatus()
 
-##---- Submit jobs to scheduler
-# done <- batchtools::submitJobs(jobs, 
-#                                reg=reg, 
-#                                resources=list(partition="linux01", 
-#                                               walltime=3600000, 
-#                                               ntasks=1, 
-#                                               ncpus=4, 
-#                                               memory=80000,
-#                                               pm.backend = "multicore"))
+#---- Submit jobs to scheduler
+done <- batchtools::submitJobs(jobs,
+                               reg=reg,
+                               resources=list(partition=partition,
+                                              walltime=36000,
+                                              ntasks=1,
+                                              ncpus=4,
+                                              memory=10000,
+                                              pm.backend = "multicore"))
 getStatus()
 
 waitForJobs() # Wait until jobs are completed
