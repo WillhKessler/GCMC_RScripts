@@ -15,7 +15,7 @@ partition = "linux12h"
 ##---- Required Packages
 library(batchtools)
 require(terra)
-require(tools)ls
+require(tools)
 
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
@@ -104,7 +104,7 @@ clearRegistry(reg)
 
 ##----  create jobs from variable grid
 jobs<- batchMap(fun = p.extract.rast,
-                batchgrid(rasterdir = rasterdir,
+                jobgrid(rasterdir = rasterdir,
                           extractionlayer = extractionlayer,
                           layername = layername,
                           IDfield = IDfield,
