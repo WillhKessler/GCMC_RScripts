@@ -15,7 +15,7 @@ partition = "linux12h"
 ##---- Required Packages
 library(batchtools)
 require(terra)
-require(tools)
+require(tools)ls
 
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
@@ -103,22 +103,23 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
 clearRegistry(reg)
 
 ##----  create jobs from variable grid
-# jobs<- batchMap(fun = extract.rast,
-#                 batchgrid(rasterdir = rasterdir,
-#                           extractionlayer = extractionlayer,
-#                           layername = layername,
-#                           IDfield = IDfield, 
-#                           Xfield = Xfield,
-#                           Yfield = Yfield,
-#                           startdatefield = startdatefield,
-#                           enddatefield = enddatefield,
-#                           predays = predays,
-#                           weightslayers = weights),
-#                 reg = reg)
+jobs<- batchMap(fun = p.extract.rast,
+                batchgrid(rasterdir = rasterdir,
+                          extractionlayer = extractionlayer,
+                          layername = layername,
+                          IDfield = IDfield,
+                          Xfield = Xfield,
+                          Yfield = Yfield,
+                          startdatefield = startdatefield,
+                          enddatefield = enddatefield,
+                          predays = predays,
+                          weightslayers = weights,
+                          partition=partition),
+                reg = reg)
 
-jobs<-batchMap(fun=innerParallel,cpu =4)
 
-jobs$chunk<-chunk(jobs$job.id,chunk.size = length(pbatch))
+
+jobs$chunk<-chunk(jobs$job.id,n.chunks = length(50))
 setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
@@ -133,9 +134,9 @@ done <- batchtools::submitJobs(jobs,
                                               ncpus=4,
                                               memory=10000,
                                               pm.backend = "multicore"))
-getStatus()
+#getStatus()
 
-waitForJobs() # Wait until jobs are completed
+#waitForJobs() # Wait until jobs are completed
 
 
 
