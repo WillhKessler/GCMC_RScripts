@@ -78,11 +78,12 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
     cpu = 4
   }
   
-  output<- expand.grid(vars = pvars,
+  output<- expand.grid(
                        pieces = split(
                          x = split(x = feature, f = ceiling(seq_along(feature)/100)),
                          f = ceiling(seq_along(split(feature, ceiling(seq_along(feature)/100)))/sum(length(pbatch),length(cpu)))
                          ),
+                       vars = pvars,
                        rasterdir = rasterdir,
                        extractionlayer = extractionlayer,
                        layername = layername,
