@@ -15,7 +15,7 @@ partition = "linux12h"
 ##---- Required Packages
 library(batchtools)
 require(terra)
-require(tools)ls
+require(tools
 
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
