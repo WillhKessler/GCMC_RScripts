@@ -329,14 +329,20 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
         
       }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
     }else if(is.points(polygons)){
+      print("performing extraction")
       output<-extract(x = rasters,y = polygons,ID=FALSE)
+      print("assigning names")
       names(output)<-names(rasters)
+      print("cbinding output")
       output<-cbind(polygons,output)
+      print("melting to longoutput")
       longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     }
   #######Append results of each For Loop cycle
+    print("creating final dataframe output")  
     loopresult<- cbind(output = wrap(output),longoutput=longoutput)
     print(loopresult)
+                                    print("finaloutput")
     jobout<-rbind(jobout,loopresult)
     print(jobout)
     }
