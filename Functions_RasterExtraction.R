@@ -333,17 +333,17 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
       output<-extract(x = rasters,y = polygons,ID=FALSE)
       print("assigning names")
       names(output)<-names(rasters)
-      print("cbinding output")
+      #print("cbinding output")
       output<-cbind(polygons,output)
-      print("melting to longoutput")
+      #print("melting to longoutput")
       #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     }
   #######Append results of each For Loop cycle
     jobout<-c(jobout,output)
-    print(jobout)
+    #print(jobout)
     }
-  print(finalout)
-  finalout<-vect("jobout")    
+  print("finalout")
+  finalout<-vect(jobout)    
   print("longout")
   longoutput<-reshape2::melt(as.data.frame(finalout),id.vars=names(finalout),variable.names="date",value.name=vars,na.rm=FALSE)
   
