@@ -203,11 +203,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
 
 ##---- An example inner Parallel Function
 p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
-  
-
-
   multicore.extract.rast<-function(pieces2,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
-
   ##---- Load required packages, needs to be inside function for batch jobs
   require(terra)
   require(reshape2)
@@ -216,6 +212,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
   print(system("hostname",intern=TRUE))
   print(paste('Current working directory:',getwd()))
   print(paste('Current temp directory:',tempdir()))
+  print(str(pieces2))
   
   ##---- Climate Rasters
   rastfiles<-rasterdir
@@ -227,8 +224,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
   
   ##---- Create Empty Data Frame to hold looped extractions
   jobout<-c()
- 
-  
+   
 
   for(piece in pieces2){
     print(paste("piece:",as.character(piece)))
