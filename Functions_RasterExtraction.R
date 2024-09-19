@@ -195,7 +195,7 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
   
   ##---- Climate Rasters
   rastfiles<-rasterdir
-  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9]-?[0-1][0-9]-?[0-3][0-9]\\.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
+  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
   
   
   ##---- Extraction Features Layer
