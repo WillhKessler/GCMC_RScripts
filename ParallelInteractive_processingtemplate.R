@@ -19,7 +19,7 @@ weights = NA # string specifying file path to raster weights, should only be use
 
 
 ##---- Required Packages
-listOfPackages <- c("batchtools","terra","tools")
+listOfPackages <- c("batchtools","terra","tools","reshape2")
 for (i in listOfPackages){
      if(! i %in% installed.packages()){
          install.packages(i, dependencies = TRUE)

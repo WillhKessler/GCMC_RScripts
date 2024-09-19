@@ -20,7 +20,7 @@ weights = NA # string specifying file path to raster weights, should only be use
 
 ##---- Required Packages
 ##---- Required Packages
-listOfPackages <- c("batchtools","terra","tools")
+listOfPackages <- c("batchtools","terra","tools","reshape2")
 for (i in listOfPackages){
      if(! i %in% installed.packages()){
          install.packages(i, dependencies = TRUE)
@@ -74,6 +74,9 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
     Xfield = NA
     Yfield = NA
     extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
+    if (file_ext(extractionlayer)=="shp"){
+      layername<-paste0(extractionlayer,"_tmp")
+    }
   }
   
   output<- expand.grid(vars = pvars,
@@ -119,7 +122,7 @@ getJobTable()
 getStatus()
 
 ##---- Submit Jobs
-batchtools::submitJobs(resources = list(memory=80000),reg = reg)
+batchtools::submitJobs(jobs,resources = list(memory=80000),reg = reg)
 waitForJobs()
 
 # If any of the jobs failed, they will be displayed here as 'Errors"
