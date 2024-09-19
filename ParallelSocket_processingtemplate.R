@@ -20,7 +20,7 @@ weights = NA # string specifying file path to raster weights, should only be use
 
 ##---- Required Packages
 ##---- Required Packages
-listOfPackages <- c("batchtools","terra","tools","reshape2")
+listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
 for (i in listOfPackages){
      if(! i %in% installed.packages()){
          install.packages(i, dependencies = TRUE)
@@ -65,6 +65,7 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
     layername = NA
     weightslayers = NA
     extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
+    IDfield="OID"
   }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
     require('terra')
     vectorfile<- vect(x=extractionlayer,layer=layername)
@@ -74,6 +75,7 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
     Xfield = NA
     Yfield = NA
     extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
+    IDfield="OID"
     if (file_ext(extractionlayer)=="shp"){
       layername<-paste0(extractionlayer,"_tmp")
     }
