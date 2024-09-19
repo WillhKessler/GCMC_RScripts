@@ -1,56 +1,164 @@
-##---- An example Function
-get_random_mean <- function(mu, sigma, ...){
-  stim<-Sys.time()
-  Sys.sleep(runif(1)*22)
-  x <- rnorm(100, mean = mu, sd = sigma)
-  out<- c(sample_mean = mean(x), sample_sd = sd(x), Node=system("hostname", intern=TRUE),
-                  Rversion=paste(R.Version()[6:7], collapse="."),starttime=stim,endtime=Sys.time())
+##---- Load Required Packages
+load.packages<- function()
+  listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
+for (i in listOfPackages){
+  if(! i %in% installed.packages()){
+    install.packages(i, dependencies = TRUE)
+  }
+  require(i,character.only=TRUE)
 }
 
 
-##---- An example Function
-myFct <- function(cpucore) {
-  Sys.sleep(10) # to see job in queue, pause for 10 sec
-  result <- cbind(iris[cpucore, 1:4],
-                  Node=system("hostname", intern=TRUE),
-                  Rversion=paste(R.Version()[6:7], collapse="."))
-  return(result)
+
+
+
+##---- Create a temporary registry item
+set.parallel.registry<-function(){
+  if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
+    reg = loadRegistry(paste(PROJECT_NAME,"Registry",sep="_"),writeable = TRUE)
+  }else{
+    reg = makeRegistry(file.dir = paste(PROJECT_NAME,"Registry",sep="_"), seed = 42)
+  }
 }
 
 
-##---- An example inner Parallel Function
-innerParallel <- function(cpu){
-  
-  #Must supply inner function inside the outer function
-  myFct <- function(cpucore) {
-    stim<-Sys.time() # logging clock time shows that the inner function is called at the same time across all cores, not sequentially
-    Sys.sleep(10) # to see job in queue, pause for 10 sec
-    etim<-Sys.time()
-    result <- cbind(iris[cpucore, 1:4,],
-                    Node=system("hostname", intern=TRUE),
-                    Rversion=paste(R.Version()[6:7], collapse="."),
-                    start = stim,
-                    end = etim)
-    return(result)
+
+
+
+##---- Select and Set Cluster Function Settings
+select.Cluster<- function(projectdirectory=projectdirectory,scheduler=scheduler){
+  setwd(projectdirectory)
+  load.packages()
+  set.parallel.registry()
+  if (clustersys=="SLURM"){
+    if(!file.exists("slurm.tmpl")){
+      download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/slurm.tmpl","slurm.tmpl")
+    }else{
+      print("template exists")
+    }
+    if(!file.exists("batchtools.conf.R")){
+      download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/batchtools.conf.R", "batchtools.conf.R")
+    }else{
+      print("conf file exists")
+    }
   }
   
-  parallelMap::parallelMap(myFct,1:cpu)
+  else if (scheduler == "socket"){
+    reg$cluster.functions=makeClusterFunctionsSocket()
+  }
+  else {}
 }
 
 
-# Function to extract Raster Data to points or polygons weighted/unweighted based on other rasters
-##---- REQUIRED INPUTS ----##
-#PROJECT_NAME<-"Example_Project" # string with a project name
-#rasterdir<- "~/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-#extractionlayer = "~/sites_10M/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
-#layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
-#IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
-#Xfield<- "X"
-#Yfield<- "Y"
-#startdatefield = "start_date" # Field in extraction layer specifying first date of observations
-#enddatefield = "end_date" # Field in extraction layer specifying last date of observations
-#predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
-#weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
+
+
+
+##---- Create batchtgrid
+create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
+  require("tools")
+  
+  ##---- Set up the batch processing jobs
+  pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
+  
+  if(file_ext(extractionlayer)=="csv"){
+    feature<-read.csv(extractionlayer,stringsAsFactors = FALSE)
+    feature$OID<-1:nrow(feature)
+    write.csv(x = feature,file = paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv"),row.names = FALSE)
+    feature<-feature$OID
+    layername = NA
+    weightslayers = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
+    IDfield="OID"
+  }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
+    require('terra')
+    vectorfile<- vect(x=extractionlayer,layer=layername)
+    vectorfile$OID<-1:nrow(vectorfile)
+    writeVector(x = vectorfile,filename = paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer)),layer=layername,overwrite=TRUE)
+    feature<- unlist(unique(values(vectorfile[,"OID"])))
+    Xfield = NA
+    Yfield = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
+    IDfield="OID"
+    if (file_ext(extractionlayer)=="shp"){
+      layername<-paste0(extractionlayer,"_tmp")
+    }
+  }
+  
+  output<- expand.grid(vars = pvars,
+                       piece = feature,
+                       rasterdir = rasterdir,
+                       extractionlayer = extractionlayer,
+                       layername = layername,
+                       IDfield = IDfield,
+                       Xfield = Xfield,
+                       Yfield = Yfield,
+                       startdatefield = startdatefield,
+                       enddatefield = enddatefield,
+                       predays = predays,
+                       weightslayers = weightslayers,
+                       stringsAsFactors = FALSE)
+  return(output)
+}
+
+
+
+
+
+
+init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
+                    Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
+                    memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",reg=reg){
+  ##---- Clear the R registry
+  clearRegistry(reg)
+  
+  ##---- Create jobs
+  ##----  create jobs from variable grid
+  jobs<- batchMap(fun = func,
+                  create.jobgrid(rasterdir = rasterdir,
+                                 extractionlayer = extractionlayer,
+                                 layername = layername,
+                                 IDfield = IDfield,
+                                 Xfield = Xfield,
+                                 Yfield = Yfield,
+                                 startdatefield = startdatefield,
+                                 enddatefield = enddatefield,
+                                 predays = predays,
+                                 weightslayers = weights),
+                  reg = reg)
+  
+  setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
+  jobs$chunk <- chunk(jobs$job.id, chunk.size = chunk.size)
+  
+  
+  getJobTable()
+  getStatus()
+  
+  ##---- Submit Jobs
+  if(toupper(scheduler) = "SLURM"){
+    if(partition = "linux12h"){walltime<- 43100}else{walltime=36000000000}
+    done <- batchtools::submitJobs(jobs, 
+                                   reg=reg, 
+                                   resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory))
+  }else if(toupperr(scheduler)="SOCKET"){
+  done<- batchtools::submitJobs(jobs,resources = list(memory=memory),reg = reg)
+  }else{
+    done<- batchtools::submitJobs(resources = c(walltime=360000000000, memory=memory),reg = reg)
+    }
+  waitForJobs()
+  
+  # If any of the jobs failed, they will be displayed here as 'Errors"
+  getStatus()
+  
+  # Look at the Error Messages to see what the errors are:
+  getErrorMessages()
+  
+}
+
+
+
+
+
+##---- Function to extract Raster Data to points or polygons weighted/unweighted based on other rasters
 extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
   ##---- Load required packages, needs to be inside function for batch jobs
@@ -179,12 +287,14 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   }  
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
 
 }
 
 
 
+
+##---- Function to perform time invariant raster data extraction to points or polygons with or without raster weighting
 simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
   ##---- Load required packages, needs to be inside function for batch jobs
@@ -295,7 +405,7 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
   }  
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
   
 }
 
@@ -303,10 +413,65 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
 
 
 
-#####Recombine Outputs from Parallelization
-append.results= function(x){
+##---- Function to append all Recombine Outputs from Parallelization
+combine.results= function(x){
   
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################################################################################
+
+##---- An example Function
+get_random_mean <- function(mu, sigma, ...){
+  stim<-Sys.time()
+  Sys.sleep(runif(1)*22)
+  x <- rnorm(100, mean = mu, sd = sigma)
+  out<- c(sample_mean = mean(x), sample_sd = sd(x), Node=system("hostname", intern=TRUE),
+          Rversion=paste(R.Version()[6:7], collapse="."),starttime=stim,endtime=Sys.time())
+}
+
+
+##---- An example Function
+myFct <- function(cpucore) {
+  Sys.sleep(10) # to see job in queue, pause for 10 sec
+  result <- cbind(iris[cpucore, 1:4],
+                  Node=system("hostname", intern=TRUE),
+                  Rversion=paste(R.Version()[6:7], collapse="."))
+  return(result)
+}
+
+
+##---- An example inner Parallel Function
+innerParallel <- function(cpu){
+  
+  #Must supply inner function inside the outer function
+  myFct <- function(cpucore) {
+    stim<-Sys.time() # logging clock time shows that the inner function is called at the same time across all cores, not sequentially
+    Sys.sleep(10) # to see job in queue, pause for 10 sec
+    etim<-Sys.time()
+    result <- cbind(iris[cpucore, 1:4,],
+                    Node=system("hostname", intern=TRUE),
+                    Rversion=paste(R.Version()[6:7], collapse="."),
+                    start = stim,
+                    end = etim)
+    return(result)
+  }
+  
+  parallelMap::parallelMap(myFct,1:cpu)
+}
                                   
 
