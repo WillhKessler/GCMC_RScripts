@@ -114,7 +114,8 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     ## Reproject everything to the same resolution and CRS
     print('reprojecting clim vars')
     polygons<-project(polygons,crs(rasters))
-    crs(weightrast)<-crs(rasters)
+    #crs(weightrast)<-crs(rasters)
+    weightrast<-project(weightrast,rasters)
     
     print('cropping weightrasters')
     weightrast<-crop(weightrast,polygons,snap="out")
@@ -158,6 +159,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   ##---- Perform Extractions
   if(is.polygons(polygons)){
     if(is.na(weightslayers)){
+      polygons<-project(polygons,crs(rasters))
       rasters2<- crop(x = rasters, y = polygons,snap = 'out')
       tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
       tempnames<-names(tempoutput)
@@ -167,6 +169,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
       
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
+    polygons<-project(polygons,crs(rasters))
     output<-extract(x = rasters,y = polygons,ID=FALSE)
     names(output)<-names(rasters)
     output<-cbind(polygons,output)
@@ -227,7 +230,8 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
     ## Reproject everything to the same resolution and CRS
     print('reprojecting clim vars')
     polygons<-project(polygons,crs(rasters))
-    crs(weightrast)<-crs(rasters)
+    #crs(weightrast)<-crs(rasters)
+    weightrast<-project(weightrast,rasters)
     
     print('cropping weightrasters')
     weightrast<-crop(weightrast,polygons,snap="out")
@@ -271,6 +275,7 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
   ##---- Perform Extractions
   if(is.polygons(polygons)){
     if(is.na(weightslayers)){
+      polygons<-project(polygons,crs(rasters))
       rasters2<- crop(x = rasters, y = polygons,snap = 'out')
       tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
       tempnames<-names(tempoutput)
@@ -280,6 +285,7 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
       
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
+    polygons<-project(polygons,crs(rasters))
     output<-extract(x = rasters,y = polygons,ID=FALSE)
     names(output)<-names(rasters)
     output<-cbind(polygons,output)
