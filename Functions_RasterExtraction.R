@@ -134,7 +134,7 @@ init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = 
   getStatus()
   
   ##---- Submit Jobs
-  if(toupper(scheduler) = "SLURM"){
+  if(toupper(scheduler) == "SLURM"){
     if(partition = "linux12h"){walltime<- 43100}else{walltime=36000000000}
     done <- batchtools::submitJobs(jobs, 
                                    reg=reg, 
