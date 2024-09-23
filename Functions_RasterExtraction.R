@@ -135,11 +135,11 @@ init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = 
   
   ##---- Submit Jobs
   if(toupper(scheduler) == "SLURM"){
-    if(partition = "linux12h"){walltime<- 43100}else{walltime=36000000000}
+    if(partition == "linux12h"){walltime<- 43100}else{walltime=36000000000}
     done <- batchtools::submitJobs(jobs, 
                                    reg=reg, 
                                    resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory))
-  }else if(toupperr(scheduler)="SOCKET"){
+  }else if(toupperr(scheduler)=="SOCKET"){
   done<- batchtools::submitJobs(jobs,resources = list(memory=memory),reg = reg)
   }else{
     done<- batchtools::submitJobs(resources = c(walltime=360000000000, memory=memory),reg = reg)
