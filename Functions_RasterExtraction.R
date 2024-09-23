@@ -1,11 +1,12 @@
 ##---- Load Required Packages
-load.packages<- function()
+load.packages<- function(){
   listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
-for (i in listOfPackages){
-  if(! i %in% installed.packages()){
-    install.packages(i, dependencies = TRUE)
+  for (i in listOfPackages){
+    if(! i %in% installed.packages()){
+      install.packages(i, dependencies = TRUE)
+    }
+    require(i,character.only=TRUE)
   }
-  require(i,character.only=TRUE)
 }
 
 
