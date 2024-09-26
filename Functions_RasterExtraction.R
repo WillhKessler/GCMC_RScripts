@@ -72,7 +72,7 @@ extract.rast= function(vars,pieces,rasterdir,extractionlayer,layername,IDfield,X
   ##---- Extraction Features Layer
   if(file_ext(extractionlayer)=='csv'){
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
-    extlayer<- vect(x = extlayer,geom = c(Xfield,Yfield),keepgeom=TRUE)
+    extlayer<- vect(x = extlayer,geom = c(Xfield,Yfield),crs="EPSG:4326",keepgeom=TRUE)
     extlayer<-terra::subset(x = extlayer,extlayer$OID %in% pieces)
   }else if (file_ext(extractionlayer) %in% c("gdb")){
     extlayer<-vect(x=extractionlayer,query = paste0("SELECT * FROM ",layername," WHERE ","OID"," IN (",paste(shQuote(pieces,type="sh"),collapse=", "),")"))

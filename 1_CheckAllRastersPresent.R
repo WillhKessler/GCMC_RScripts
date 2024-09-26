@@ -20,6 +20,7 @@ allYears<-c("1984","1985","1986","1987","1988","1989",
 allDates<-apply(expand.grid(allYears,allMonths,allDays),1,paste,collapse="-")
 allDates<-allDates[order(allDates)]
 
+
 #Recursively list all paths to TIFF rasters in the directory
 allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
 head(allFilePaths)
