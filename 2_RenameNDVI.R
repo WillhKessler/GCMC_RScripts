@@ -32,7 +32,7 @@ for(i in files){
       print(paste("oldfile: ",i))
       print(paste("new file name: ",newname))
       print(paste("new file path:",paste0(outdir,res,"m","\\",region,"\\",newname)))
-      file.copy(i,to=paste0(outdir,res,"m","\\",region,"\\",newname))
+      file.copy(i,to=paste0(outdir,res,"m","\\",region,"\\",newname),overwrite=TRUE)
       
     }else{
       #Get the NDVI regions from the Data archive
@@ -44,7 +44,7 @@ for(i in files){
       print(paste("oldfile: ",i))
       print(paste("new file name: ",newname))
       print(paste("new file path: ",paste0(outdir,"focalstats_",res,"m","\\",region,"\\",newname)))
-      file.copy(i,to=paste0(outdir,"focalstats_",res,"m","\\",region,"\\",newname))
+      file.copy(i,to=paste0(outdir,"focalstats_",res,"m","\\",region,"\\",newname),overwrite=TRUE)
       
     }
     
