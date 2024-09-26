@@ -10,6 +10,7 @@ startdatefield = "start_date" # Field in extraction layer specifying first date 
 enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
+email="" # provide an email. slurm can send an email indicating when your jobs are finished. 
 
 
 
@@ -126,7 +127,11 @@ getStatus()
 ##---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs, 
                                reg=reg, 
+<<<<<<< HEAD
                                resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=1000))
+=======
+                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=80000,email=email))
+>>>>>>> 0cb4aef7adc4c649a6aa3bf975621b019a67005d
 getStatus()
 
 waitForJobs() # Wait until jobs are completed

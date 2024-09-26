@@ -1,11 +1,12 @@
 ##---- Load Required Packages
-load.packages<- function()
+load.packages<- function(){
   listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
-for (i in listOfPackages){
-  if(! i %in% installed.packages()){
-    install.packages(i, dependencies = TRUE)
+  for (i in listOfPackages){
+    if(! i %in% installed.packages()){
+      install.packages(i, dependencies = TRUE)
+    }
+    require(i,character.only=TRUE)
   }
-  require(i,character.only=TRUE)
 }
 
 
@@ -134,12 +135,12 @@ init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = 
   getStatus()
   
   ##---- Submit Jobs
-  if(toupper(scheduler) = "SLURM"){
-    if(partition = "linux12h"){walltime<- 43100}else{walltime=36000000000}
+  if(toupper(scheduler) == "SLURM"){
+    if(partition == "linux12h"){walltime<- 43100}else{walltime=36000000000}
     done <- batchtools::submitJobs(jobs, 
                                    reg=reg, 
                                    resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory))
-  }else if(toupperr(scheduler)="SOCKET"){
+  }else if(toupperr(scheduler)=="SOCKET"){
   done<- batchtools::submitJobs(jobs,resources = list(memory=memory),reg = reg)
   }else{
     done<- batchtools::submitJobs(resources = c(walltime=360000000000, memory=memory),reg = reg)
@@ -183,7 +184,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   if(file_ext(extractionlayer)=='csv'){
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     extlayer<-extlayer[extlayer[IDfield]==piece,]
-    polygons<- vect(x = extlayer,geom = c(Xfield,Yfield), keepgeom=TRUE)
+    polygons<- vect(x = extlayer,geom = c(Xfield,Yfield),crs="EPSG:4326",keepgeom=TRUE)
   }else if (file_ext(extractionlayer) %in% c("gdb")){
     polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
   }else if (file_ext(extractionlayer) %in% c("shp")){
