@@ -127,11 +127,8 @@ getStatus()
 ##---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs, 
                                reg=reg, 
-<<<<<<< HEAD
-                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=1000))
-=======
-                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=80000,email=email))
->>>>>>> 0cb4aef7adc4c649a6aa3bf975621b019a67005d
+                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=1000,email=email))
+
 getStatus()
 
 waitForJobs() # Wait until jobs are completed
