@@ -4,8 +4,8 @@ require('stringdist')
 require('tools')
 
 #List all NDVI files
-#files<- list.files("E:\\.shortcut-targets-by-id\\1h9cmIyzx_TtG1VTHvrQ_Cq2IQrJzIwqF\\NDVI",pattern = "*.tif$",full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
-files<- list.files("H:\\My Drive\\NDVI",pattern = "*.tif$",full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
+files<- list.files("E:\\.shortcut-targets-by-id\\1h9cmIyzx_TtG1VTHvrQ_Cq2IQrJzIwqF\\NDVI",pattern = "*.tif$",full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
+#files<- list.files("H:\\My Drive\\NDVI",pattern = "*.tif$",full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
 outdir<-"S:\\GCMC\\Data\\Greenness\\NDVI\\"
 
 n=1
