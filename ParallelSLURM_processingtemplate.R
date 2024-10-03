@@ -13,10 +13,19 @@ weights = NA # string specifying file path to raster weights, should only be use
 email = "" Enter your email. SLURM will send you an email when your jobs are complete.
 
 
+
 ##---- Required Packages
-library(batchtools)
-require(terra)
-require(tools)
+#---- Required Packages
+##---- Required Packages
+listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
+for (i in listOfPackages){
+  if(! i %in% installed.packages()){
+    install.packages(i, dependencies = TRUE)
+  }
+  require(i,character.only=TRUE)
+}
+
+
 
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
@@ -54,15 +63,27 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
   pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
   
   if(file_ext(extractionlayer)=="csv"){
-    feature<-unique(read.csv(extractionlayer)[,IDfield])
+    feature<-read.csv(extractionlayer,stringsAsFactors = FALSE)
+    feature$OID<-1:nrow(feature)
+    write.csv(x = feature,file = paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv"),row.names = FALSE)
+    feature<-feature$OID
     layername = NA
     weightslayers = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
+    IDfield="OID"
   }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
     require('terra')
     vectorfile<- vect(x=extractionlayer,layer=layername)
-    feature<- unlist(unique(values(vectorfile[,IDfield])))
+    vectorfile$OID<-1:nrow(vectorfile)
+    writeVector(x = vectorfile,filename = paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer)),layer=layername,overwrite=TRUE)
+    feature<- unlist(unique(values(vectorfile[,"OID"])))
     Xfield = NA
     Yfield = NA
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
+    IDfield="OID"
+    if (file_ext(extractionlayer)=="shp"){
+      layername<-paste0(extractionlayer,"_tmp")
+    }
   }
   
   output<- expand.grid(vars = pvars,
@@ -106,7 +127,8 @@ getStatus()
 ##---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs, 
                                reg=reg, 
-                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=80000,email=email))
+                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=1000,email=email))
+
 getStatus()
 
 waitForJobs() # Wait until jobs are completed
