@@ -161,7 +161,7 @@ init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = 
 
 
 ##---- Function to extract Raster Data to points or polygons weighted/unweighted based on other rasters
-extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
+extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
   ##---- Load required packages, needs to be inside function for batch jobs
   require(terra)
