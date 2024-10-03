@@ -54,6 +54,7 @@ select.Cluster<- function(projectdirectory=projectdirectory,scheduler=scheduler)
 
 
 
+
 ##---- Create batchtgrid
 create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
   require("tools")
@@ -153,6 +154,7 @@ init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = 
   # Look at the Error Messages to see what the errors are:
   getErrorMessages()
 }
+
 
 
 
