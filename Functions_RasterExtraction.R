@@ -280,7 +280,7 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
     polygons<-project(polygons,crs(rasters))
-    output<-extract(x = rasters,y = polygons,ID=FALSE)
+    output<-terra::extract(x = rasters,y = polygons,ID=FALSE)
     names(output)<-names(rasters)
     output<-cbind(polygons,output)
     longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
