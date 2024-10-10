@@ -3,7 +3,7 @@ require(tools)
 require(utils)
 #########################################
 ##---Required Inputs---------############
-zipdir<-"S:\\GCMC\\Data\\AirPollution\\Ozone\\Daily"
+zipdir<-"S:\\GCMC\\Data\\AirPollution\\ec"
 
 #########################################
 ##---- Clipping Boundary
