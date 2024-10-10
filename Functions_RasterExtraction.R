@@ -1,6 +1,6 @@
 ##---- Load Required Packages
 load.packages<- function(){
-  listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
+  listOfPackages <- c("batchtools","terra","tools","reshape2","ids","lubridate")
   for (i in listOfPackages){
     if(! i %in% installed.packages()){
       install.packages(i, dependencies = TRUE)
@@ -168,6 +168,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   require(reshape2)
   require(tools)
   require(ids)
+  require(lubridate)
   print(system("hostname",intern=TRUE))
   print(paste('Current working directory:',getwd()))
   print(paste('Current temp directory:',tempdir()))
@@ -186,14 +187,23 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     extlayer<-extlayer[extlayer[IDfield]==piece,]
     polygons<- vect(x = extlayer,geom = c(Xfield,Yfield),crs="EPSG:4326",keepgeom=TRUE)
+    rm(extlayer)
   }else if (file_ext(extractionlayer) %in% c("gdb")){
     polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
   }else if (file_ext(extractionlayer) %in% c("shp")){
     polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
   }
+  
+  if(period=="monthly"){
+    polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"month"))
+    polygons$stop_date<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"month")-1)
+  }else if(period=="yearly"){
+    polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"year"))
+    polygons$stop_date<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"year")-1)
+  }else{
   polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays)
   polygons$stop_date<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")))
-  
+  }
   
   ##---- Create extraction date ranges for points
   polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
@@ -202,13 +212,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   
   
-  ##---- Determine which raster dates fall within the data range
-  rasterDateRange<-rdates[as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))>=min(polygons$first_extract) & as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))<=max(polygons$last_extract)]
-  # Load Climate Rasters
-  print("loading the climvars to rast()")
-  climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
-  rasters<- rast(climvars2)
-  names(rasters)<-rasterDateRange
+  
   #################################################################
   #################################################################
   ##---- Weights Rasters for spatial weights
@@ -267,6 +271,14 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   #################################################################
   
   ##---- Perform Extractions
+  
+  ##---- Determine which raster dates fall within the data range
+  rasterDateRange<-rdates[as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))>=min(polygons$first_extract) & as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))<=max(polygons$last_extract)]
+  # Load Climate Rasters
+  print("loading the climvars to rast()")
+  climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
+  rasters<- rast(climvars2)
+  names(rasters)<-rasterDateRange
   if(is.polygons(polygons)){
     if(is.na(weightslayers)){
       polygons<-project(polygons,crs(rasters))
@@ -277,14 +289,37 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
       output<-cbind(polygons,tempoutput)
       longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
       
-    }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
+    }else{
+      output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)
+      }
   }else if(is.points(polygons)){
     polygons<-project(polygons,crs(rasters))
-    output<-extract(x = rasters,y = polygons,ID=FALSE)
+    output<-terra::extract(x = rasters,y = polygons,ID=FALSE)
     names(output)<-names(rasters)
-    output<-cbind(polygons,output)
-    longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
-  }  
+    
+  } 
+  
+  row_average_function <- function(row_data) {
+    tapply(as.numeric(row_data), timeperiod, mean)
+  }
+  # Calculate period averages
+  if(period =="monthly"){
+      timeperiod<-substr(colnames(output),1,6)
+      monthlyaverages<-t(apply(output,1,row_average_function))
+      output<-cbind(polygons,as.data.frame(monthlyaverages))
+      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+      
+    }else if(period="yearly"){
+      timeperiod<-substr(colnames(output),1,4)
+      yearaverages<-t(apply(output,1,row_average_function))
+      output<-cbind(polygons,as.data.frame(yearaverage))
+      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    }else{
+      output<-cbind(polygons,output)
+      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    }
+    
+
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
@@ -572,13 +607,17 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
 
 
 
+
+
+
 ##---- Function to append all Recombine Outputs from Parallelization
-combine.results= function(projectname=PROJECT_NAME,reg=reg){
+combine.results= function(projectname=PROJECT_NAME){
   require('batchtools')
   require('tidyr')
+  require('terra')
   
   ##---- Load Registry
-  reg<- loadRegistry(reg)
+  reg<- loadRegistry(paste(PROJECT_NAME,"Registry",sep="_"))
   
   ##---- Create Jobs Table
   jobs<-getJobPars(reg=reg)
@@ -599,13 +638,13 @@ combine.results= function(projectname=PROJECT_NAME,reg=reg){
     out2<- lapply(out,terra::as.data.frame)
     rm(out)
     out3<-Reduce(function(dtf1,dtf2){merge(dtf1,dtf2,all=TRUE)},out2)
+  
+    #longout<-lapply(out2,function(x){reshape2::melt(melt(x,id.vars=colnames(x)[!grepl("^\\d{4}\\-?\\d{2}\\-?\\d{2}\\b",colnames(x))],
+    #                                                     variable.names="date",value.name=v,na.rm=FALSE))})
+    longout<- lapply(out2,function(x){as.data.frame(x%>% pivot_longer(cols= colnames(x)[grepl("^\\d{4}\\-?\\d{2}\\-?\\d{2}\\b",colnames(x))],names_to = "date",values_to = v))})
     rm(out2)
-    longout<-lapply(out2,function(x){reshape2::melt(melt(x,id.vars=colnames(x)[!grepl("^\\d{4}\\-\\d{2}\\-\\d{2}\\b",colnames(x))],
-                                                         variable.names="date",value.name=v,na.rm=FALSE))})
-    longout<- lapply(out2,function(x){as.data.frame(x%>% pivot_longer(cols= colnames(x)[grepl("^\\d{4}\\-\\d{2}\\-\\d{2}\\b",colnames(x))],names_to = "date",values_to = v))})
-   
     longout<-do.call("rbind",longout)
-    write.csv(longout,paste("_LONG",".csv",sep=""))
+    write.csv(longout,paste(projectname,"_LONG_",v,".csv",sep=""))
     write.csv(out3,paste(projectname,"_",v,".csv",sep=""))
     saveRDS(out3,file=paste(projectname,"_",v,".rds",sep=""))
   }
