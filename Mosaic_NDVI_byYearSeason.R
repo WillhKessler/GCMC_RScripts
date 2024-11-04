@@ -1,13 +1,13 @@
 require(terra)
 require(tools)
-greennessDir<-"S:/GCMC/Data/Greenness/NDVI/focalstats_1230m"
-outputdir<-"S:/GCMC/Data/Greenness/NDVI/focalstats_1230m_CONUS"
+greennessDir<-"S:/GCMC/Data/Greenness/NDVI/focalstats_270m"
+outputdir<-"S:/GCMC/Data/Greenness/NDVI/focalstats_270m_CONUS"
 
 
 
 ## Recursively list all paths to TIFF rasters in the directory
 ## Input Directory
-allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
+allFilePaths<- list.files(path = greennessDir,pattern = "*2001-01-01.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
 head(allFilePaths)
 
 ## Mosaic all rasters for each season and write to disk
