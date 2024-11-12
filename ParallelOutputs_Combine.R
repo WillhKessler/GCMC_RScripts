@@ -22,7 +22,7 @@ for(v in as.character(unique(unlist(results[,1])))){
   out3<-Reduce(function(dtf1,dtf2){merge(dtf1,dtf2,all=TRUE)},out2)
 
   # Convert to LONG format
-  longout<- lapply(out2,function(x){as.data.frame(x%>% pivot_longer(cols= colnames(x)[grepl("^\\d{4}\\-\\d{2}\\-\\d{2}\\b",colnames(x))],names_to = "date",values_to = v))})
+  longout<- lapply(out2,function(x){as.data.frame(x%>% pivot_longer(cols= colnames(x)[grepl("^\\d{4}\\-?\\d{2}\\-?\\d{2}\\b",colnames(x))],names_to = "date",values_to = v))})
   longout<-do.call("rbind",longout)
 
   # Write tabular outputs: wide, long, RDS
