@@ -400,3 +400,6 @@ for(v in as.character(unique(unlist(results[,1])))){
   saveRDS(out3,file=paste("VITAL_NDVIDAILY_",v,".rds",sep=""))
 }
 ```
+## TIPS and Suggestions
+1. Get familiar with working with Batchtools commands. If your jobs are failing, you can use the batchtools commands to help trouble shoot.
+2. Consider doing a trial run with a subset of your data. This may require you to modify the ParallelXXXXX_processingtemplate to only submit a few jobs, or modify the scripts to not submit any jobs, and then submit manually using batchtools commands. 
