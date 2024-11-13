@@ -358,6 +358,11 @@ Additional R configuration parameters can be set here, but that is not considere
 ## ABOUT ParallelOutputs_Combine.R
 The script takes all the results of all the individual jobs executed by the Parallel Processing workflow, above, and reconstitutes them into a single file. 
 This script can be run using the same process as running the Parallel Processing Template (using sbR, sbatch, or 'run' on a local machine). 
+The final results are:
+1. CSV in WIDE format (one row per feature, columns added for each joined observation)
+2. CSV in LONG format (multiple rows per feature, each row represents a single day/month observation)
+3. RDS file of results in WIDE format
+   
 
 Please note that this process is very memory intensive. Your submission may fail due to OOM errors. Increase the memsize requirements in sbR or sbatch as necessary
 
