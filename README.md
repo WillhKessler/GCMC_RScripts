@@ -357,6 +357,9 @@ Additional R configuration parameters can be set here, but that is not considere
 
 ## ABOUT ParallelOutputs_Combine.R
 The script takes all the results of all the individual jobs executed by the Parallel Processing workflow, above, and reconstitutes them into a single file. 
+
+Use `wget` to download the ParallelOutputs_Combine.R script
+```wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelOutputs_Combine.R"```
 This script can be run using the same process as running the Parallel Processing Template (using sbR, sbatch, or 'run' on a local machine). 
 The final results are:
 1. CSV in WIDE format (one row per feature, columns added for each joined observation)
