@@ -1,16 +1,16 @@
 ##---- REQUIRED INPUTS ----##
-PROJECT_NAME<-"ExampleLinkage" # string with a project name
-rasterdir<- "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
+PROJECT_NAME = "ExampleLinkage" # string with a project name
+rasterdir = "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
 extractionlayer = "/d/tmp/nhairs/nhair0a/BellaviaLinkage/sites_10M/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
-layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
-IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
-Xfield<- "X"
-Yfield<- "Y"
+layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB, ignored when extraction layer is a CSV
+IDfield = "ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
+Xfield = "X" # A Field containing the X coordinate (Longitude), in decimal degrees, only for CSV
+Yfield = "Y" # A Field containing the Y coordinate (Longitude), in decimal degrees, only for CSV
 startdatefield = "start_date" # Field in extraction layer specifying first date of observations
 enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
-email = "" #Enter your email. SLURM will send you an email when your jobs are complete.
+email = "" # Enter your email. SLURM will send you an email when your jobs are complete.
 
 
 
