@@ -10,7 +10,7 @@ startdatefield = "start_date" # Field in extraction layer specifying first date 
 enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
-#email = "" Enter your email. SLURM will send you an email when your jobs are complete.
+email = "" Enter your email. SLURM will send you an email when your jobs are complete.
 
 
 
