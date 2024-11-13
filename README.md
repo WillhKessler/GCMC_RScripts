@@ -172,9 +172,14 @@ Next, the script will load the required packages which include `batchtools`, `te
 You shouldn't need to modify any of this information.
 ```
 ##---- Required Packages
-library(batchtools)
-require(terra)
-require(tools)
+listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
+for (i in listOfPackages){
+  if(! i %in% installed.packages()){
+    install.packages(i, dependencies = TRUE)
+  }
+  require(i,character.only=TRUE)
+}
+
 
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
