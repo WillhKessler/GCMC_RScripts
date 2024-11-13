@@ -352,3 +352,4 @@ This is a configuration file for R that allows you to pass specific information 
 ```
 cluster.functions = makeClusterFunctionsSlurm(template="slurm.tmpl")
 ```
+Additional R configuration parameters can be set here, but that is not considered in this workflow. 
