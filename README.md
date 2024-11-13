@@ -279,15 +279,15 @@ getStatus()
 
 waitForJobs() # Wait until jobs are completed
 ```
-`waitForJobs()` will often return FALSE when using SLURM as the jobs can sometimes get lost by the manager. But don't worry, they're still running. However, due to this quirk, we don't rely on this script for subsequent processing. 
+A quirk in the BWH compute cluster causes `waitForJobs()` to often return FALSE. It may apear that the jobs can sometimes get lost by the manager, but don't worry, they're still running. However, due to this quirk, we don't rely on this script for subsequent processing. 
 
 ## ABOUT Functions_RasterExtraction.R
-This file is the source for the raster extraction procedure implemented in this workflow. This file isn't downloaded directly, but `ParallelXXXXX_processingtemplate.R` sources functions from this file. 
+This file is the source for the raster extraction procedure implemented in this workflow. This file isn't downloaded directly, but `ParallelXXXXX_processingtemplate.R` sources functions from this file which is hosted in this Github Repository. Other functions could be supplied to the ParallelXXXXX_prrocesstemplate.R instead, if the appropriate changes are made to the template. 
 
 ## ABOUT slurm.tmpl
-This is a brew template which is a bash script telling the slurm job scheduler how to allocate resources. Double `##` are comments and not interpreted by the bash script. Anything denoted by a single `#SBATCH` is interpreted by SLURM and passed to the unix system in the bash script.  
+This is a brew template which is a bash script telling the slurm job scheduler how to allocate resources. If you are familiar with submitting SLURM jobs with sbatch, the slurm.tmpl contains the same contents as an sbatch submission script. Double `##` are comments and not interpreted by the bash script. Anything denoted by a single `#SBATCH` is interpreted by SLURM and passed to the unix system in the bash script.  
 Notice here we are loading R module 4.3.0 which on my system contains all the necessary packages
-Further note that all the information passed to SLURM with `#SBATCH` should be specified in the ParallelXXXXXX_processingtemplate.R
+Further note that all the information passed to SLURM with `#SBATCH` should be specified as resources in the ParallelXXXXXX_processingtemplate.R in the batchtools::submitJobs(...resources=list())
 
 ```
 #!/bin/bash -l
