@@ -32,7 +32,7 @@ select.Cluster<- function(projectdirectory=projectdirectory,scheduler=scheduler)
   #setwd(projectdirectory)
   load.packages()
   set.parallel.registry()
-  if (clustersys=="SLURM"){
+  if (scheduler=="SLURM"){
     if(!file.exists("slurm.tmpl")){
       download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/slurm.tmpl","slurm.tmpl")
     }else{
