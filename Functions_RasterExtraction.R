@@ -109,7 +109,7 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
 
 init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
                     Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
-                    memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",reg=reg){
+                    memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",email=email,reg=reg){
   ##---- Clear the R registry
   clearRegistry(reg)
   
@@ -140,7 +140,7 @@ init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = 
     if(partition == "linux12h"){walltime<- 43100}else{walltime=36000000000}
     done <- batchtools::submitJobs(jobs, 
                                    reg=reg, 
-                                   resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory))
+                                   resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory,email=email))
   }else if(toupperr(scheduler)=="SOCKET"){
   done<- batchtools::submitJobs(jobs,resources = list(memory=memory),reg = reg)
   }else{
