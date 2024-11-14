@@ -29,7 +29,7 @@ set.parallel.registry<-function(){
 
 ##---- Select and Set Cluster Function Settings
 select.Cluster<- function(projectdirectory=projectdirectory,scheduler=scheduler){
-  setwd(projectdirectory)
+  #setwd(projectdirectory)
   load.packages()
   set.parallel.registry()
   if (clustersys=="SLURM"){
