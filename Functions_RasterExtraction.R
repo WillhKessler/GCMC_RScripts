@@ -199,10 +199,14 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
   polygonsendSeasonIndex<- sapply(polygons$stop_date, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
 
-  #if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){}
-  #                                else if (){}
-  #                                else if (){}
-  #                                else{}
+  #if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
+                                  #output<- polygons
+                                  #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+                                  # return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  #} else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
+  # polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))))
+  #}else{                               
+  #}
   
   polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
