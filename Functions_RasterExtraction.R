@@ -20,6 +20,7 @@ set.parallel.registry<-function(){
   }else{
     reg = makeRegistry(file.dir = paste(PROJECT_NAME,"Registry",sep="_"), seed = 42)
   }
+  return(reg)
 }
 
 
@@ -31,7 +32,7 @@ set.parallel.registry<-function(){
 select.Cluster<- function(projectdirectory=getwd(),scheduler="SLURM"){
   #setwd(projectdirectory)
   load.packages()
-  set.parallel.registry()
+  reg = set.parallel.registry()
   if (scheduler=="SLURM"){
     if(!file.exists("slurm.tmpl")){
       download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/slurm.tmpl","slurm.tmpl")
