@@ -146,7 +146,7 @@ init.jobs = function(func = extract.rast,rasterdir,extractionlayer,layername,IDf
     done <- batchtools::submitJobs(jobs, 
                                    reg=reg, 
                                    resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory,email=email))
-  }else if(toupperr(scheduler)=="SOCKET"){
+  }else if(toupper(scheduler)=="SOCKET"){
   done<- batchtools::submitJobs(jobs,resources = list(memory=memory),reg = reg)
   }else{
     done<- batchtools::submitJobs(resources = c(walltime=360000000000, memory=memory),reg = reg)
