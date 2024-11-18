@@ -49,7 +49,8 @@ select.Cluster<- function(projectdirectory=getwd(),scheduler="SLURM"){
     reg$cluster.functions=makeClusterFunctionsSocket()
   }
   else {}
-}
+return(reg)
+  }
 
 
 
