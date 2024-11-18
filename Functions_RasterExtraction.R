@@ -1,5 +1,5 @@
 ##---- Load Required Packages
-load.packages<- function(){
+load.packages = function(){
   listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
   for (i in listOfPackages){
     if(! i %in% installed.packages()){
@@ -14,7 +14,7 @@ load.packages<- function(){
 
 
 ##---- Create a temporary registry item
-set.parallel.registry<-function(){
+set.parallel.registry = function(){
   if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
     reg = loadRegistry(paste(PROJECT_NAME,"Registry",sep="_"),writeable = TRUE)
   }else{
@@ -29,7 +29,7 @@ set.parallel.registry<-function(){
 
 
 ##---- Select and Set Cluster Function Settings
-select.Cluster<- function(projectdirectory=getwd(),scheduler="SLURM"){
+select.Cluster = function(projectdirectory=getwd(),scheduler="SLURM"){
   #setwd(projectdirectory)
   load.packages()
   reg = set.parallel.registry()
@@ -108,10 +108,13 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
 
 
 
-
-init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
-                    Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
-                    memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",email=email,reg=reg){
+init.jobs = function(func = extract.rast,rasterdir,extractionlayer,layername,IDfield,Xfield,
+                     Yfield,startdatefield,enddatefield,predays,weightslayers,chunk.size = 1000,
+                     memory = 2048,partition="linux01", projectdirectory,projectname, scheduler = "interactive",email=email,reg=reg){
+  
+# init.jobs = function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
+#                     Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
+#                     memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",email=email,reg=reg){
   ##---- Clear the R registry
   clearRegistry(reg)
   
