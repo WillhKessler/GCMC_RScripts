@@ -28,11 +28,11 @@ set.parallel.registry<-function(){
 
 
 ##---- Select and Set Cluster Function Settings
-select.Cluster<- function(projectdirectory=projectdirectory,scheduler=scheduler){
-  setwd(projectdirectory)
+select.Cluster<- function(projectdirectory=getwd(),scheduler="SLURM"){
+  #setwd(projectdirectory)
   load.packages()
   set.parallel.registry()
-  if (clustersys=="SLURM"){
+  if (scheduler=="SLURM"){
     if(!file.exists("slurm.tmpl")){
       download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/slurm.tmpl","slurm.tmpl")
     }else{
@@ -109,7 +109,7 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
 
 init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
                     Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
-                    memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",reg=reg){
+                    memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",email=email,reg=reg){
   ##---- Clear the R registry
   clearRegistry(reg)
   
@@ -140,7 +140,7 @@ init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = 
     if(partition == "linux12h"){walltime<- 43100}else{walltime=36000000000}
     done <- batchtools::submitJobs(jobs, 
                                    reg=reg, 
-                                   resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory))
+                                   resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory,email=email))
   }else if(toupperr(scheduler)=="SOCKET"){
   done<- batchtools::submitJobs(jobs,resources = list(memory=memory),reg = reg)
   }else{
@@ -198,6 +198,16 @@ extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xf
   ##---- Create extraction date ranges for points
   polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
   polygonsendSeasonIndex<- sapply(polygons$stop_date, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+
+  #if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
+                                  #output<- polygons
+                                  #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+                                  # return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  #} else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
+  # polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))))
+  #}else{                               
+  #}
+  
   polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   

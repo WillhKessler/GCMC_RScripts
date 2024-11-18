@@ -1,5 +1,5 @@
 # READ ME:
-The principal code provided in this repository is a workflow for using the 'terra' R package to extract raster data to points or polygons based on specific time intervals. It was originally written to assist in linking public health cohort data to environmental exposure data in the form of daily or monthly raster data. A user supplies a CSV, SHAPEFILE, or GDB feature class containing point or polygon features with start and end observation dates, and a set of raster layers with the file name ending with an observation date. Using `batchtools` a processing job is created for each feature:variable combination with their corresponding start and end dates. These jobs are then submitted to the cluster utilizing the SLURM job manager. The internally supplied raster functions use the job information regarding features, raster variable and date ranges to identify which rasters fall within a given input feature's observation period and extracts the raster values corresponding to the feature's location. For Polygon features, a weighting raster can be supplied to generate a weighted average within the feature, e.g. a population-weighted average temperature exposure within a census tract. Care should be taken to ensure that the input features and raster data are in the same coordinate reference system as those transformations are not handled here. This workflow is implemented with `batchtools` in R to run in parallel on a compute cluster using the SLURM job manager, or in parallel or serial locally. 
+The principal code provided in this repository is a workflow for using the 'terra' R package to extract raster data to points or polygons based on specific time intervals. It was originally written to assist in linking public health cohort data to environmental exposure data in the form of daily or monthly raster data. A user supplies a CSV, SHAPEFILE, or GDB feature class containing point or polygon features with start and end observation dates, and a set of raster layers with the file name ending with an observation date. Using the R parallel processing package, `batchtools` a processing job is created for each feature:variable combination with their corresponding start and end dates. These jobs are then submitted to the cluster utilizing the SLURM job manager. The internally supplied raster functions use the job information regarding features, raster variable and date ranges to identify which rasters fall within a given input feature's observation period and extracts the raster values corresponding to the feature's location. For Polygon features, a weighting raster can be supplied to generate a weighted average within the feature, e.g. a population-weighted average temperature exposure within a census tract. Care should be taken to ensure that the input features and raster data are in the same coordinate reference system as those transformations are not handled here. This workflow is implemented with `batchtools` in R to run in parallel on a compute cluster using the SLURM job manager, or in parallel or serial locally. 
 ```mermaid
 flowchart TD
     A[Timeseries Rasters] -->|Get Variable Names|B
@@ -155,13 +155,13 @@ Download from terminal with ```wget "https://raw.githubusercontent.com/WillhKess
 The following is an example of how to update the required inputs. To use the raster extraction processes outlined here, the following inputs are required. 
 ```
 ##---- REQUIRED INPUTS ----##
-PROJECT_NAME<-"Polygon_PRISM_LINKAGE" # string with a project name
-rasterdir<- "~/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from first level subdirectories i.e /PRISM/an/ppt or /PRISM/an/tmean
+PROJECT_NAME = "Polygon_PRISM_LINKAGE" # string with a project name
+rasterdir =  "~/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from first level subdirectories i.e /PRISM/an/ppt or /PRISM/an/tmean
 extractionlayer = "~/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
-IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
-Xfield<- "X" #A Field containing the X coordinate (Longitude), in decimal degrees, only for CSV
-Yfield<- "Y" # A Field containing the Y coordinate (Latitude), in decimal degrees, only for CSV
+IDfield = "ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
+Xfield = "X" #A Field containing the X coordinate (Longitude), in decimal degrees, only for CSV
+Yfield = "Y" # A Field containing the Y coordinate (Latitude), in decimal degrees, only for CSV
 startdatefield = "start_date" # Field name in extraction layer specifying first date of observations
 enddatefield = "end_date" # Field name in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
@@ -172,9 +172,14 @@ Next, the script will load the required packages which include `batchtools`, `te
 You shouldn't need to modify any of this information.
 ```
 ##---- Required Packages
-library(batchtools)
-require(terra)
-require(tools)
+listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
+for (i in listOfPackages){
+  if(! i %in% installed.packages()){
+    install.packages(i, dependencies = TRUE)
+  }
+  require(i,character.only=TRUE)
+}
+
 
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
@@ -274,15 +279,15 @@ getStatus()
 
 waitForJobs() # Wait until jobs are completed
 ```
-`waitForJobs()` will often return FALSE when using SLURM as the jobs can sometimes get lost by the manager. But don't worry, they're still running. However, due to this quirk, we don't rely on this script for subsequent processing. 
+A quirk in the BWH compute cluster causes `waitForJobs()` to often return FALSE. It may apear that the jobs can sometimes get lost by the manager, but don't worry, they're still running. However, due to this quirk, we don't rely on this script for subsequent processing. 
 
 ## ABOUT Functions_RasterExtraction.R
-This file is the source for the raster extraction procedure implemented in this workflow. This file isn't downloaded directly, but `ParallelXXXXX_processingtemplate.R` sources functions from this file. 
+This file is the source for the raster extraction procedure implemented in this workflow. This file isn't downloaded directly, but `ParallelXXXXX_processingtemplate.R` sources functions from this file which is hosted in this Github Repository. Other functions could be supplied to the ParallelXXXXX_prrocesstemplate.R instead, if the appropriate changes are made to the template. 
 
 ## ABOUT slurm.tmpl
-This is a brew template which is a bash script telling the slurm job scheduler how to allocate resources. Double `##` are comments and not interpreted by the bash script. Anything denoted by a single `#SBATCH` is interpreted by SLURM and passed to the unix system in the bash script.  
+This is a brew template which is a bash script telling the slurm job scheduler how to allocate resources. If you are familiar with submitting SLURM jobs with sbatch, the slurm.tmpl contains the same contents as an sbatch submission script. Double `##` are comments and not interpreted by the bash script. Anything denoted by a single `#SBATCH` is interpreted by SLURM and passed to the unix system in the bash script.  
 Notice here we are loading R module 4.3.0 which on my system contains all the necessary packages
-Further note that all the information passed to SLURM with `#SBATCH` should be specified in the ParallelXXXXXX_processingtemplate.R
+Further note that all the information passed to SLURM with `#SBATCH` should be specified as resources in the ParallelXXXXXX_processingtemplate.R in the batchtools::submitJobs(...resources=list())
 
 ```
 #!/bin/bash -l
@@ -347,3 +352,57 @@ This is a configuration file for R that allows you to pass specific information 
 ```
 cluster.functions = makeClusterFunctionsSlurm(template="slurm.tmpl")
 ```
+Additional R configuration parameters can be set here, but that is not considered in this workflow. 
+
+
+## ABOUT ParallelOutputs_Combine.R
+The script takes all the results of all the individual jobs executed by the Parallel Processing workflow, above, and reconstitutes them into a single file. 
+
+Use `wget` to download the ParallelOutputs_Combine.R script
+```wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelOutputs_Combine.R"```
+This script can be run using the same process as running the Parallel Processing Template (using sbR, sbatch, or 'run' on a local machine). 
+The final results are:
+1. CSV in WIDE format (one row per feature, columns added for each joined observation)
+2. CSV in LONG format (multiple rows per feature, each row represents a single day/month observation)
+3. RDS file of results in WIDE format
+   
+
+Please note that this process is very memory intensive. Your submission may fail due to OOM errors. Increase the memsize requirements in sbR or sbatch as necessary
+
+```
+require('batchtools')
+require('tidyr')
+
+##---- Load Registry
+reg<- loadRegistry('VITAL_NDVI_Registry')
+
+##---- Create Jobs Table
+jobs<-getJobPars(reg=reg)
+
+##---- Combine all the outputs into a dataframe
+results<- do.call("rbind",lapply(1:nrow(jobs),loadResult))
+
+# Loop through all unique variables , writing results to file
+for(v in as.character(unique(unlist(results[,1])))){
+  # Load and unwrap the spatial vector results
+  out<- lapply(results[as.character(unlist(results[,1]))==v,3],terra::unwrap)
+
+  # Convert results to list of dataframes 
+  out2<- lapply(out,terra::as.data.frame)
+
+  # Reduce all outputs to a dataframe
+  out3<-Reduce(function(dtf1,dtf2){merge(dtf1,dtf2,all=TRUE)},out2)
+
+  # Convert to LONG format
+  longout<- lapply(out2,function(x){as.data.frame(x%>% pivot_longer(cols= colnames(x)[grepl("^\\d{4}\\-?\\d{2}\\-?\\d{2}\\b",colnames(x))],names_to = "date",values_to = v))})
+  longout<-do.call("rbind",longout)
+
+  # Write tabular outputs: wide, long, RDS
+  write.csv(longout,paste("VITAL_NDVIDAILY_LONG",v,".csv",sep=""))
+  write.csv(out3,paste("VITAL_NDVIDAILY_",v,".csv",sep=""))
+  saveRDS(out3,file=paste("VITAL_NDVIDAILY_",v,".rds",sep=""))
+}
+```
+## TIPS and Suggestions
+1. Get familiar with working with Batchtools commands. If your jobs are failing, you can use the batchtools commands to help trouble shoot.
+2. Consider doing a trial run with a subset of your data. This may require you to modify the ParallelXXXXX_processingtemplate to only submit a few jobs, or modify the scripts to not submit any jobs, and then submit manually using batchtools commands. 
