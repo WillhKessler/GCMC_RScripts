@@ -116,7 +116,7 @@ jobs<- batchMap(fun = extract.rast,
                           predays = predays,
                           weightslayers = weights),
                 reg = reg)
-jobs$chunk<-chunk(jobs$job.id,chunk.size = 90)
+jobs$chunk<-chunk(jobs$job.id,n.chunks=100)
 setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
@@ -125,8 +125,9 @@ getStatus()
 ##---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs, 
                                reg=reg, 
-                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=1000,email=email))
+                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=5000,email=email))
 
+estimateRuntimes(jobs,reg=reg)
 getStatus()
 
 waitForJobs() # Wait until jobs are completed
