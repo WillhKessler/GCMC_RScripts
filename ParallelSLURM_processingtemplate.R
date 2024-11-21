@@ -126,8 +126,8 @@ getStatus()
 done <- batchtools::submitJobs(jobs, 
                                reg=reg, 
                                resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=5000,email=email))
-Sys.sleep(1000)
-estimateRuntimes(jobs,reg=reg)
+#Sys.sleep(1000)
+#estimateRuntimes(jobs,reg=reg)
 getStatus()
 
 waitForJobs() # Wait until jobs are completed
