@@ -22,7 +22,7 @@ flowchart TD
     G-->H
     H-->|combine results|I[Cohort Linked to Raster Values]
 ```
-This github repository contains all the files that are necessary for this workflow. Depending on your implementation up to 5 files are utilized, however you should only need to directly download number 1, and number 6:
+This github repository contains all the files that are necessary for this workflow. Depending on your implementation up to 5 files are utilized, however you should only need to directly download number 1, and number 5:
 1. `ParallelXXXXX_processingtemplate.R`
    
    a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
@@ -30,10 +30,10 @@ This github repository contains all the files that are necessary for this workfl
    b. For a multi-core standalone machine use `ParallelSocket_processingtemplate.R`
    
    c. For a normal desktop or laptop machine, use `ParallelInteractive_processingtemplate.R`
-3. `Functions_RasterExtraction.R`
-4. `slurm.tmpl`
-5. `batchtools.conf.R`
-6. `ParallelOutputs_Combine.R`
+2. `Functions_RasterExtraction.R`
+3. `slurm.tmpl`
+4. `batchtools.conf.R`
+5. `ParallelOutputs_Combine.R`
 
 In addition, a user will need to supply the following:
 1. A directory of one or more child directories containing the rasters to be extracted. The child directory names will be used to differentiate variables timeseries rasters. For example, the following tree would allow for the extraction of the variables NO2, Ozone, and PM_2.5:
