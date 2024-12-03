@@ -53,23 +53,23 @@ In addition, a user will need to supply the following:
     ├── Ozone/
     │   └── Daily/
     │       ├── 2001/
-    │       │   ├── NO2_Daily_20010101.tif
-    │       │   ├── NO2_Daily_20010102.tif
-    │       │   └── NO2_Daily_20010103.tif
+    │       │   ├── Ozone_Daily_20010101.tif
+    │       │   ├── Ozone_Daily_20010102.tif
+    │       │   └── Ozone_Daily_20010103.tif
     │       └── 2002/
-    │           ├── NO2_Daily_20020101.tif
-    │           ├── NO2_Daily_20020102.tif
-    │           └── NO2_Daily_20020103.tif
+    │           ├── Ozone_Daily_20020101.tif
+    │           ├── Ozone_Daily_20020102.tif
+    │           └── Ozone_Daily_20020103.tif
     └── PM_25/
         └── Daily/
             ├── 2001/
-            │   ├── NO2_Daily_20010101.tif
-            │   ├── NO2_Daily_20010102.tif
-            │   └── NO2_Daily_20010103.tif
+            │   ├── PM25_Daily_20010101.tif
+            │   ├── PM25_Daily_20010102.tif
+            │   └── PM25_Daily_20010103.tif
             └── 2002/
-                ├── NO2_Daily_20020101.tif
-                ├── NO2_Daily_20020102.tif
-                └── NO2_Daily_20020103.tif
+                ├── PM25_Daily_20020101.tif
+                ├── PM25_Daily_20020102.tif
+                └── PM25_Daily_20020103.tif
 ```
   
 2. A file containing the features to which the rasters will be extracted. This can be a CSV, shapefile, or GDB feature class. The file should contain at a minimum the following fields:
