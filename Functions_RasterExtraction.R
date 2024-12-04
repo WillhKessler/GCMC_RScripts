@@ -67,7 +67,7 @@ return(reg)
 
 
 
-##---- Create batchtgrid
+##---- Create batchgrid
 create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
   require("tools")
   
