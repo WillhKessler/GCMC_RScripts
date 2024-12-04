@@ -237,7 +237,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   
-  
+  #testchange
   
   #################################################################
   #################################################################
