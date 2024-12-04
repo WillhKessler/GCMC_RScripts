@@ -1,21 +1,24 @@
 ##---- REQUIRED INPUTS ----##
-PROJECT_NAME<-"ExampleLinkage" # string with a project name
-rasterdir<- "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
+PROJECT_NAME = "ExampleLinkage" # string with a project name
+rasterdir = "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
 extractionlayer = "/d/tmp/nhairs/nhair0a/BellaviaLinkage/sites_10M/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
-layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
-IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
-Xfield<- "X"
-Yfield<- "Y"
+layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB, ignored when extraction layer is a CSV
+IDfield = "ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
+Xfield = "X" # A Field containing the X coordinate (Longitude), in decimal degrees, only for CSV
+Yfield = "Y" # A Field containing the Y coordinate (Longitude), in decimal degrees, only for CSV
 startdatefield = "start_date" # Field in extraction layer specifying first date of observations
 enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
+<<<<<<< HEAD
 email = "" #Enter your email. SLURM will send you an email when your jobs are complete.
 period = "monthly" #daily, monthly, yearly, defaults to daily
+=======
+email = "" # Enter your email. SLURM will send you an email when your jobs are complete.
+
+>>>>>>> origin/main
 
 
-##---- Required Packages
-#---- Required Packages
 ##---- Required Packages
 listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
 for (i in listOfPackages){
@@ -118,7 +121,7 @@ jobs<- batchMap(fun = extract.rast,
                           predays = predays,
                           weightslayers = weights),
                 reg = reg)
-jobs$chunk<-chunk(jobs$job.id,chunk.size = 90)
+jobs$chunk<-chunk(jobs$job.id,n.chunks=100)
 setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
@@ -127,8 +130,9 @@ getStatus()
 ##---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs, 
                                reg=reg, 
-                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=1000,email=email))
-
+                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=5000,email=email))
+#Sys.sleep(1000)
+#estimateRuntimes(jobs,reg=reg)
 getStatus()
 
 waitForJobs() # Wait until jobs are completed

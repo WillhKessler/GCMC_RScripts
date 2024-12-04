@@ -1,6 +1,14 @@
+##---- Check SLURM partitions
+#get.partitions <- function(partition){
+  # Check if supplied partition name is in the list of available partitions
+#  if(partition %in% trimws(system("sinfo -O PartitionName",intern=TRUE)[1])){return TRUE}else{return FALSE}
+#}
+
+
 ##---- Load Required Packages
 load.packages<- function(){
   listOfPackages <- c("batchtools","terra","tools","reshape2","ids","lubridate")
+
   for (i in listOfPackages){
     if(! i %in% installed.packages()){
       install.packages(i, dependencies = TRUE)
@@ -14,12 +22,13 @@ load.packages<- function(){
 
 
 ##---- Create a temporary registry item
-set.parallel.registry<-function(){
+set.parallel.registry = function(){
   if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
     reg = loadRegistry(paste(PROJECT_NAME,"Registry",sep="_"),writeable = TRUE)
   }else{
     reg = makeRegistry(file.dir = paste(PROJECT_NAME,"Registry",sep="_"), seed = 42)
   }
+  return(reg)
 }
 
 
@@ -28,11 +37,11 @@ set.parallel.registry<-function(){
 
 
 ##---- Select and Set Cluster Function Settings
-select.Cluster<- function(projectdirectory=projectdirectory,scheduler=scheduler){
-  setwd(projectdirectory)
+select.Cluster = function(projectdirectory=getwd(),scheduler="SLURM"){
+  #setwd(projectdirectory)
   load.packages()
-  set.parallel.registry()
-  if (clustersys=="SLURM"){
+  reg = set.parallel.registry()
+  if (scheduler=="SLURM"){
     if(!file.exists("slurm.tmpl")){
       download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/slurm.tmpl","slurm.tmpl")
     }else{
@@ -48,7 +57,8 @@ select.Cluster<- function(projectdirectory=projectdirectory,scheduler=scheduler)
     reg$cluster.functions=makeClusterFunctionsSocket()
   }
   else {}
-}
+return(reg)
+  }
 
 
 
@@ -106,10 +116,13 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
 
 
 
-
-init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
-                    Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
-                    memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",reg=reg){
+init.jobs = function(func = extract.rast,rasterdir,extractionlayer,layername,IDfield,Xfield,
+                     Yfield,startdatefield,enddatefield,predays,weightslayers,chunk.size = 1000,
+                     memory = 2048,partition="linux01", projectdirectory,projectname, scheduler = "interactive",email=email,reg=reg){
+  
+# init.jobs = function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
+#                     Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
+#                     memory = 2048,partition="linux01", projectdirectory = projectdirectory,projectname=PROJECT_NAME, scheduler = "interactive",email=email,reg=reg){
   ##---- Clear the R registry
   clearRegistry(reg)
   
@@ -140,8 +153,8 @@ init.jobs<-function(func = extract.rast,rasterdir = rasterdir,extractionlayer = 
     if(partition == "linux12h"){walltime<- 43100}else{walltime=36000000000}
     done <- batchtools::submitJobs(jobs, 
                                    reg=reg, 
-                                   resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory))
-  }else if(toupperr(scheduler)=="SOCKET"){
+                                   resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory,email=email))
+  }else if(toupper(scheduler)=="SOCKET"){
   done<- batchtools::submitJobs(jobs,resources = list(memory=memory),reg = reg)
   }else{
     done<- batchtools::submitJobs(resources = c(walltime=360000000000, memory=memory),reg = reg)
@@ -208,6 +221,16 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   ##---- Create extraction date ranges for points
   polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
   polygonsendSeasonIndex<- sapply(polygons$stop_date, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+
+  #if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
+                                  #output<- polygons
+                                  #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+                                  # return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  #} else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
+  # polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))))
+  #}else{                               
+  #}
+  
   polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
   
@@ -303,13 +326,13 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
     tapply(as.numeric(row_data), timeperiod, mean)
   }
   # Calculate period averages
-  if(period =="monthly"){
+  if(period == "monthly"){
       timeperiod<-substr(colnames(output),1,6)
       monthlyaverages<-t(apply(output,1,row_average_function))
       output<-cbind(polygons,as.data.frame(monthlyaverages))
       longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
       
-    }else if(period="yearly"){
+    }else if(period == "yearly"){
       timeperiod<-substr(colnames(output),1,4)
       yearaverages<-t(apply(output,1,row_average_function))
       output<-cbind(polygons,as.data.frame(yearaverage))
