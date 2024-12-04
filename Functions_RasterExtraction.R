@@ -1,7 +1,7 @@
 ##---- Check SLURM partitions
 get.partitions = function(partition){
   # Check if supplied partition name is in the list of available partitions
-  if(partition %in% trimws(system("sinfo -O PartitionName",intern=TRUE)[-1])){return TRUE}else{return FALSE}
+  if(partition %in% trimws(system("sinfo -O PartitionName",intern=TRUE)[1])){return TRUE}else{return FALSE}
 }
 
 
