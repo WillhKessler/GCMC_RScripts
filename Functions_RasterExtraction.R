@@ -1,8 +1,8 @@
 ##---- Check SLURM partitions
-#get.partitions <- function(partition){
-  # Check if supplied partition name is in the list of available partitions
-#  if(partition %in% trimws(system("sinfo -O PartitionName",intern=TRUE)[1])){return TRUE}else{return FALSE}
-#}
+get.partitions <- function(partition){
+  ## Check if supplied partition name is in the list of available partitions
+  if(partition %in% trimws(system("sinfo -O PartitionName",intern=TRUE)[-1])){return(TRUE)}else{return(FALSE)}
+}
 
 
 ##---- Load Required Packages
@@ -22,7 +22,7 @@ load.packages<- function(){
 
 
 ##---- Create a temporary registry item
-set.parallel.registry = function(){
+set.parallel.registry = function(PROJECT_NAME){
   if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
     reg = loadRegistry(paste(PROJECT_NAME,"Registry",sep="_"),writeable = TRUE)
   }else{
@@ -37,10 +37,10 @@ set.parallel.registry = function(){
 
 
 ##---- Select and Set Cluster Function Settings
-select.Cluster = function(projectdirectory=getwd(),scheduler="SLURM"){
+select.Cluster = function(projectdirectory=getwd(),projectname,scheduler="socket"){
   #setwd(projectdirectory)
   load.packages()
-  reg = set.parallel.registry()
+  reg = set.parallel.registry(projectname)
   if (scheduler=="SLURM"){
     if(!file.exists("slurm.tmpl")){
       download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/slurm.tmpl","slurm.tmpl")
@@ -56,7 +56,9 @@ select.Cluster = function(projectdirectory=getwd(),scheduler="SLURM"){
   else if (scheduler == "socket"){
     reg$cluster.functions=makeClusterFunctionsSocket()
   }
-  else {}
+  else if (scheduler == "interactive"){
+    reg$cluster.functions=makeClusterFunctionsInteractive()
+  }
 return(reg)
   }
 
@@ -118,7 +120,7 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
 
 init.jobs = function(func = extract.rast,rasterdir,extractionlayer,layername,IDfield,Xfield,
                      Yfield,startdatefield,enddatefield,predays,weightslayers,chunk.size = 1000,
-                     memory = 2048,partition="linux01", projectdirectory,projectname, scheduler = "interactive",email=email,reg=reg){
+                     memory = 2048,partition="linux01", projectdirectory,projectname, scheduler = "slurm",email,reg){
   
 # init.jobs = function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
 #                     Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
@@ -150,14 +152,14 @@ init.jobs = function(func = extract.rast,rasterdir,extractionlayer,layername,IDf
   
   ##---- Submit Jobs
   if(toupper(scheduler) == "SLURM"){
-    if(partition == "linux12h"){walltime<- 43100}else{walltime=36000000000}
+    if(partition == "linux12h"){walltime<- 43200}else{walltime=36000000}
     done <- batchtools::submitJobs(jobs, 
                                    reg=reg, 
                                    resources=list(partition=partition, walltime=walltime, ntasks=1, ncpus=1, memory=memory,email=email))
   }else if(toupper(scheduler)=="SOCKET"){
   done<- batchtools::submitJobs(jobs,resources = list(memory=memory),reg = reg)
   }else{
-    done<- batchtools::submitJobs(resources = c(walltime=360000000000, memory=memory),reg = reg)
+    done<- batchtools::submitJobs(resources = c(walltime=3600000000, memory=memory),reg = reg)
     }
   waitForJobs()
   
