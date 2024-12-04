@@ -117,7 +117,7 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
 
 
 
-
+##---- Initialize submission of jobs to cluster
 init.jobs = function(func = extract.rast,rasterdir,extractionlayer,layername,IDfield,Xfield,
                      Yfield,startdatefield,enddatefield,predays,weightslayers,chunk.size = 1000,
                      memory = 2048,partition="linux01", projectdirectory,projectname, scheduler = "slurm",email,reg){
