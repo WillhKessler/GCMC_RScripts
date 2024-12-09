@@ -335,9 +335,10 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
     
   } 
   
-  row_average_function <- function(row_data) {
+  row_average_function <- function(row_data,timeperiod) {
     tapply(as.numeric(row_data), timeperiod, mean)
   }
+  
   # Calculate period averages
   if(period == "monthly"){
       timeperiod<-substr(colnames(output),1,6)
