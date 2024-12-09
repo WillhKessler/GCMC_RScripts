@@ -9,6 +9,9 @@ get.partitions<- function(partition){
 }
 
 
+
+
+
 ##---- Load Required Packages
 load.packages<- function(){
   listOfPackages <- c("batchtools","terra","tools","reshape2","ids","lubridate")
@@ -39,7 +42,6 @@ set.parallel.registry = function(PROJECT_NAME){
 
 
 
-
 ##---- Select and Set Cluster Function Settings
 select.Cluster = function(projectdirectory=getwd(),projectname,scheduler="socket"){
   #setwd(projectdirectory)
@@ -64,8 +66,7 @@ select.Cluster = function(projectdirectory=getwd(),projectname,scheduler="socket
     reg$cluster.functions=makeClusterFunctionsInteractive()
   }
 return(reg)
-  }
-
+}
 
 
 
@@ -117,6 +118,7 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
                        stringsAsFactors = FALSE)
   return(output)
 }
+
 
 
 
@@ -188,6 +190,8 @@ if(period=="monthly"){
   }
   return(polygons)
 }
+
+
 
 
 
@@ -372,6 +376,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
 
 
 
+                                       
 ##---- Function to perform time invariant raster data extraction to points or polygons with or without raster weighting
 simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   
@@ -647,7 +652,6 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     pieces,
     more.args = list(vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers))
 }
-
 
 
 
