@@ -10,7 +10,7 @@ startdatefield = "start_date" # Field in extraction layer specifying first date 
 enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
-period = "monthly" #specify a period to summarize values: daily, monthly, yearly, defaults to daily
+period = "daily" #specify a period to summarize values: daily, monthly, yearly, defaults to daily
 email = "" #Enter your email. SLURM will send you an email when your jobs are complete.
 
 
@@ -49,7 +49,7 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 ##########Input PROCESSING HERE####################################################
 ## Call Desired functions from Functions_RasterExtraction source file
 ## The desired functions are mapped in creating the jobs via batchMap
-source("https://raw.githubusercontent.com/WillhKessler/GCMC_Rscripts/main/Functions_RasterExtraction.R")
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/Functions_RasterExtraction.R")
 
 ##############################################################
 ##---- Set up the batch processing jobs
