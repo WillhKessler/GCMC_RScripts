@@ -490,14 +490,15 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
 p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   multicore.extract.rast<-function(pieces2,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   ##---- Load required packages, needs to be inside function for batch jobs
-  require(terra)
-  require(reshape2)
-  require(tools)
-  require(ids)
-  print(system("hostname",intern=TRUE))
-  print(paste('Current working directory:',getwd()))
-  print(paste('Current temp directory:',tempdir()))
-  print(str(pieces2))
+    require(terra)
+    require(reshape2)
+    require(tools)
+    require(ids)
+    require(lubridate)
+    source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/Functions_RasterExtraction.R")
+    print(system("hostname",intern=TRUE))
+    print(paste('Current working directory:',getwd()))
+    print(paste('Current temp directory:',tempdir()))
   
   ##---- Climate Rasters
   rastfiles<-rasterdir
