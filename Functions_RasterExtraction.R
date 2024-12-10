@@ -104,6 +104,7 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
   }
   
   output<- expand.grid(vars = pvars,
+                       period=period,
                        piece = feature,
                        rasterdir = rasterdir,
                        extractionlayer = extractionlayer,
