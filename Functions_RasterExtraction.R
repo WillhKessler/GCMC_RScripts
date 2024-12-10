@@ -73,7 +73,7 @@ return(reg)
 
 
 ##---- Create batchgrid
-create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
+create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,period,weightslayers){
   require("tools")
   
   ##---- Set up the batch processing jobs
@@ -127,7 +127,7 @@ create.jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfi
 ##---- Initialize submission of jobs to cluster
 init.jobs = function(func = extract.rast, rasterdir, extractionlayer, layername, IDfield, Xfield, Yfield, 
                      startdatefield, enddatefield, period, predays,weightslayers, chunk.size = 1000,
-                     memory = 2048,partition="linux01", projectdirectory, projectname, scheduler = "slurm", email, reg){
+                     memory = 2048,partition="linux01", projectdirectory, projectname, scheduler = "socket", email, reg){
   
 # init.jobs = function(func = extract.rast,rasterdir = rasterdir,extractionlayer = extractionlayer,layername = layername,IDfield = IDfield,Xfield = Xfield,
 #                     Yfield = Yfield,startdatefield = startdatefield,enddatefield = enddatefield,predays = predays,weightslayers = weights,chunk.size = 1000,
