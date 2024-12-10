@@ -5,12 +5,12 @@
 
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME<-"GCMC2_ParallelTest" # string with a project name
-rasterdir<-"S:/GCMC/Data/Climate/PRISM/" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-extractionlayer = "C:/Users/wik191/OneDrive - Harvard University/_Projects/Andrea_Bellavia/sites_10M.shp" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
+rasterdir<-"S:/GCMC/Data/Climate/PRISM/daily/" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
+extractionlayer = "S:/GCMC/_Code/TESTING_datasets/csv/toyCohort_nurses55.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
-IDfield<-"ORIG_FID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
-Xfield<- "X" 
-Yfield<- "Y"
+IDfield<-"OID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
+Xfield<- "longitude" 
+Yfield<- "latitude"
 startdatefield = "start_date" # Field in extraction layer specifying first date of observations
 enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
@@ -117,14 +117,14 @@ jobs<- batchMap(fun = extract.rast,
                           weightslayers = weights),
                 reg = reg)
 
-jobs$chunk <- chunk(jobs$job.id, chunk.size = 1000)
+jobs$chunk <- chunk(jobs$job.id, chunk.size = 10)
 
 
 getJobTable()
 getStatus()
 
 ##---- Submit Jobs
-batchtools::submitJobs(jobs,resources = list(memory=80000),reg = reg)
+batchtools::submitJobs(jobs,resources = list(memory=5000),reg = reg)
 waitForJobs()
 
 # If any of the jobs failed, they will be displayed here as 'Errors"
