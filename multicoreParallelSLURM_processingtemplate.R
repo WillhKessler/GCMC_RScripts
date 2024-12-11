@@ -11,6 +11,7 @@ enddatefield = "end_date" # Field in extraction layer specifying last date of ob
 predays = 5 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
 partition = "linux12h"
+period="daily"
 
 ##---- Required Packages
 library(batchtools)
@@ -45,7 +46,7 @@ source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/multiproces
 ##############################################################
 ##---- Set up the batch processing jobs
 ##---- Use the 'batchgrid' function to create a grid of variable combinations to process over. function considers input rasters, input features, and any weighting layers
-jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers,partition){
+jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers,period,partition){
   require("tools")
   
   ##---- Set up the batch processing jobs
@@ -93,6 +94,8 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
                        startdatefield = startdatefield,
                        enddatefield = enddatefield,
                        predays = predays,
+                       period = period, 
+                       partition = partition,
                        weightslayers = weightslayers,
                        stringsAsFactors = FALSE)
   return(output)
@@ -114,6 +117,7 @@ jobs<- batchMap(fun = p.extract.rast,
                           startdatefield = startdatefield,
                           enddatefield = enddatefield,
                           predays = predays,
+                          period = period,
                           weightslayers = weights,
                           partition=partition),
                 reg = reg)
