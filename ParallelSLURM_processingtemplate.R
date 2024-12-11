@@ -55,7 +55,7 @@ source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/
 ##---- Set up the batch processing jobs
 ##---- Use the 'batchgrid' function to create a grid of variable combinations to process over. function considers input rasters, input features, and any weighting layers
 
-batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
+batchgrid = function(rasterdir,period,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
   require("tools")
   
   ##---- Set up the batch processing jobs
