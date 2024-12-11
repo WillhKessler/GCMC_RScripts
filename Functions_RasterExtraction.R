@@ -535,14 +535,22 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
     polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
     
-    
     ##---- Determine which raster dates fall within the data range
-    rasterDateRange<-rdates[as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))>=min(polygons$first_extract) & as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))<=max(polygons$last_extract)]
-    # Load Climate Rasters
+    ##---- Determine required rasters
+    minrdate<-min(polygons$first_extract)
+    maxrdate<-max(polygons$last_extract)
+    rdaterange<-rdates[which(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d")) %in% as.Date(minrdate:maxrdate))]
+    
+    ##---- Filter Raster List
+    climvars2<-sapply(rdaterange, function(x){climvars[grep(x,climvars)]})
+    rdates2<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars2)),"_"),FUN = function(x){x[length(x)]}))
+    rdates2<-rdates2[order(rdates2)]
+    rasterDateRange<-mapply(function(first_extract,last_extract) which(as.Date(rdates2,tryFormats = c("%Y-%m-%d","%Y%m%d")) >=first_extract & as.Date(rdates2,tryFormats = c("%Y-%m-%d","%Y%m%d")) <= last_extract),polygons$first_extract,polygons$last_extract,SIMPLIFY=F)
+    
+    ##---- Load Climate Rasters
     print("loading the climvars to rast()")
-    climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
     rasters<- rast(climvars2)
-    names(rasters)<-rasterDateRange
+    names(rasters)<-rdaterange
     #################################################################
     #################################################################
     ##---- Weights Rasters for spatial weights
@@ -613,19 +621,18 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
       }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
     }else if(is.points(polygons)){
       print("performing extraction")
-      output<-extract(x = rasters,y = polygons,ID=FALSE)
+      output<-mapply(function(x,y){extract(rasters[[x]],y,ID=FALSE)},rasterDateRange,polygons2)
+      #output<-extract(x = rasters,y = polygons,ID=FALSE)
       print("assigning names")
       names(output)<-names(rasters)
-      #print("cbinding output")
       output<-cbind(polygons,output)
-      #print("melting to longoutput")
       longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     }
   #######Append results of each For Loop cycle
     jobout<-c(jobout,output)
     longout<-rbind(longout,longoutput)
     #print(jobout)
-    }
+  }
   print("finalout")
   finalout<-vect(jobout)    
   print("longout")
