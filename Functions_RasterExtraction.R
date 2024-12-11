@@ -490,7 +490,7 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
 ##---- An example inner Parallel Function
 p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
   multicore.extract.rast<-function(pieces2,vars,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
-  ##---- Load required packages, needs to be inside function for batch jobs
+    ##---- Load required packages, needs to be inside function for batch jobs
     require(terra)
     require(reshape2)
     require(tools)
@@ -501,21 +501,14 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     print(paste('Current working directory:',getwd()))
     print(paste('Current temp directory:',tempdir()))
   
-  ##---- Climate Rasters
-  rastfiles<-rasterdir
-  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9]-?[0-1][0-9]-?[0-3][0-9]\\.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
-  # Determine unique raster dates
-  rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars)),"_"),FUN = function(x){x[length(x)]}))
-  rdates<-rdates[order(rdates)]
-  #print(rdates)
-  
-  ##---- Create Empty Data Frame to hold looped extractions
-  jobout<-c()
-  longout<-data.frame() 
-
-  for(piece in pieces2){
-    print(paste("piece:",as.character(piece)))
-  ##---- Extraction Features Layer
+    ##---- Climate Rasters
+    rastfiles<-rasterdir
+    climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9]-?[0-1][0-9]-?[0-3][0-9]\\.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
+    # Determine unique raster dates
+    rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars)),"_"),FUN = function(x){x[length(x)]}))
+    rdates<-rdates[order(rdates)]
+    
+    ##---- Extraction Features Layer
     if(file_ext(extractionlayer)=='csv'){
       extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
       extlayer<-extlayer[extlayer[IDfield]==piece,]
@@ -551,6 +544,10 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     print("loading the climvars to rast()")
     rasters<- rast(climvars2)
     names(rasters)<-rdaterange
+    
+    ##---- Reformat polygons
+    polygons<-lapply(1:length(polygons),FUN = function(x) polygons[x])
+    
     #################################################################
     #################################################################
     ##---- Weights Rasters for spatial weights
@@ -619,29 +616,26 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
         longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
         
       }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
-    }else if(is.points(polygons)){
+    }else if(is.points(polygons[[1]])){
       print("performing extraction")
-      output<-mapply(function(x,y){extract(rasters[[x]],y,ID=FALSE)},rasterDateRange,polygons2)
+      output<-mapply(function(x,y){extract(rasters[[x]],y,ID=FALSE)},rasterDateRange,polygons)
+      output<-mapply(cbind,polygons,output)
+      output<-lapply(X = output,as.data.frame) 
+      output<-Reduce(function(dtf1,dtf2){merge(dtf1,dtf2,all=TRUE)},output)
       #output<-extract(x = rasters,y = polygons,ID=FALSE)
-      print("assigning names")
-      names(output)<-names(rasters)
-      output<-cbind(polygons,output)
-      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+      #print("assigning names")
+      #names(output)<-names(rasters)
+      #output<-cbind(polygons,output)
+      
+      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons[[1]]),variable.names="date",value.name=vars,na.rm=FALSE)
     }
-  #######Append results of each For Loop cycle
-    jobout<-c(jobout,output)
-    longout<-rbind(longout,longoutput)
-    #print(jobout)
-  }
-  print("finalout")
-  finalout<-vect(jobout)    
-  print("longout")
-  
-  
-  
-  #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  #return(list(exposure=vars,piece=pieces2,result=jobout,longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,result=wrap(finalout),longresult=longout,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+    jobout<-output
+    longout<-longoutput
+    
+    
+    
+    
+   return(list(exposure=vars,result=jobout,longresult=longout,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
   
   
   }
