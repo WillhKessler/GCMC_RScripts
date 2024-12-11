@@ -6,7 +6,7 @@
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME<-"GCMC2_ParallelTest" # string with a project name
 rasterdir<-"S:/GCMC/Data/Climate/PRISM/daily/" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-extractionlayer = "S:/GCMC/_Code/TESTING_datasets/csv/toyCohort_nurses55.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
+extractionlayer = "S:/GCMC/_Code/TESTING_datasets/csv/toyCohort_nurses51.csv" # string with path to spatial layer to use for extraction. Can be a CSV or SHP or GDB 
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB
 IDfield<-"OID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
 Xfield<- "longitude" 
@@ -15,7 +15,7 @@ startdatefield = "start_date" # Field in extraction layer specifying first date 
 enddatefield = "end_date" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
-
+period = "daily"
 
 
 ##---- Required Packages
@@ -47,11 +47,11 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 ##########Input PROCESSING HERE####################################################
 ##---- Call Desired functions from Functions_RasterExtraction source file
 ##---- The desired functions are called in batchMap
-source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/Functions_RasterExtraction.R")
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/Functions_RasterExtraction.R")
 
 ##---- Set up the batch processing jobs
 ##---- grid should contain columns for all desired variable combinations
-batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
+batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers,period){
   require("tools")
   
   ##---- Set up the batch processing jobs
@@ -92,6 +92,7 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
                        startdatefield = startdatefield,
                        enddatefield = enddatefield,
                        predays = predays,
+                       period = period,
                        weightslayers = weightslayers,
                        stringsAsFactors = FALSE)
   return(output)
@@ -114,6 +115,7 @@ jobs<- batchMap(fun = extract.rast,
                           startdatefield = startdatefield,
                           enddatefield = enddatefield,
                           predays = predays,
+                          period=period,
                           weightslayers = weights),
                 reg = reg)
 
