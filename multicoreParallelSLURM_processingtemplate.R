@@ -59,6 +59,7 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
     feature<-feature$OID
     layername = NA
     weightslayers = NA
+     IDfield="OID"
     extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
   }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
     require('terra')
@@ -68,6 +69,7 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
     feature<- unlist(unique(values(vectorfile[,"OID"])))
     Xfield = NA
     Yfield = NA
+     IDfield="OID"
     extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
   }
   
