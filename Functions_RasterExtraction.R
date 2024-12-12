@@ -500,6 +500,16 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     print(system("hostname",intern=TRUE))
     print(paste('Current working directory:',getwd()))
     print(paste('Current temp directory:',tempdir()))
+    print(pieces2)
+    print(vars)
+    print(rasterdir)
+    print(extractionlayer)
+    print(IDfield)
+    print(Xfield)
+    print(Yfield)
+    print(startdatefield)
+    print(enddatefield)
+    print(predays)
   
     ##---- Climate Rasters
     rastfiles<-rasterdir
