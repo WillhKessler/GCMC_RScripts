@@ -551,6 +551,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     
     ##---- Filter Raster List
     climvars2<-sapply(rdaterange, function(x){climvars[grep(x,climvars)]})
+    rm(climvars)
     rdates2<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars2)),"_"),FUN = function(x){x[length(x)]}))
     rdates2<-rdates2[order(rdates2)]
     rasterDateRange<-mapply(function(first_extract,last_extract) which(as.Date(rdates2,tryFormats = c("%Y-%m-%d","%Y%m%d")) >=first_extract & as.Date(rdates2,tryFormats = c("%Y-%m-%d","%Y%m%d")) <= last_extract),polygons$first_extract,polygons$last_extract,SIMPLIFY=F)
@@ -621,7 +622,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     #################################################################
     
     ##---- Perform Extractions
-    if(is.polygons(polygons)){
+    if(is.polygons(polygons[[1]])){
       if(is.na(weightslayers)){
         rasters2<- crop(x = rasters, y = polygons,snap = 'out')
         tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
