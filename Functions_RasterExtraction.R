@@ -177,6 +177,10 @@ init.jobs = function(func = extract.rast, rasterdir, extractionlayer, layername,
   getErrorMessages()
 }
 
+
+
+
+
 ##---- Helper function for adjusting extraction periods when averaging time periods
 set.period<- function(polygons,period){
 if(period=="monthly"){
@@ -522,7 +526,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     if(file_ext(extractionlayer)=='csv'){
       extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
       #extlayer<-extlayer[extlayer[IDfield]==piece,]
-      extlayer<-extlayer[extlayer[IDfield] %in% pieces2,]
+      extlayer<-extlayer[extlayer[IDfield] == pieces2,]
       polygons<- vect(x = extlayer,geom = c(Xfield,Yfield), crs="EPSG:4326" ,keepgeom=TRUE)
     }else if (file_ext(extractionlayer) %in% c("gdb")){
       polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
