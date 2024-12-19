@@ -292,7 +292,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   }
   
   ##---- Set summary period for extractions (monthly, yearly)
-  polygons<-set.period(polygons,period)
+  polygons<-set.period(polygons,period,startdatefield,enddatefield)
   
   ##---- Create extraction date ranges for points
   polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
