@@ -182,7 +182,7 @@ init.jobs = function(func = extract.rast, rasterdir, extractionlayer, layername,
 
 
 ##---- Helper function for adjusting extraction periods when averaging time periods
-set.period<- function(polygons,period,startdatefield,enddatefield){
+set.period<- function(polygons,period,startdatefield,enddatefield,predays){
 if(period=="monthly"){
     polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"month"))
     polygons$extract_stop<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"month")-1)
@@ -292,7 +292,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   }
   
   ##---- Set summary period for extractions (monthly, yearly)
-  polygons<-set.period(polygons,period,startdatefield,enddatefield)
+  polygons<-set.period(polygons,period,startdatefield,enddatefield,predays)
   
   ##---- Create extraction date ranges for points
   polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
