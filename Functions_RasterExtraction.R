@@ -182,7 +182,7 @@ init.jobs = function(func = extract.rast, rasterdir, extractionlayer, layername,
 
 
 ##---- Helper function for adjusting extraction periods when averaging time periods
-set.period<- function(polygons,period){
+set.period<- function(polygons,period,startdatefield,enddatefield){
 if(period=="monthly"){
     polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"month"))
     polygons$extract_stop<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"month")-1)
