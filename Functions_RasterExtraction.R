@@ -531,7 +531,8 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     }else if (file_ext(extractionlayer) %in% c("gdb")){
       polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
     }else if (file_ext(extractionlayer) %in% c("shp")){
-      polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
+      #polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
+      polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," IN ","('",as.character(paste0(pieces2,collapse="','")),"')"))
     }
     polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays)
     polygons$extract_stop<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")))
@@ -561,6 +562,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     rasters<- rast(climvars2)
     names(rasters)<-rdaterange
     
+    polygons<-project(polygons,crs(rasters))
     ##---- Reformat polygons
     polygons<-lapply(1:length(polygons),FUN = function(x) polygons[x])
     
@@ -624,11 +626,14 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     ##---- Perform Extractions
     if(is.polygons(polygons[[1]])){
       if(is.na(weightslayers)){
-        rasters2<- crop(x = rasters, y = polygons,snap = 'out')
-        tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
-        tempnames<-names(tempoutput)
+        rasters2<- crop(x = rasters, y = vect(polygons),snap = 'out')
+        tempoutput<-mapply(function(x,y){zonal(x=rasters2[[x]],z=y,fun=mean,na.rm=TRUE,as.polygons=TRUE)},rasterDateRange,polygons)
         
-        output<-cbind(polygons,tempoutput)
+        #tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
+        #tempnames<-lapply(tempoutput,FUN = names)
+        
+        output<-lapply(X=tempoutput,as.data.frame)
+        output<-Reduce(function(dtf1,dtf2){merge(dtf1,dtf2,all=TRUE)},output)
         longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
         
       }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
