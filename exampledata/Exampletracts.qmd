@@ -1,0 +1,77 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis version="3.22.4-Białowieża">
+  <identifier>US_tract_2020</identifier>
+  <parentidentifier></parentidentifier>
+  <language>ENG</language>
+  <type>dataset</type>
+  <title>NHGIS 2020 Census Tract Boundary File: United States and Puerto Rico</title>
+  <abstract>The IPUMS National Historical Geographic Information System (NHGIS) provides free online access to summary statistics and GIS files for U.S. censuses and other nationwide surveys from 1790 through the present. NHGIS boundary files are derived primarily from the U.S. Census Bureau's TIGER/Line files with numerous additions to represent historical (1790-1980) boundaries that do not appear in TIGER/Line files. For more recent boundary files (1990 or later), NHGIS typically makes only a few key changes to the TIGER/Line source: (1) we merge files that are available only for individual states or counties to produce new nationwide or statewide files, (2) we project the data into Esri's USA Contiguous Albers Equal Area Conic Projected Coordinate System, (3) add a GISJOIN attribute field, which supplies standard identifiers that correspond to the GISJOIN identifiers in NHGIS data tables, (4) we rename files to use the NHGIS naming style and geographic-level codes, (5) we add NHGIS-specific metadata, and (6) most substantially, we erase coastal water areas to produce polygons that terminate at the U.S. coasts and Great Lakes shores.
+NHGIS derived this shapefile from the U.S. Census Bureau's 2020 TIGER/Line Shapefiles.
+
+This file is provided by the IPUMS National Historical Geographic Information System (NHGIS) to depict the geographic features that correspond to summary data from the U.S. 2020 Decennial Census and American Community Survey, for the entire U.S. and Puerto Rico, at the geographic summary level of Census Tract.
+
+The IPUMS National Historical Geographic Information System (NHGIS) provides free online access to summary statistics and GIS files for U.S. censuses and other nationwide surveys from 1790 through the present. NHGIS boundary files are derived primarily from the U.S. Census Bureau's TIGER/Line files with numerous additions to represent historical (1790-1980) boundaries that do not appear in TIGER/Line files. For more recent boundary files (1990 or later), NHGIS typically makes only a few key changes to the TIGER/Line source: (1) we merge files that are available only for individual states or counties to produce new nationwide or statewide files, (2) we project the data into Esri's USA Contiguous Albers Equal Area Conic Projected Coordinate System, (3) we add a GISJOIN attribute field, which supplies standard identifiers that correspond to the GISJOIN identifiers in NHGIS data tables, (4) we rename files to use the NHGIS naming style and geographic-level codes, (5) we add NHGIS-specific metadata, and (6) most substantially, we erase coastal water areas to produce polygons that terminate at the U.S. coasts and Great Lakes shores.
+NHGIS derived this shapefile from the U.S. Census Bureau's 2020 TIGER/Line Shapefiles.
+
+This file is provided by the IPUMS National Historical Geographic Information System (NHGIS) to depict the geographic features that correspond to summary data from the U.S. 2020 Decennial Census and American Community Survey, for the entire U.S. and Puerto Rico, at the geographic summary level of Census Tract.</abstract>
+  <contact>
+    <name></name>
+    <organization></organization>
+    <position></position>
+    <voice></voice>
+    <fax></fax>
+    <email></email>
+    <role>Point of contact</role>
+  </contact>
+  <links/>
+  <history>NHGIS implements the following operations to derive its shapefiles from the TIGER/Line source: (1) merge files that are available only for individual states or counties to produce new nationwide or statewide files, (2) project the data into Esri's USA Contiguous Albers Equal Area Conic Projected Coordinate System, (3) add a GISJOIN attribute field, which supplies standard identifiers that correspond to the GISJOIN identifiers in NHGIS data tables, (4) erase coastal water areas to produce polygons that terminate at the U.S. coasts and Great Lakes shores, (5) rename files to use the NHGIS naming style and geographic-level codes, and (6) add NHGIS-specific metadata.</history>
+  <fees></fees>
+  <constraints type="Limitations of use">All persons are granted a limited license to use data and documentation from IPUMS NHGIS, subject to the following conditions:
+Redistribution: You will not redistribute the data without permission. You may publish a subset of the data to meet journal requirements for accessing data related to a particular publication. Contact us for permission for any other redistribution; we will consider requests for free and commercial redistribution.
+Citation: You will cite NHGIS appropriately. Publications and research reports should include the following citation:
+Steven Manson, Jonathan Schroeder, David Van Riper, and Steven Ruggles. IPUMS National Historical Geographic Information System: Version 16.0 [dataset]. Minneapolis, MN: IPUMS. 2021. http://doi.org/10.18128/D050.V16.0
+Users may also choose to cite the latest version of IPUMS NHGIS, as specified at https://www.nhgis.org/research/citation.
+For policy briefs, online resources, or articles in the popular press, we recommend that you cite the use of NHGIS data as follows:
+IPUMS NHGIS, University of Minnesota, www.nhgis.org
+These terms of use are a legally binding agreement. You can use the data only in accordance with these terms, and any other use is a violation of the agreement. Violations may result in revocation of the agreement and prohibition from using other IPUMS data. If IPUMS or our partners are harmed from your violation, you are responsible for all damages, including reasonable attorney's fees and expenses.
+In addition, we request that users send us a copy of any publications, research reports, or educational material making use of the data or documentation.
+Send electronic material to: nhgis@umn.edu.
+Printed material should be sent to:
+IPUMS NHGIS, Institute for Social Research and Data Innovation, University of Minnesota, 50 Willey Hall, 225 19th Ave S, Minneapolis, MN 55455
+If these data are altered or incorporated into another dataset, they are not to be redistributed without also: altering the name of the dataset, including a Content Standards for Digital Geospatial Metadata (FGDC-STD-001-1998) compliant metadata file that describes the dataset and reflects the alteration steps that makes the new dataset different from this one, and citing this dataset in the metadata as a source for the altered dataset
+The TIGER/Line Shapefile products are not copyrighted however TIGER/Line and Census TIGER are registered trademarks of the U.S. Census Bureau. These products are free to use in a product or publication, however acknowledgement must be given to the U.S. Census Bureau as the source.
+The boundary information in the TIGER/Line Shapefiles are for statistical data collection and tabulation purposes only; their depiction and designation for statistical purposes does not constitute a determination of jurisdictional authority or rights of ownership or entitlement and they are not legal land descriptions.Coordinates in the TIGER/Line shapefiles have six implied decimal places, but the positional accuracy of these coordinates is not as great as the six decimal places suggest.</constraints>
+  <constraints type="Access">None</constraints>
+  <rights>All persons are granted a limited license to use data and documentation from IPUMS NHGIS, subject to the following conditions:
+Redistribution: You will not redistribute the data without permission. You may publish a subset of the data to meet journal requirements for accessing data related to a particular publication. Contact us for permission for any other redistribution; we will consider requests for free and commercial redistribution.
+Citation: You will cite NHGIS appropriately. Publications and research reports should include the following citation:
+Steven Manson, Jonathan Schroeder, David Van Riper, and Steven Ruggles. IPUMS National Historical Geographic Information System: Version 16.0 [dataset]. Minneapolis, MN: IPUMS. 2021. http://doi.org/10.18128/D050.V16.0
+Users may also choose to cite the latest version of IPUMS NHGIS, as specified at https://www.nhgis.org/research/citation.
+For policy briefs, online resources, or articles in the popular press, we recommend that you cite the use of NHGIS data as follows:
+IPUMS NHGIS, University of Minnesota, www.nhgis.org
+These terms of use are a legally binding agreement. You can use the data only in accordance with these terms, and any other use is a violation of the agreement. Violations may result in revocation of the agreement and prohibition from using other IPUMS data. If IPUMS or our partners are harmed from your violation, you are responsible for all damages, including reasonable attorney's fees and expenses.
+In addition, we request that users send us a copy of any publications, research reports, or educational material making use of the data or documentation.
+Send electronic material to: nhgis@umn.edu.
+Printed material should be sent to:
+IPUMS NHGIS, Institute for Social Research and Data Innovation, University of Minnesota, 50 Willey Hall, 225 19th Ave S, Minneapolis, MN 55455
+If these data are altered or incorporated into another dataset, they are not to be redistributed without also: altering the name of the dataset, including a Content Standards for Digital Geospatial Metadata (FGDC-STD-001-1998) compliant metadata file that describes the dataset and reflects the alteration steps that makes the new dataset different from this one, and citing this dataset in the metadata as a source for the altered dataset
+The TIGER/Line Shapefile products are not copyrighted however TIGER/Line and Census TIGER are registered trademarks of the U.S. Census Bureau. These products are free to use in a product or publication, however acknowledgement must be given to the U.S. Census Bureau as the source.
+The boundary information in the TIGER/Line Shapefiles are for statistical data collection and tabulation purposes only; their depiction and designation for statistical purposes does not constitute a determination of jurisdictional authority or rights of ownership or entitlement and they are not legal land descriptions.Coordinates in the TIGER/Line shapefiles have six implied decimal places, but the positional accuracy of these coordinates is not as great as the six decimal places suggest.</rights>
+  <encoding></encoding>
+  <crs>
+    <spatialrefsys>
+      <wkt>PROJCRS["USA_Contiguous_Albers_Equal_Area_Conic",BASEGEOGCRS["NAD83",DATUM["North American Datum 1983",ELLIPSOID["GRS 1980",6378137,298.257222101,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["Degree",0.0174532925199433]]],CONVERSION["USA_Contiguous_Albers_Equal_Area_Conic",METHOD["Albers Equal Area",ID["EPSG",9822]],PARAMETER["Latitude of false origin",37.5,ANGLEUNIT["Degree",0.0174532925199433],ID["EPSG",8821]],PARAMETER["Longitude of false origin",-96,ANGLEUNIT["Degree",0.0174532925199433],ID["EPSG",8822]],PARAMETER["Latitude of 1st standard parallel",29.5,ANGLEUNIT["Degree",0.0174532925199433],ID["EPSG",8823]],PARAMETER["Latitude of 2nd standard parallel",45.5,ANGLEUNIT["Degree",0.0174532925199433],ID["EPSG",8824]],PARAMETER["Easting at false origin",0,LENGTHUNIT["metre",1],ID["EPSG",8826]],PARAMETER["Northing at false origin",0,LENGTHUNIT["metre",1],ID["EPSG",8827]]],CS[Cartesian,2],AXIS["(E)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["(N)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["Not known."],AREA["United States (USA) - CONUS onshore - Alabama; Arizona; Arkansas; California; Colorado; Connecticut; Delaware; Florida; Georgia; Idaho; Illinois; Indiana; Iowa; Kansas; Kentucky; Louisiana; Maine; Maryland; Massachusetts; Michigan; Minnesota; Mississippi; Missouri; Montana; Nebraska; Nevada; New Hampshire; New Jersey; New Mexico; New York; North Carolina; North Dakota; Ohio; Oklahoma; Oregon; Pennsylvania; Rhode Island; South Carolina; South Dakota; Tennessee; Texas; Utah; Vermont; Virginia; Washington; West Virginia; Wisconsin; Wyoming."],BBOX[24.41,-124.79,49.38,-66.91]],ID["ESRI",102003]]</wkt>
+      <proj4>+proj=aea +lat_0=37.5 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+      <srsid>27126</srsid>
+      <srid>102003</srid>
+      <authid>ESRI:102003</authid>
+      <description>USA_Contiguous_Albers_Equal_Area_Conic</description>
+      <projectionacronym>aea</projectionacronym>
+      <ellipsoidacronym>EPSG:7019</ellipsoidacronym>
+      <geographicflag>false</geographicflag>
+    </spatialrefsys>
+  </crs>
+  <extent>
+    <spatial miny="0.096502" maxx="180" minz="0" crs="ESRI:102003" maxz="0" minx="-180" maxy="90" dimensions="2"/>
+  </extent>
+</qgis>
