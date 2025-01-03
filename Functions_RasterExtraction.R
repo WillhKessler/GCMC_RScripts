@@ -3,7 +3,7 @@ make.tempdir<- function(){
   
   ## Create a TMPDIR for storing temporary raster files
   dir.create(file.path(getwd(), "TMPDIR"), showWarnings = FALSE)
-  return file.path(getwd(), "TMPDIR")
+  return(file.path(getwd(), "TMPDIR"))
 }
 
 ##---- Check SLURM partitions
