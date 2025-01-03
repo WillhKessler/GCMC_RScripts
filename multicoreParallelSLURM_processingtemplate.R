@@ -69,7 +69,9 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
     vectorfile<- vect(x=extractionlayer,layer=layername)
     vectorfile$OID<-1:nrow(vectorfile)
     writeVector(x = vectorfile,filename = paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer)),layer=layername,overwrite=TRUE)
-    feature<- unlist(unique(values(vectorfile[,"OID"])))
+    #feature<- unlist(unique(values(vectorfile[,"OID"])))
+    feature<-1:nrow(vectorfile)
+    rm(vectorfile)
     Xfield = NA
     Yfield = NA
      IDfield="OID"
@@ -137,13 +139,14 @@ getStatus()
 
 #---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs,
-                               reg=reg,
                                resources=list(partition=partition,
-                                              walltime=36000,
+                                              walltime=360000,
                                               ntasks=1,
                                               ncpus=4,
                                               memory=10000,
-                                              pm.backend = "multicore"))
+                                              pm.backend = "multicore",
+                                              email=email),
+                               reg=reg)
 #getStatus()
 
 #waitForJobs() # Wait until jobs are completed
