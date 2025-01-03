@@ -532,6 +532,9 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars)),"_"),FUN = function(x){x[length(x)]}))
     rdates<-rdates[order(rdates)]
     
+    ##---- Clean up
+    rm(rastfiles)
+    
     ##---- Extraction Features Layer
     if(file_ext(extractionlayer)=='csv'){
       extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
@@ -539,7 +542,8 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
       extlayer<-extlayer[extlayer[IDfield] == pieces2,]
       polygons<- vect(x = extlayer,geom = c(Xfield,Yfield), crs="EPSG:4326" ,keepgeom=TRUE)
     }else if (file_ext(extractionlayer) %in% c("gdb")){
-      polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
+      #polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece)) 
+      polygons<-vect(x=extractionlayer,layer = layername,query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," IN ","('",as.character(paste0(pieces2,collapse="','")),"')"))
     }else if (file_ext(extractionlayer) %in% c("shp")){
       #polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
       polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," IN ","('",as.character(paste0(pieces2,collapse="','")),"')"))
@@ -562,7 +566,9 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     
     ##---- Filter Raster List
     climvars2<-sapply(rdaterange, function(x){climvars[grep(x,climvars)]})
+    ##---- Clean up
     rm(climvars)
+    
     rdates2<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars2)),"_"),FUN = function(x){x[length(x)]}))
     rdates2<-rdates2[order(rdates2)]
     rasterDateRange<-mapply(function(first_extract,last_extract) which(as.Date(rdates2,tryFormats = c("%Y-%m-%d","%Y%m%d")) >=first_extract & as.Date(rdates2,tryFormats = c("%Y-%m-%d","%Y%m%d")) <= last_extract),polygons$first_extract,polygons$last_extract,SIMPLIFY=F)
