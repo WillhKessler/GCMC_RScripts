@@ -137,6 +137,9 @@ setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 getJobTable()
 getStatus()
 
+sort( sapply(ls(),function(x){format(object.size(get(x)),units='auto',standard='SI')})) 
+print(object.size(x=lapply(ls(), get)), units="Mb")
+
 #---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs,
                                resources=list(partition=partition,
