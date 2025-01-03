@@ -99,8 +99,8 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
                        startdatefield = startdatefield,
                        enddatefield = enddatefield,
                        predays = predays,
-                       period = period, 
-                       partition = partition,
+                       #period = period, 
+                       #partition = partition,
                        weightslayers = weightslayers,
                        stringsAsFactors = FALSE)
   return(output)
