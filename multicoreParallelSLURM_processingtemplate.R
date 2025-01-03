@@ -44,7 +44,7 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 ## The desired functions are mapped in creating the jobs via batchMap
 #source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/Functions_RasterExtraction.R")
 source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/multiprocessor_parallel/Functions_RasterExtraction.R")
-terraOptions(tempdir = settempdir(), print=TRUE)
+terraOptions(tempdir = make.tempdir(), print=TRUE)
 tmpFiles(current=TRUE, orphan=TRUE, old=TRUE, remove=TRUE)
 ##############################################################
 ##---- Set up the batch processing jobs
