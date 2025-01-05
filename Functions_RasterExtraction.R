@@ -577,8 +577,10 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     print("loading the climvars to rast()")
     rasters<- rast(climvars2)
     names(rasters)<-rdaterange
-    
+    print("checking projection")
     polygons<-project(polygons,crs(rasters))
+    crs(polygons,proj=T)==crs(rasters,proj=T)
+                            
     ##---- Reformat polygons
     polygons<-lapply(1:length(polygons),FUN = function(x) polygons[x])
     
@@ -643,6 +645,8 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     if(is.polygons(polygons[[1]])){
       if(is.na(weightslayers)){
         rasters2=rasters
+        print("check projections again")
+        crs(vect(polygons),proj=T)==crs(rasters,proj=T)
         #rasters2<- crop(x = rasters, y = vect(polygons),snap = 'out')
         tempoutput<-mapply(function(x,y){zonal(x=rasters2[[x]],z=y,fun=mean,na.rm=TRUE,as.polygons=TRUE)},rasterDateRange,polygons)
         
