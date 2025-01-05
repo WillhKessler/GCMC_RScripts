@@ -509,7 +509,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     require(ids)
     require(lubridate)
     source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/Functions_RasterExtraction.R")
-    tmpFiles(current=TRUE, orphan=TRUE, old=TRUE, remove=TRUE)
+    #tmpFiles(current=TRUE, orphan=TRUE, old=TRUE, remove=TRUE)
     terraOptions(tempdir = make.tempdir(), print=TRUE)
     print(system("hostname",intern=TRUE))
     print(paste('Current working directory:',getwd()))
