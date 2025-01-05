@@ -642,7 +642,8 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
     ##---- Perform Extractions
     if(is.polygons(polygons[[1]])){
       if(is.na(weightslayers)){
-        rasters2<- crop(x = rasters, y = vect(polygons),snap = 'out')
+        rasters2=rasters
+        #rasters2<- crop(x = rasters, y = vect(polygons),snap = 'out')
         tempoutput<-mapply(function(x,y){zonal(x=rasters2[[x]],z=y,fun=mean,na.rm=TRUE,as.polygons=TRUE)},rasterDateRange,polygons)
         
         #tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
