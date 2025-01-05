@@ -648,14 +648,15 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
         print("check projections again")
         crs(vect(polygons),proj=T)==crs(rasters,proj=T)
         #rasters2<- crop(x = rasters, y = vect(polygons),snap = 'out')
+        #tempoutput<-mapply(function(x,y){extract(rasters[[x]],y,ID=FALSE,bind=TRUE)},rasterDateRange,polygons)
         tempoutput<-mapply(function(x,y){zonal(x=rasters2[[x]],z=y,fun=mean,na.rm=TRUE,as.polygons=TRUE)},rasterDateRange,polygons)
-        
+        tempoutput<-mapply(function(x,y){cbind(x,y)},polygons,tempoutput)
         #tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
         #tempnames<-lapply(tempoutput,FUN = names)
         
         output<-lapply(X=tempoutput,as.data.frame)
         output<-Reduce(function(dtf1,dtf2){merge(dtf1,dtf2,all=TRUE)},output)
-        longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+        longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons[[1]]),variable.names="date",value.name=vars,na.rm=FALSE)
         
       }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
     }else if(is.points(polygons[[1]])){
