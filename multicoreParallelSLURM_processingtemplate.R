@@ -49,7 +49,7 @@ tmpFiles(current=TRUE, orphan=TRUE, old=TRUE, remove=TRUE)
 ##############################################################
 ##---- Set up the batch processing jobs
 ##---- Use the 'batchgrid' function to create a grid of variable combinations to process over. function considers input rasters, input features, and any weighting layers
-jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers,period,partition){
+jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers,period){
   require("tools")
   
   ##---- Set up the batch processing jobs
@@ -68,7 +68,7 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
     require('terra')
     vectorfile<- vect(x=extractionlayer,layer=layername)
     vectorfile$OID<-1:nrow(vectorfile)
-    writeVector(x = vectorfile,filename = paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer)),layer=layername,overwrite=TRUE)
+    writeVector(x = vectorfile,filename = paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer)),layer=layername,filetype='OpenFileGDB',overwrite=TRUE)
     #feature<- unlist(unique(values(vectorfile[,"OID"])))
     feature<-1:nrow(vectorfile)
     rm(vectorfile)
@@ -77,20 +77,13 @@ jobgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,sta
      IDfield="OID"
     extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
   }
-  
-  if(partition=="linux01"){
-    pbatch=c(1:10)
-    cpu = 4
-  }else if (partition == "linux12h"){
-    pbatch = c(1:50)
-    cpu = 4
-  }
-  
+    
   output<- expand.grid(
-                       pieces = split(
-                         x = split(x = feature, f = ceiling(seq_along(feature)/100)),
-                         f = ceiling(seq_along(split(feature, ceiling(seq_along(feature)/100)))/sum(length(pbatch),length(cpu)))
-                         ),
+                       pieces = lapply(split(feature,1:ceiling(length(feature)/(500*4))),function(x){split(x,1:4)}),
+                       #pieces = split(
+                       #  x = split(x = feature, f = ceiling(seq_along(feature)/100)),
+                       #  f = ceiling(seq_along(split(feature, ceiling(seq_along(feature)/100)))/sum(length(pbatch),length(1:ncpus)))
+                       # ),
                        vars = pvars,
                        rasterdir = rasterdir,
                        extractionlayer = extractionlayer,
@@ -132,8 +125,13 @@ jobs<- batchMap(fun = p.extract.rast,
 #Garbage Collection
 gc()
 
+if(partition=="linux01"){
+  pbatch=10
+  }else if (partition == "linux12h"){
+  pbatch=50
+  }
 
-#jobs$chunk<-chunk(jobs$job.id,n.chunks = length(50))
+#jobs$chunk<-chunk(jobs$job.id,n.chunks = pbatch)
 setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
