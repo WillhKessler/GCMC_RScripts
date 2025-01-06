@@ -128,7 +128,9 @@ jobs<- batchMap(fun = p.extract.rast,
                           weightslayers = weights,
                           partition=partition),
                 reg = reg)
-#
+
+#Garbage Collection
+gc()
 
 
 #jobs$chunk<-chunk(jobs$job.id,n.chunks = length(50))
