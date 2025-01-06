@@ -583,7 +583,9 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
                             
     ##---- Reformat polygons
     polygons<-lapply(1:length(polygons),FUN = function(x) polygons[x])
-    
+
+    ## Garbage Collection
+    gc()
     #################################################################
     #################################################################
     ##---- Weights Rasters for spatial weights
