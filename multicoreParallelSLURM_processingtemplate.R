@@ -118,8 +118,7 @@ jobs<- batchMap(fun = p.extract.rast,
                           enddatefield = enddatefield,
                           predays = predays,
                           period = period,
-                          weightslayers = weights,
-                          partition=partition),
+                          weightslayers = weights),
                 reg = reg)
 
 #Garbage Collection
