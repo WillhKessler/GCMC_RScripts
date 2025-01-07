@@ -343,7 +343,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
       }
   }else if(is.points(polygons)){
     polygons<-project(polygons,crs(rasters))
-    output<-terra::extract(x = rasters,y = polygons,ID=FALSE)
+    output<-terra::extract(x = rasters,y = polygons,ID=FALSE,small=TRUE)
     names(output)<-names(rasters)
     
   } 
@@ -482,7 +482,7 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
   }else if(is.points(polygons)){
     polygons<-project(polygons,crs(rasters))
-    output<-extract(x = rasters,y = polygons,ID=FALSE)
+    output<-extract(x = rasters,y = polygons,ID=FALSE,small=TRUE)
     names(output)<-names(rasters)
     output<-cbind(polygons,output)
     longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="variable",value.name=vars,na.rm=FALSE)
@@ -663,7 +663,7 @@ p.extract.rast <- function(pieces,vars,rasterdir,extractionlayer,layername,IDfie
       }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
     }else if(is.points(polygons[[1]])){
       print("performing extraction")
-      output<-mapply(function(x,y){extract(rasters[[x]],y,ID=FALSE)},rasterDateRange,polygons)
+      output<-mapply(function(x,y){extract(rasters[[x]],y,ID=FALSE,small=TRUE)},rasterDateRange,polygons)
       output<-mapply(cbind,polygons,output)
       output<-lapply(X = output,as.data.frame) 
       output<-Reduce(function(dtf1,dtf2){merge(dtf1,dtf2,all=TRUE)},output)
