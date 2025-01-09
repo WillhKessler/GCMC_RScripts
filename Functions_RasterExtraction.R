@@ -475,11 +475,14 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
   if(is.polygons(polygons)){
     if(is.na(weightslayers)){
       polygons<-project(polygons,crs(rasters))
-      rasters2<- crop(x = rasters, y = polygons,snap = 'out')
-      tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
-      tempnames<-names(tempoutput)
+      #rasters2<- crop(x = rasters, y = polygons,snap = 'out')
+      rasterizedpolygons<-rasterize(x = polygons,y = rasters,field=IDfield)
+      tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE)
+      #tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
+      #tempnames<-names(tempoutput)
       
-      output<-cbind(polygons,tempoutput)
+      #output<-cbind(polygons,tempoutput)
+      output<-merge(polygons,tempoutput,all.x=T,by.x=IDfield,by.y=IDfield)
       longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="variable",value.name=vars,na.rm=FALSE)
       
     }else{output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)}
