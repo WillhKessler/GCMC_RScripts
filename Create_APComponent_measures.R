@@ -4,10 +4,11 @@ library('tools')
 
 projection_info<-"EPSG:4326"
 
-files<-list.files("S:\\GCMC\\Data\\AirPollution\\PM25_Components\\",pattern="*[0-9]_non_urban.rds",recursive=TRUE,full.names=TRUE)
+files<-list.files("S:\\GCMC\\Data\\AirPollution\\PM25_Components\\",pattern="*[0-9]_urban.rds",recursive=TRUE,full.names=TRUE)
 
 for(i in files){
   dat<-readRDS(i)
+  dat<-as.data.frame(dat)
   
   datvect<-vect(dat,geom=c("lon","lat"),crs = projection_info)
   datvect<-terra::project(datvect,"ESRI:102010")
