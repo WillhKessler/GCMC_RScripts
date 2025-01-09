@@ -335,7 +335,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
       rasterizedpolygons<-rasterize(polygons, rasters, field = IDfield)
       #rasters2<- crop(x = rasters, y = polygons,snap = 'out')
       #tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
-      tempoutput<-zonal(x=rasters2,z=rasterizedpolygons,fun=mean,na.rm=TRUE)
+      tempoutput<-zonal(x=rasters,z=rasterizedpolygons,fun=mean,na.rm=TRUE)
       #tempnames<-names(tempoutput)
       #output<-cbind(polygons,tempoutput)
       output<-merge(polygons,tempoutput,all.x=T,by.x=IDfield,by.y=IDfield)
