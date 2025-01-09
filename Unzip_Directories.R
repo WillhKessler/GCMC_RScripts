@@ -3,7 +3,8 @@ require(tools)
 require(utils)
 #########################################
 ##---Required Inputs---------############
-zipdir<-"S:\\GCMC\\Data\\AirPollution\\ec"
+#zipdir<-"S:\\GCMC\\Data\\AirPollution\\ec"
+zipdir<-"S:\\GCMC\\Data\\Climate\\PRISM\\4km\\tmax"
 
 #########################################
 ##---- Clipping Boundary
@@ -19,7 +20,13 @@ head(allzip)
 
 
 for(i in remaining){
-  dirout <- file_path_sans_ext(basename(i))
-  unzip(zipfile = i, exdir = paste(zipdir,dirout,sep = "/"),overwrite = TRUE)
-  print(paste(zipdir,dirout,sep = "/"))
-  }
+  #dirout <- file_path_sans_ext(basename(i))
+  unzip(zipfile = i, exdir = dirname(i),overwrite = TRUE,)
+  
+  file.remove(i)
+}
+print("Done!")
+
+
+
+
