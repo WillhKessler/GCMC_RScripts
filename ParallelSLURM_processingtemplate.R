@@ -108,6 +108,7 @@ clearRegistry(reg)
 ##----  create jobs from variable grid
 jobs<- batchMap(fun = extract.rast,
                 batchgrid(rasterdir = rasterdir,
+                          period=period,
                           extractionlayer = extractionlayer,
                           layername = layername,
                           IDfield = IDfield, 
