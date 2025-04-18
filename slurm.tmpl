@@ -43,11 +43,11 @@ log.file = fs::path_expand(log.file)
 ## source /etc/profile
 ## module add ...
 ## module load R/4.0.1
-#mkdir TMP
-#setenv TMPDIR "`pwd`/TMP"
+##mkdir TMP
+##setenv TMPDIR "`pwd`/TMP"
 module load R/4.3.0
 
-## Export value of DEBUGME environemnt var to slave
+## Export value of DEBUGME environment var to slave
 export DEBUGME=<%= Sys.getenv("DEBUGME") %>
 
 <%= sprintf("export OMP_NUM_THREADS=%i", resources$omp.threads) -%>
