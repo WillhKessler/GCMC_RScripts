@@ -81,7 +81,7 @@ batchgrid = function(rasterdir,period,extractionlayer,layername,IDfield,Xfield,Y
     extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp.",file_ext(extractionlayer))
     IDfield="OID"
     if (file_ext(extractionlayer)=="shp"){
-      layername<-paste0(extractionlayer,"_tmp")
+      layername<-paste0(file_path_sans_ext(basename(extractionlayer)))
     }
   }
   
