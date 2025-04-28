@@ -381,7 +381,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
 
                                        
 ##---- Function to perform time invariant raster data extraction to points or polygons with or without raster weighting
-simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
+simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA,period="daily"){
   
   ##---- Load required packages, needs to be inside function for batch jobs
   require(terra)
