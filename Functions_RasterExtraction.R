@@ -391,7 +391,8 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
   print(system("hostname",intern=TRUE))
   print(paste('Current working directory:',getwd()))
   print(paste('Current temp directory:',tempdir()))
-  
+
+  period=period
   ##---- Climate Rasters
   rastfiles<-rasterdir
   climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
