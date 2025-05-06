@@ -354,19 +354,22 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   
   # Calculate period averages
   if(period == "monthly"){
-      timeperiod<-substr(colnames(output),1,6)
-      monthlyaverages<-t(apply(output,1,row_average_function))
-      output<-cbind(polygons,as.data.frame(monthlyaverages))
-      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    "do nothing"
+      #timeperiod<-substr(colnames(output),1,6)
+      #monthlyaverages<-t(apply(output,1,row_average_function))
+      #output<-cbind(polygons,as.data.frame(monthlyaverages))
+      #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
       
     }else if(period == "yearly"){
-      timeperiod<-substr(colnames(output),1,4)
-      yearaverages<-t(apply(output,1,row_average_function))
-      output<-cbind(polygons,as.data.frame(yearaverage))
-      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    "do nothing"
+      #timeperiod<-substr(colnames(output),1,4)
+      #yearaverages<-t(apply(output,1,row_average_function))
+      #output<-cbind(polygons,as.data.frame(yearaverage))
+      #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     }else{
-      output<-cbind(polygons,output)
-      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    "do nothing"
+      #output<-cbind(polygons,output)
+      #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     }
     
 
