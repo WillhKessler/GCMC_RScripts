@@ -380,7 +380,111 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
 }
 
 
-
+##---- v2 Function to 
+extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays=0,weightslayers = NA){
+  
+  ##---- Load required packages, needs to be inside function for batch jobs
+  require(terra)
+  require(reshape2)
+  require(tools)
+  require(ids)
+  require(lubridate)
+  source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/Functions_RasterExtraction.R")
+  print(system("hostname",intern=TRUE))
+  print(paste('Current working directory:',getwd()))
+  print(paste('Current temp directory:',tempdir()))
+  
+  ##---- Climate Rasters
+  rastfiles<-rasterdir
+  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*[1-2][0-9][0-9][0-9]-?[0-1][0-9]-?[0-3][0-9]\\.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
+  # Determine unique raster dates
+  rdates<-unique(sapply(X = strsplit(file_path_sans_ext(basename(climvars)),"_"),FUN = function(x){x[length(x)]}))
+  rdates<-rdates[order(rdates)]
+  #print(rdates)
+  
+  ##---- Unwrap the point data
+  polygons = unwrap(datchunk)
+  
+  
+  ##---- Set summary period for extractions (monthly, yearly)
+  polygons<-set.period(polygons,period,startdatefield,enddatefield,predays)
+  
+  ##---- Create extraction date ranges for points
+  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygonsendSeasonIndex<- sapply(polygons$extract_stop, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  
+  ##---- Handle cases where extraction dates are outside available data
+  if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
+    output<- polygons
+    longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  } else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
+    polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))))
+  }else{
+  }
+  
+  polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
+  polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
+  
+  ##---- Perform Extractions
+  ##---- Determine which raster dates fall within the data range
+  rasterDateRange<-rdates[as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))>=min(polygons$first_extract) & as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))<=max(polygons$last_extract)]
+  
+  # Load Climate Rasters
+  print("loading the climvars to rast()")
+  climvars2<-sapply(rasterDateRange, function(x){climvars[grep(x,climvars)]})
+  rasters<- rast(climvars2)
+  names(rasters)<-rasterDateRange
+  if(is.polygons(polygons)){
+    if(is.na(weightslayers)){
+      polygons<-project(polygons,crs(rasters))
+      rasters2<- crop(x = rasters, y = polygons,snap = 'out')
+      tempoutput<-zonal(x=rasters2,z=polygons,fun=mean,na.rm=TRUE,as.polygons=TRUE)
+      tempnames<-names(tempoutput)
+      
+      output<-cbind(polygons,tempoutput)
+      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+      
+    }else{
+      output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)
+    }
+  }else if(is.points(polygons)){
+    polygons<-project(polygons,crs(rasters))
+    output<-terra::extract(x = rasters,y = polygons,ID=FALSE,small=TRUE)
+    names(output)<-names(rasters)
+    
+  } 
+  
+  row_average_function <- function(row_data,timeperiod) {
+    tapply(as.numeric(row_data), timeperiod, mean)
+  }
+  
+  # Calculate period averages
+  if(period == "monthly"){
+    "do nothing"
+    #timeperiod<-substr(colnames(output),1,6)
+    #monthlyaverages<-t(apply(output,1,row_average_function))
+    #output<-cbind(polygons,as.data.frame(monthlyaverages))
+    #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    
+  }else if(period == "yearly"){
+    "do nothing"
+    #timeperiod<-substr(colnames(output),1,4)
+    #yearaverages<-t(apply(output,1,row_average_function))
+    #output<-cbind(polygons,as.data.frame(yearaverage))
+    #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+  }else{
+    "do nothing"
+    #output<-cbind(polygons,output)
+    #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+  }
+  
+  
+  
+  #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
+  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  
+}
 
                                        
 ##---- Function to perform time invariant raster data extraction to points or polygons with or without raster weighting
