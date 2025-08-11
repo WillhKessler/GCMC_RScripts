@@ -403,7 +403,7 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
   #print(rdates)
   
   ##---- Unwrap the point data
-  polygons = unwrap(datchunk)
+  polygons = terra::unwrap(datchunk)
   
   
   ##---- Set summary period for extractions (monthly, yearly)
