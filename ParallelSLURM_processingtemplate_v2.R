@@ -12,7 +12,7 @@ head(splitdat)
 PROJECT_NAME = "ExampleLinkage" # string with a project name
 #rasterdir = "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
 rasterdir = "S:\\GCMC\\Data\\Climate\\PRISM\\daily"
-extractionlayer = "S:\\GCMC\\_Code\\TESTING_datasets\\csv\\toyCohort50.csv"
+#extractionlayer = "S:\\GCMC\\_Code\\TESTING_datasets\\csv\\toyCohort50.csv"
 layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB, ignored when extraction layer is a CSV
 IDfield = "UUID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
 Xfield = "longitude" # A Field containing the X coordinate (Longitude), in decimal degrees, only for CSV
