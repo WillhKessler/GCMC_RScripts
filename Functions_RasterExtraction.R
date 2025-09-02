@@ -296,7 +296,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   }else if (file_ext(extractionlayer) %in% c("gdb")){
     polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
   }else if (file_ext(extractionlayer) %in% c("shp")){
-    polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ",layername," WHERE ",IDfield," = ","'",as.character(piece),"'"))
+    polygons<-vect(x=extractionlayer, query = paste0("SELECT * FROM ","\"",layername,"\""," WHERE ",IDfield," = ","'",as.character(piece),"'"))
   }
   
   ##---- Set summary period for extractions (monthly, yearly)
