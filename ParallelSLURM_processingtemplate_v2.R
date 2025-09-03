@@ -1,24 +1,16 @@
 require('terra')
 
-dat<-read.csv("S:\\GCMC\\_Code\\TESTING_datasets\\csv\\toyCohort50.csv",stringsAsFactors = F)
-dat<-vect(dat,crs="EPSG:4326",geom=c("latitude","longitude"),keepgeom=T)
-dat
-
-splitdat<-split(dat,f=list(dat[[startdatefield]],dat[[enddatefield]]))
-splitdat<-sapply(X = splitdat,FUN = wrap)
-head(splitdat)
 ##-------------------------------------------------------------------------------------
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME = "ExampleLinkage" # string with a project name
-#rasterdir = "/pc/nhair0a/Built_Environment/BE_Data/Geographic_Data/PRISM_daily/PRISM_data/an" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
-rasterdir = "S:\\GCMC\\Data\\Climate\\PRISM\\daily"
-#extractionlayer = "S:\\GCMC\\_Code\\TESTING_datasets\\csv\\toyCohort50.csv"
-layername = "sites_10M" # Layer name used when extraction layer is an SHP or GDB, ignored when extraction layer is a CSV
-IDfield = "UUID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
+rasterdir = "/pc/nhair0a/_mock_nhair0a/Raw_Exposure_Data/Natural_Environment/Greenness/NDVI/NDVI_30m" # string with a file path to raster covariates to extract- function will try to pull variable names from sub directories i.e /PRISM/ppt or /PRISM/tmean or /NDVI/30m
+extractionlayer = "/d/tmp/nhairs/nhair0a/linkagebonanza/ExtractionBonanza_ExampleData.csv"
+layername = "ExtractionBonanza_ExampleData" # Layer name used when extraction layer is an SHP or GDB, ignored when extraction layer is a CSV
+IDfield = "subject_ID" # Field in extraction layer specifying IDs for features, can be unique or not, used to chunk up batch jobs
 Xfield = "longitude" # A Field containing the X coordinate (Longitude), in decimal degrees, only for CSV
 Yfield = "latitude" # A Field containing the Y coordinate (Longitude), in decimal degrees, only for CSV
-startdatefield = "start_date" # Field in extraction layer specifying first date of observations
-enddatefield = "end_date" # Field in extraction layer specifying last date of observations
+startdatefield = "startdate" # Field in extraction layer specifying first date of observations
+enddatefield = "enddate" # Field in extraction layer specifying last date of observations
 predays = 0 # Integer specifying how many days preceding 'startingdatefield' to extract data. i.e. 365 will mean data extraction will begin 1 year before startdatefield
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
 period = "daily" #specify a period to summarize values: daily, monthly, yearly, defaults to daily
@@ -85,7 +77,7 @@ batchgrid = function(rasterdir,period,extractionlayer,IDfield,Xfield,Yfield,star
     dat<-read.csv(extractionlayer,stringsAsFactors = F)
     dat<-vect(dat,crs="EPSG:4326",geom=c("latitude","longitude"),keepgeom=T)
     datchunk<-split(dat,f=list(dat[[startdatefield]],dat[[enddatefield]]))
-    datchunk<-sapply(X = splitdat,FUN = wrap)
+    datchunk<-sapply(X = datchunk,FUN = wrap)
   }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
     require('terra')
     vectorfile<- vect(x=extractionlayer,layer=layername)
@@ -140,3 +132,13 @@ setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
 getStatus()
+
+##---- Submit jobs to scheduler
+done <- batchtools::submitJobs(jobs, 
+                               reg=reg, 
+                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=5000,email=email))
+#Sys.sleep(1000)
+#estimateRuntimes(jobs,reg=reg)
+getStatus()
+
+waitForJobs() # Wait until jobs are completed
