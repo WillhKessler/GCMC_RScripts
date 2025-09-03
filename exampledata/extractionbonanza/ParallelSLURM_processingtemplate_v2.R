@@ -1,12 +1,5 @@
 require('terra')
 
-#dat<-read.csv("/d/tmp/nhairs/nhair0a/linkagebonanza/ExtractionBonanza_ExampleData.csv",stringsAsFactors = F)
-#dat<-vect(dat,crs="EPSG:4326",geom=c("latitude","longitude"),keepgeom=T)
-#dat
-
-#splitdat<-split(dat,f=list(dat[[startdatefield]],dat[[enddatefield]]))
-#splitdat<-sapply(X = splitdat,FUN = wrap)
-#head(splitdat)
 ##-------------------------------------------------------------------------------------
 ##---- REQUIRED INPUTS ----##
 PROJECT_NAME = "ExampleLinkage" # string with a project name
