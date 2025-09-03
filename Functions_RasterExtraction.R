@@ -453,8 +453,8 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
     }
   }else if(is.points(polygons)){
     polygons<-project(polygons,crs(rasters))
-    output<-terra::extract(x = rasters,y = polygons,ID=F,small=TRUE)
-    names(output)<-names(rasters)
+    output<-terra::extract(x = rasters,y = polygons,ID=F,small=TRUE,bind=T)
+    #names(output)<-names(rasters)
     
   } 
   
@@ -485,7 +485,7 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
   
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  return(list(exposure=vars,result=wrap(output),node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
   
 }
 
