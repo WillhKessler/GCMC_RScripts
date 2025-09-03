@@ -485,7 +485,7 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
   
   
   #return(list(exposure=vars,piece=piece,result=output,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[6:7],collapse=".") ))
-  return(list(exposure=vars,piece=piece,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  return(list(exposure=vars,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
   
 }
 
