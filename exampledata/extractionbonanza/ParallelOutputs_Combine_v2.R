@@ -1,9 +1,9 @@
 require('batchtools')
   require('tidyr')
   require('terra')
-  
+  projectname="ExampleLinkage"
   ##---- Load Registry
-  reg<- loadRegistry("ExampleLinkage_Registry")
+  reg<- loadRegistry(paste(projectname,"Registry",sep="_"))
   
   ##---- Create Jobs Table
   jobs<-getJobPars(reg=reg)
