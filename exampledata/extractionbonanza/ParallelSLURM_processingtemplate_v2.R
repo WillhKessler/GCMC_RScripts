@@ -142,3 +142,4 @@ done <- batchtools::submitJobs(jobs,
 getStatus()
 
 waitForJobs() # Wait until jobs are completed
+getStatus()
