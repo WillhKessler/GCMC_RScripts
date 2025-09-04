@@ -19,8 +19,6 @@ require('batchtools')
     rm(out)
     out3<-Reduce(function(dtf1,dtf2){merge(dtf1,dtf2,all=TRUE)},out2)
   
-    #longout<-lapply(out2,function(x){reshape2::melt(melt(x,id.vars=colnames(x)[!grepl("^\\d{4}\\-?\\d{2}\\-?\\d{2}\\b",colnames(x))],
-    #                                                     variable.names="date",value.name=v,na.rm=FALSE))})
     longout<- lapply(out2,function(x){as.data.frame(x%>% pivot_longer(cols= colnames(x)[grepl("^\\d{4}\\-?\\d{2}\\-?\\d{2}\\b",colnames(x))],names_to = "date",values_to = v))})
     rm(out2)
     longout<-do.call("rbind",longout)
