@@ -3,7 +3,7 @@ require('batchtools')
   require('terra')
   
   ##---- Load Registry
-  reg<- loadRegistry(paste(PROJECT_NAME,"Registry",sep="_"))
+  reg<- loadRegistry("ExampleLinkage_Registry")
   
   ##---- Create Jobs Table
   jobs<-getJobPars(reg=reg)
