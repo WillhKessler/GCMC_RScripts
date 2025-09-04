@@ -881,6 +881,7 @@ combine.resultsv2= function(projectname=PROJECT_NAME){
     rm(out2)
     longout<-do.call("rbind",longout)
     write.csv(longout,paste(projectname,"_LONG_",v,".csv",sep=""))
+    saveRDS(longout,paste(projectname,"_LONG_",v,".rds",sep=""))
     write.csv(out3,paste(projectname,"_",v,".csv",sep=""))
     saveRDS(out3,file=paste(projectname,"_",v,".rds",sep=""))
   }
