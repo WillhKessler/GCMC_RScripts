@@ -6,16 +6,16 @@ flowchart TD
     AA[Geocoded Cohort Data] -->|Get Features & observation period|B
 
     BBB[slurm.tmpl]-->|configures|C
-    B[ParallelXXXXX_processingtemplate.R]--> |Submit Jobs to Cluster|C
+    B[ParallelXXXXX_processingtemplate_v2.R]--> |Submit Jobs to Cluster|C
     B--> |downloads|BBB
     B--> |downloads|BB
     BB[batchtools.conf.R]-->|configures|C 
     C{Cluster Job Manager} -->|Functions_RasterExtractions::extract.rast|D(Feature 1) 
-    C -->|Functions_RasterExtractions::extract.rast| E(Feature 2)
-    C -->|Functions_RasterExtractions::extract.rast| F(Feature 3)
-    C -->|Functions_RasterExtractions::extract.rast| G(Feature ... n)
+    C -->|Functions_RasterExtractions::extract.rastv2| E(Feature 2)
+    C -->|Functions_RasterExtractions::extract.rastv2| F(Feature 3)
+    C -->|Functions_RasterExtractions::extract.rastv2| G(Feature ... n)
     
-    H[ParallelCombine_Outputs.R]
+    H[ParallelCombine_Outputs_v2.R]
     D-->H
     E-->H
     F-->H
@@ -25,7 +25,7 @@ flowchart TD
 This github repository contains all the files that are necessary for this workflow. Depending on your implementation up to 5 files are utilized, however you should only need to directly download number 1, and number 5:
 1. `ParallelXXXXX_processingtemplate.R`
    
-   a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
+   a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate_v2.R`
    
    b. For a multi-core standalone machine use `ParallelSocket_processingtemplate.R`
    
@@ -36,7 +36,7 @@ This github repository contains all the files that are necessary for this workfl
 5. `ParallelOutputs_Combine.R`
 
 In addition, a user will need to supply the following:
-1. A directory of one or more child directories containing the rasters to be extracted. The child directory names will be used to differentiate variables timeseries rasters. For example, the following tree would allow for the extraction of the variables NO2, Ozone, and PM_2.5:
+1. A directory of one or more child directories containing the rasters to be extracted. The first level child directory names will be used to differentiate variables timeseries rasters. For example, the following tree would allow for the extraction of the variables NO2, Ozone, and PM_2.5:
 ```
 └── ~\AirPollution/
     ├── Methane
