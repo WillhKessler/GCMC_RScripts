@@ -422,16 +422,16 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
     longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     return(list(exposure=vars,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
   } else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
-    polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))))
+    polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))))
   }else{
   }
   
-  polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
-  polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%Y-%m-%d","%Y%m%d"))
+  polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
+  polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   
   ##---- Perform Extractions
   ##---- Determine which raster dates fall within the data range
-  rasterDateRange<-rdates[as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))>=min(polygons$first_extract) & as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))<=max(polygons$last_extract)]
+  rasterDateRange<-rdates[as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))>=min(polygons$first_extract) & as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))<=max(polygons$last_extract)]
   
   # Load Climate Rasters
   print("loading the climvars to rast()")
