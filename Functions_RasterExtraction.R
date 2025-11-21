@@ -413,8 +413,8 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
   polygons<-set.period(polygons,period,startdatefield,enddatefield,predays)
   
   ##---- Create extraction date ranges for points
-  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
-  polygonsendSeasonIndex<- sapply(polygons$extract_stop, function(i) which((as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygonsendSeasonIndex<- sapply(polygons$extract_stop, function(i) which((as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
   
   ##---- Handle cases where extraction dates are outside available data
   if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
