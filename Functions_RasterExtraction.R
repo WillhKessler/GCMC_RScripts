@@ -192,14 +192,14 @@ init.jobs = function(func = extract.rast, rasterdir, extractionlayer, layername,
 ##---- Helper function for adjusting extraction periods when averaging time periods
 set.period<- function(polygons,period,startdatefield,enddatefield,predays){
 if(period=="monthly"){
-    polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"month"))
-    polygons$extract_stop<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"month")-1)
+    polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"month"))
+    polygons$extract_stop<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"month")-1)
   }else if(period=="yearly"){
-    polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"year"))
-    polygons$extract_stop<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"year")-1)
+    polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"year"))
+    polygons$extract_stop<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"year")-1)
   }else{
-  polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays)
-  polygons$extract_stop<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")))
+  polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays)
+  polygons$extract_stop<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")))
   }
   return(polygons)
 }
