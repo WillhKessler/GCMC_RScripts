@@ -132,10 +132,10 @@ flowchart TD
     wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSocket_processingtemplate.R"
     ```
 5. Open your favorite unix text editor or open the Parallel Processing Template in RStudio and update the required inputs, adjust the resources in `batchtools::submitJobs()` as necessary
-6. Run the R script ParallelXXXX_processingtemplate.R as normal. This script does the heavy lifting of the workflow. Other files and functions are sourced as necessary from within the script. On the BWH Channing cluster, you can use the homegrown command `sbR` as such, specifying you want R version 4.3.0, and the queue option as the "12hour" queue.
+6. Run the R script ParallelXXXX_processingtemplate.R as normal. This script does the heavy lifting of the workflow. Other files and functions are sourced as necessary from within the script. On the BWH Channing cluster, you can use the homegrown command `sbR` as such, specifying you want R version 4.3.0, and the queue option as the "12hour" queue, add memory with memsize=XXXG.
    On other systems you may need to write a batch script and submit to your cluster with `SBATCH`. 
 ```
-sbR -v 4.3.0 -o "12hour" ParallelXXXX_processingtemplate.R
+sbR -v 4.3.0 -o "12hour,memsize=8G" ParallelXXXX_processingtemplate.R
 
 ```
 Or hit 'run' in your RStudio session if running locally
