@@ -512,7 +512,7 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
   if(file_ext(extractionlayer)=='csv'){
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     extlayer<-extlayer[extlayer[IDfield]==piece,]
-    polygons<- vect(x = extlayer,geom = c(Xfield,Yfield), keepgeom=TRUE)
+    polygons<- vect(x = extlayer,geom = c(Xfield,Yfield),crs="EPSG:4326", keepgeom=TRUE)
   }else if (file_ext(extractionlayer) %in% c("gdb")){
     polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
   }else if (file_ext(extractionlayer) %in% c("shp")){
