@@ -4,7 +4,7 @@ require(utils)
 #########################################
 ##---Required Inputs---------############
 #zipdir<-"S:\\GCMC\\Data\\AirPollution\\ec"
-zipdir<-"S:\\GCMC\\Data\\Climate/PRISM/4km/"
+zipdir<-"S:/GCMC/tmp/pmcomp_temp"
 
 #########################################
 ##---- Clipping Boundary
