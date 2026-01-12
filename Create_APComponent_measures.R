@@ -4,7 +4,7 @@ library('tools')
 
 projection_info<-"EPSG:4326"
 
-files<-list.files("S:\\GCMC\\Data\\AirPollution\\PM25_Components\\",pattern="*[0-9]_urban.rds",recursive=TRUE,full.names=TRUE)
+files<-list.files("S:\\GCMC\\Data\\AirPollution\\PM25components\\",pattern="*[0-9]_urban.rds",recursive=TRUE,full.names=TRUE)
 
 for(i in files){
   dat<-readRDS(i)
