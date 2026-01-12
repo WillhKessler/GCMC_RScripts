@@ -75,8 +75,8 @@ batchgrid = function(rasterdir,period,extractionlayer,IDfield,Xfield,Yfield,star
     layername = NA
     weightslayers = NA
     dat<-read.csv(extractionlayer,stringsAsFactors = F)
-    dat<-vect(dat,crs="EPSG:4326",geom=c(Xfield,Yfield),keepgeom=T)
-    datchunk<-split(dat,f=list(dat[[startdatefield]],dat[[enddatefield]]))
+    datchunk<-split(dat,f=list(dat[[startdatefield]],dat[[enddatefield]]),drop=TRUE)
+    datchunk<-lapply(datchunk,vect,crs="EPSG:4326",geom=c(Xfield,Yfield),keepgeom=T)
     datchunk<-sapply(X = datchunk,FUN = wrap)
   }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
     require('terra')
@@ -92,7 +92,9 @@ batchgrid = function(rasterdir,period,extractionlayer,IDfield,Xfield,Yfield,star
       layername<-paste0(file_path_sans_ext(basename(extractionlayer)))
     }
     dat<-vect(extactionlayerlayer=layername)
-    datchunk<-split(dat,f=list(dat[[startdatefield]],dat[[enddatefield]]))
+    datchunk<-split(dat,f=startdatefield)
+    datchunk<-lapply(datchunk,split,f=enddatefield)
+    datchunk<-unlist(datchunk)
     datchunk<-sapply(X = splitdat,FUN = wrap)
   }
   ##---- 

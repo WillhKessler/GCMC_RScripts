@@ -505,14 +505,14 @@ simple.extract.rast= function(vars,piece,rasterdir,extractionlayer,layername,IDf
   period=period
   ##---- Climate Rasters
   rastfiles<-rasterdir
-  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",vars,".*.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
+  climvars<-list.files(file.path(rastfiles,vars),pattern = paste(".*",".*.(tif|bil)$",sep=""),recursive=TRUE,full.names=TRUE)
   
   
   ##---- Extraction Features Layer
   if(file_ext(extractionlayer)=='csv'){
     extlayer<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     extlayer<-extlayer[extlayer[IDfield]==piece,]
-    polygons<- vect(x = extlayer,geom = c(Xfield,Yfield), keepgeom=TRUE)
+    polygons<- vect(x = extlayer,geom = c(Xfield,Yfield),crs="EPSG:4326", keepgeom=TRUE)
   }else if (file_ext(extractionlayer) %in% c("gdb")){
     polygons<-vect(x=extractionlayer,layer = layername,query = paste("SELECT * FROM ",layername," WHERE ",IDfield," = ",piece))  
   }else if (file_ext(extractionlayer) %in% c("shp")){
