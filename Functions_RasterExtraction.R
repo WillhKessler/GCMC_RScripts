@@ -347,6 +347,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
     polygons<-project(polygons,crs(rasters))
     output<-terra::extract(x = rasters,y = polygons,ID=FALSE,small=TRUE)
     names(output)<-names(rasters)
+    output<-cbind(polygons,output)
     longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     
   } 
