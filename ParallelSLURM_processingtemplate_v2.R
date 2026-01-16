@@ -135,6 +135,13 @@ setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 getJobTable()
 getStatus()
 
+##---- Here are the results of the first job in your queue. Does everything look correct? If not, your jobs will likely fail or give you the incorrect results.
+# The input parameters used to define the first job:
+getJobPars(1)$job.pars[[1]]
+The results of the Job:
+execJob(makeJob(1))
+
+
 ##---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs, 
                                reg=reg, 
