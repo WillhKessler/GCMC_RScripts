@@ -18,4 +18,4 @@ filenamecsv="$1"
 ## Run R:
 Rscript -e "rmarkdown::render(
   'GenerateReport_cohort_linkage_QAQC.Rmd',
-  params = list(filename = '$filenamecsv'))"
+  params = list(file_name = '$filenamecsv'))"
