@@ -1,0 +1,29 @@
+---
+title: "Cohort_linkage_QAQCSummary"
+author: "`r Sys.info()['user']`"
+date: "`r Sys.Date()`"
+output: html_document
+params:
+  file_name : "S:/GCMC/_Code/temp/VITAL_NDVIDAILY_LONG30m.csv"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+cohortname = basename(params$file_name)
+linkage_data = read.csv(params$file_name,stringsAsFactors = F)
+```
+
+This document is a summary of the data linkage for the cohort "`r cohortname`"
+
+## Summary:
+
+There are `r length(unique(linkage_data$subject_ID))` unique IDs in the dataset.
+Total NA values by column: 
+```{r}
+colSums(is.na(linkage_data))
+```
+
+```{r}
+summary(linkage_data)
+```
+
