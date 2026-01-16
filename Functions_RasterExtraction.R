@@ -22,7 +22,7 @@ get.partitions<- function(partition){
 
 ##---- Load Required Packages
 load.packages<- function(){
-  listOfPackages <- c("batchtools","terra","tools","reshape2","ids","lubridate")
+  listOfPackages <- c("batchtools","terra","tools","reshape2","ids","lubridate","parsedate")
 
   for (i in listOfPackages){
     if(! i %in% installed.packages()){
@@ -191,6 +191,7 @@ init.jobs = function(func = extract.rast, rasterdir, extractionlayer, layername,
 
 ##---- Helper function for adjusting extraction periods when averaging time periods
 set.period<- function(polygons,period,startdatefield,enddatefield,predays){
+  require('parsedate')
 if(period=="monthly"){
     polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"month"))
     polygons$extract_stop<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"month")-1)
@@ -198,8 +199,11 @@ if(period=="monthly"){
     polygons$extract_start<- as.character(floor_date(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays,"year"))
     polygons$extract_stop<-as.character(ceiling_date(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")),"year")-1)
   }else{
-  polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays)
-  polygons$extract_stop<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")))
+  polygons$extract_start<- as.character(as.Date(parse_date(unlist(as.data.frame(polygons[,startdatefield]))))-predays)
+  polygons$extract_stop<-as.character(as.Date(parse_date(unlist(as.data.frame(polygons[,enddatefield])))))
+
+  #polygons$extract_start<- as.character(as.Date(unlist(as.data.frame(polygons[,startdatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d"))-predays)
+  #polygons$extract_stop<-as.character(as.Date(unlist(as.data.frame(polygons[,enddatefield])),tryFormats=c("%m/%d/%y","%Y-%m-%d","%m/%d/%Y","%Y%m%d","%Y/%m/%d")))
   }
   return(polygons)
 }
@@ -347,6 +351,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
     polygons<-project(polygons,crs(rasters))
     output<-terra::extract(x = rasters,y = polygons,ID=FALSE,small=TRUE)
     names(output)<-names(rasters)
+    output<-cbind(polygons,output)
     longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     
   } 
