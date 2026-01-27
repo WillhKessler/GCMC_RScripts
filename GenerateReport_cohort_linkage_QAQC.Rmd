@@ -10,10 +10,11 @@ params:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 cohortname = basename(params$file_name)
+input_cohort = "/pc/nhair0a/Projects/"
 linkage_data = read.csv(params$file_name,stringsAsFactors = F)
 ```
 
-This document is a summary of the data linkage for the cohort "`r cohortname`"
+This document is a summary of the data linkage for the cohort "`r paste(cohortname)`"
 
 ## Summary:
 
