@@ -38,7 +38,7 @@ for(g in grids){
 
 files<-list.files("S:\\GCMC\\tmp\\pmcomp_temp",pattern=".*.rds$",recursive=TRUE,full.names=TRUE)
 files[basename(files) %in% files[duplicated(basename(files))]]
-for i in 
+
 
 ######Create single layer coverages
 
