@@ -20,7 +20,7 @@ period = "daily"
 
 ##---- Required Packages
 ##---- Required Packages
-listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
+listOfPackages <- c("batchtools","terra","tools","reshape2","ids","parsedate")
 for (i in listOfPackages){
      if(! i %in% installed.packages()){
          install.packages(i, dependencies = TRUE)

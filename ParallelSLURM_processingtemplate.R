@@ -16,7 +16,7 @@ email = "" #Enter your email. SLURM will send you an email when your jobs are co
 
 
 ##---- Required Packages
-listOfPackages <- c("batchtools","terra","tools","reshape2","ids")
+listOfPackages <- c("batchtools","terra","tools","reshape2","ids","parsedate")
 for (i in listOfPackages){
   if(! i %in% installed.packages()){
     install.packages(i, dependencies = TRUE)
