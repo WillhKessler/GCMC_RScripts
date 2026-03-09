@@ -34,8 +34,13 @@ for(g in grids){
   }  
 }  
   
+######Confirm all rasters are valid:
 
+files<-list.files("S:\\GCMC\\tmp\\pmcomp_temp",pattern=".*.rds$",recursive=TRUE,full.names=TRUE)
+files[basename(files) %in% files[duplicated(basename(files))]]
+for i in 
 
+######Create single layer coverages
 
 library(terra)
 require(tools)
