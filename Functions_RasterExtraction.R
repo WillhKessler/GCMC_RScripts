@@ -457,7 +457,7 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
   polygonsendSeasonIndex<- sapply(polygons$extract_stop,function(i) find.EndDateIdx(i,rdates))
                                     
   ##---- Handle cases where extraction dates are outside available data
-  if(polygonstartSeasonIndex==0 | polygonsendSeasonIndex ==0){
+  if(all((polygonstartSeasonIndex==0 | polygonsendSeasonIndex ==0))){
     output<- polygons
     #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     #return(list(exposure=vars,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
