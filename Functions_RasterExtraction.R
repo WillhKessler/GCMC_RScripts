@@ -213,7 +213,7 @@ if(period=="monthly"){
 
 
 ##---- Helper function for determining Extraction start date index
-find.StartDateIdx<-function(start_date, rdatesdates) {
+find.StartDateIdx<-function(start_date, rdates) {
   start_date <- as.Date(start_date)
   date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   if (start_date > max(date_vector, na.rm = TRUE)) {
