@@ -457,15 +457,21 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
   polygonsendSeasonIndex<- sapply(polygons$extract_stop,function(i) find.EndDateIdx(i,rdates))
                                     
   ##---- Handle cases where extraction dates are outside available data
-  if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
+  if(polygonstartSeasonIndex==0 | polygonsendSeasonIndex ==0){
     output<- polygons
-    longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
     #return(list(exposure=vars,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
     return(list(exposure=vars,result=wrap(output),node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
-  } else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
-    polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))))
-  }else{
   }
+  #if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
+  #  output<- polygons
+  #  longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+  #  #return(list(exposure=vars,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  #  return(list(exposure=vars,result=wrap(output),node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  #} else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
+  #  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))))
+  #}else{
+  #}
   
   polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
