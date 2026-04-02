@@ -493,7 +493,7 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
       tempnames<-names(tempoutput)
       
       output<-cbind(polygons,tempoutput)
-      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+      #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
       
     }else{
       output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)
