@@ -34,7 +34,7 @@ mergeResults<- function(x){
 	jobs<-findJobs(expr=vars==x,reg=reg)
 
 	##---- Combine all the outputs into a dataframe
-	results<-reduceResultsList(fun=function(x) as.data.frame(terra::unwrap(x[[3]])),ids=jobs,reg = reg)
+	results<-reduceResultsList(fun=function(x) as.data.frame(terra::unwrap(x[[2]])),ids=jobs,reg = reg)
 	results<-rbindlist(results, fill = TRUE, use.names = TRUE)
 	
 	longout<-as.data.frame(melt(results,
