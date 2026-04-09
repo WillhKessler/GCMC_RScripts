@@ -3,52 +3,57 @@
 library(RCurl)
 library(datasets)
 
-#2020
-setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/2020")
-ftp_url <- "https://gaftp.epa.gov/rtrmodeling_public/AirToxScreen/2020/Ambient%20Concentrations/"
-regions<- c(paste0("Region",1:10))
-files<-paste(regions,"2020ATS_Ambient_Concentrations.xlsx",sep="_")
+stateabrv<-tolower(c(state.abb,"dc","vi","pr"))
+stateabrv<-c("dc","vi","pr")
+
+
+
+# #2020
+# setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/2020")
+# ftp_url <- "https://gaftp.epa.gov/rtrmodeling_public/AirToxScreen/2020/Ambient%20Concentrations/"
+# regions<- c(paste0("Region",1:10))
+# files<-paste(regions,"2020ATS_Ambient_Concentrations.xlsx",sep="_")
 
 # #2017
 # setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/2017")
 # ftp_url <- "https://www.epa.gov/system/files/other-files/2022-03/"
-# regions<- tolower(c(state.abb))
+# regions<- stateabrv
 # files<-paste("concexprisk_tract_poll_",regions,".zip",sep="")
 
 # #2014
 # setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/2014")
 # ftp_url <- "https://www.epa.gov/sites/production/files/2018-08/"
-# regions<- tolower(c(state.abb))
+# regions<- stateabrv
 # files<-paste("concexprisk_tract_poll_",regions,".zip",sep="")
 
 # #2011
 # setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/2011")
 # ftp_url <- "https://www.epa.gov/sites/default/files/2015-12/"
-# regions<- tolower(c(state.abb))
+# regions<- stateabrv
 # files<-paste("concexprisk_tract_poll_state_",regions,"_23nov15.zip",sep="")
 
 # #2005
 # setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/2005")
 # ftp_url <- "https://www.epa.gov/sites/default/files/2015-12/"
-# regions<- tolower(c(state.abb))
+# regions<- stateabrv
 # files<-paste(regions,"_nata05_v4_bytract_allhapcat.zip",sep="")
 
 # #2002
 # setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/2002")
 # ftp_url <- "https://archive.epa.gov/nata2002/web/tractmdb/statemdb/"
-# regions<- tolower(c(state.abb))
+# regions<- stateabrv
 # files<-paste(regions,"_nata_bytract_allhapcat.mdb",sep="")
 
 # #1999
 # setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/1999")
 # ftp_url <- "https://archive.epa.gov/airtoxics/nata1999/web/zip99/"
-# regions<- tolower(c(state.abb))
-# files<-paste(regions,sep="")
+# regions<- stateabrv
+# files<-paste(regions,".zip",sep="")
 
-# #1996
+#1996
 # setwd("S:/GCMC/Data/AirPollution/HAPs/AmbientConcentrations/1996")
 # ftp_url <- "https://archive.epa.gov/airtoxics/nata/web/xls/"
-# regions<- tolower(c(state.abb))
+# regions<- stateabrv
 # files<-paste(regions,"_conc.xls",sep="")
 
 require('utils')

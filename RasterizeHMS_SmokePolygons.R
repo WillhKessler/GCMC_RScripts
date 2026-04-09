@@ -26,7 +26,7 @@ for(day in 398:length(days)){
   print(days[day])
   smokeday<-smoke_polys[smoke_polys$Collection_day ==days[day]]
   if(length(smokeday)>0){
-    smokeday$Density[is.na(smokeday$Density)]<-"DensityUnkown"
+    smokeday$Density[is.na(smokeday$Density)]<-"DensityUnknown"
     smokecats<-c("DensityUnknown"=1,"Light"=2,"Medium"=3,"Heavy"=4)
     smokeday$presence<-smokecats[smokeday$Density]
     smokeday$presence[is.na(smokeday$presence)]<-1
