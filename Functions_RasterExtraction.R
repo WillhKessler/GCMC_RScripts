@@ -212,6 +212,38 @@ if(period=="monthly"){
 
 
 
+##---- Helper function for determining Extraction start date index
+find.StartDateIdx<-function(start_date, rdates) {
+  start_date <- as.Date(start_date)
+  date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
+  if (start_date > max(date_vector, na.rm = TRUE)) {
+    return(0)
+  }
+  valid_startidx <- which(date_vector >= start_date)
+  closest_idx <- valid_startidx[which.min(abs(date_vector[valid_startidx] - start_date))]
+  return(closest_idx)
+}
+
+
+
+
+
+##---- Helper function for determining Extraction end date index
+find.EndDateIdx<-function(end_date, rdates) {
+  end_date <- as.Date(end_date)
+  date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
+  if (end_date < min(date_vector, na.rm = TRUE)) {
+    return(0)
+  }
+  valid_endidx <- which(date_vector <= end_date)  
+  closest_idx <- valid_endidx[which.min(abs(date_vector[valid_endidx] - end_date))]
+  return(closest_idx)
+}
+
+
+
+
+
 ##---- Helper function for setting calculating spatial weights 
  calc.spatialweights<- function(weightslayers,rasters,polygons){
     rweights<-list.files(weightslayers,full.names = TRUE)
@@ -418,18 +450,28 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
   polygons<-set.period(polygons,period,startdatefield,enddatefield,predays)
   
   ##---- Create extraction date ranges for points
-  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
-  polygonsendSeasonIndex<- sapply(polygons$extract_stop, function(i) which((as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
-  
+  #polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which((as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygonstartSeasonIndex<-sapply(polygons$extract_start,function(i) find.StartDateIdx(i,rdates))
+
+  #polygonsendSeasonIndex<- sapply(polygons$extract_stop, function(i) which((as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0)[which.min(abs(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))-as.Date(i))[(as.Date(rdates,tryFormats = c("%Y-%m-%d","%Y%m%d"))-as.Date(i)) <= 0])])
+  polygonsendSeasonIndex<- sapply(polygons$extract_stop,function(i) find.EndDateIdx(i,rdates))
+                                    
   ##---- Handle cases where extraction dates are outside available data
-  if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
+  if(all((polygonstartSeasonIndex==0 | polygonsendSeasonIndex ==0))){
     output<- polygons
-    longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
-    return(list(exposure=vars,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
-  } else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
-    polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))))
-  }else{
+    #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+    #return(list(exposure=vars,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+    return(list(exposure=vars,result=wrap(output),node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
   }
+  #if(length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))==0){
+  #  output<- polygons
+  #  longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+  #  #return(list(exposure=vars,result=wrap(output),longresult=longoutput,node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  #  return(list(exposure=vars,result=wrap(output),node = system("hostname",intern=TRUE), Rversion = paste(R.Version()[7:8],collapse=".") ))
+  #} else if (length(unlist(polygonstartSeasonIndex))==0 & length(unlist(polygonsendSeasonIndex))>0){
+  #  polygonstartSeasonIndex<- sapply(polygons$extract_start, function(i) which.min(as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))))
+  #}else{
+  #}
   
   polygons$first_extract<-as.Date(rdates[polygonstartSeasonIndex],tryFormats=c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   polygons$last_extract<-as.Date(rdates[polygonsendSeasonIndex],tryFormats=c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
@@ -451,7 +493,7 @@ extract.rastv2= function(vars,period,datchunk,rasterdir,layername,IDfield,Xfield
       tempnames<-names(tempoutput)
       
       output<-cbind(polygons,tempoutput)
-      longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
+      #longoutput<-reshape2::melt(as.data.frame(output),id.vars=names(polygons),variable.names="date",value.name=vars,na.rm=FALSE)
       
     }else{
       output<-calc.spatialweights(weightslayers= weightslayers,rasters= rasters,polygons= polygons)
