@@ -5,7 +5,7 @@ require(utils)
 ##---Required Inputs---------############
 #zipdir<-"S:\\GCMC\\Data\\AirPollution\\ec"
 zipdir<-"S:/GCMC/tmp/PRISM_processing"
-
+destdir<-"S:/GCMC/Data/Climate/PRISM"
 #########################################
 ##---- Clipping Boundary
 
@@ -29,6 +29,21 @@ for(i in remaining){
 }
 print("Done!")
 
+
+########################Move Files to Destination
+newfiles<-list.files(zipdir,full.names = T,recursive = T)
+
+newloc<-gsub("S:/GCMC/tmp/PRISM_processing",destdir,newfiles)
+
+
+sapply(newPRISM,FUN=function(x,destdir){
+  newloc<-newloc<-gsub("S:/GCMC/tmp/PRISM_processing",destdir,x)
+  if(!dir.exists(dirname(newloc))){
+    dir.create(dirname(newloc),recursive=T)
+  }
+  file.rename(from=x,newloc)
+})
+file.copy(newPRISM,newloc,recursive=T)
 
 
 
