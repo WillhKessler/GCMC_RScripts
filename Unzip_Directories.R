@@ -33,17 +33,19 @@ print("Done!")
 ########################Move Files to Destination
 newfiles<-list.files(zipdir,full.names = T,recursive = T)
 
-newloc<-gsub("S:/GCMC/tmp/PRISM_processing",destdir,newfiles)
+#newloc<-gsub("S:/GCMC/tmp/PRISM_processing",destdir,newfiles)
 
 
-sapply(newPRISM,FUN=function(x,destdir){
-  newloc<-newloc<-gsub("S:/GCMC/tmp/PRISM_processing",destdir,x)
+sapply(newfiles,FUN=function(x){
+  destdir<-"S:/GCMC/Data/Climate/PRISM"
+  newloc<-gsub("S:/GCMC/tmp/PRISM_processing",destdir,x)
   if(!dir.exists(dirname(newloc))){
     dir.create(dirname(newloc),recursive=T)
   }
   file.rename(from=x,newloc)
 })
-file.copy(newPRISM,newloc,recursive=T)
+
+#file.copy(newPRISM,newloc,recursive=T)
 
 
 
