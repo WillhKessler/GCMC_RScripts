@@ -2,15 +2,15 @@
 #install.packages("RCurl")
 library(RCurl)
 
-setwd("S:/GCMC/Data/Climate/PRISM/")
 setwd("S:/GCMC/tmp/PRISM_processing/")
 
-resolution<- c("4km","800m")
+# resolution<- c("4km","800m")
+resolution<- c("4km")
 vars= c("tmin","tmax","tmean","vpdmin","vpdmax","tdmean","ppt")
-period<-c("daily","monthly","annual")
-period<-c("annual")
+#period<-c("daily","monthly","annual")
+period<-c("daily")
 
-start_date=as.Date("1980-01-01")
+start_date=as.Date("2024-01-01")
 end_date=as.Date("2024-12-31")
 dates<-seq(start_date,end_date,by="days")
 
