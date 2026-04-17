@@ -54,6 +54,10 @@ require('tools')
 require('terra')
 outdir<-"S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_30m/"
 fs<- c(270,1230)
+<<<<<<< HEAD
+=======
+
+>>>>>>> d119e74698834817c0dc4908b5b85ebd822dc439
 files<-list.files(outdir,full.names=T,recursive=T,pattern="*_v2.tif$")
 
 for(fss in fs){
@@ -65,6 +69,6 @@ for(fss in fs){
     outname<-gsub("_v2","",outname)
     outdir<- gsub("30m",paste0(fss,"mfs"),dirname(files[f]))
     focalfile<-focal(frast,w=fw,fun="mean",na.policy='all',fillvalue=NA,na.rm=T,filename=file.path(outdir,outname),overwrite=T)
-    #focalfile<-terra::focal(frast,w=fw,fun="mean",na.rm=T,filename=file.path(outdir,outname),overwrite=TRUE)
+
   }
 }
