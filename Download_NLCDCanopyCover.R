@@ -54,10 +54,7 @@ require('tools')
 require('terra')
 outdir<-"S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_30m/"
 fs<- c(270,1230)
-<<<<<<< HEAD
-=======
 
->>>>>>> d119e74698834817c0dc4908b5b85ebd822dc439
 files<-list.files(outdir,full.names=T,recursive=T,pattern="*_v2.tif$")
 
 for(fss in fs){
