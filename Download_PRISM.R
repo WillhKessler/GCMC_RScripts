@@ -1,25 +1,29 @@
 # Install and load the RCurl package
-install.packages("RCurl")
+#install.packages("RCurl")
 library(RCurl)
 
-setwd("S:/GCMC/Data/Climate/PRISM/")
+setwd("S:/GCMC/tmp/PRISM_processing/")
 
-resolution<- c("4km","800m")
+# resolution<- c("4km","800m")
+resolution<- c("4km")
 vars= c("tmin","tmax","tmean","vpdmin","vpdmax","tdmean","ppt")
-period<-c("daily","monthly")
-start_date=as.Date("2025-01-01")
-end_date=as.Date("2025-12-31")
+#period<-c("daily","monthly","annual")
+period<-c("daily")
+
+start_date=as.Date("2024-01-01")
+end_date=as.Date("2024-12-31")
 dates<-seq(start_date,end_date,by="days")
 
 # Define the FTP URL and credentials
 ftp_url <- "https://data.prism.oregonstate.edu/time_series/us/an/"
-
+outfiles<-c()
 for(res in resolution){
   if(res=="4km"){r="25m"}else if(res=="800m"){r="30s"}else{}
   for(v in vars){
     for(p in period){
-      download_files<-sapply(dates,FUN = function(x){file.path(ftp_url,res,v,p,format(x,"%Y"),paste0(paste("prism",v,"us",r,format(x,"%Y%m%d"),sep="_"),".zip"))})
-      
+      if(p=="monthly"){download_files<-unique(sapply(dates,FUN = function(x){file.path(ftp_url,res,v,p,format(x,"%Y"),paste0(paste("prism",v,"us",r,format(x,"%Y%m"),sep="_"),".zip"))}))
+      }else if(p=="daily"){download_files<-sapply(dates,FUN = function(x){file.path(ftp_url,res,v,p,format(x,"%Y"),paste0(paste("prism",v,"us",r,format(x,"%Y%m%d"),sep="_"),".zip"))})
+      }else if(p=="annual"){download_files<-unique(sapply(dates,FUN = function(x){file.path(ftp_url,res,v,"monthly",format(x,"%Y"),paste0(paste("prism",v,"us",r,format(x,"%Y"),sep="_"),".zip"))}))}
       i=1
       # Loop through the list of files and download each one
       for (file_url in download_files) {
@@ -35,8 +39,8 @@ for(res in resolution){
         binary_data<- getBinaryURL(file_url)
         writeBin(binary_data, local_file)
         
-        cat("Downloaded:", file_name, "\n")
-        
+        cat("Downloaded:", file_url, "\n")
+        outfile<-c(outfiles,local_file)
         i=i+1
       }
       
@@ -44,6 +48,10 @@ for(res in resolution){
     }
   }
 }
+
+
+
+
 
 
 
