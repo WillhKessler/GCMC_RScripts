@@ -56,7 +56,6 @@ outdir<-"S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_30m/"
 fs<- c(1230)
 
 files<-list.files(outdir,full.names=T,recursive=T,pattern="*_v2.tif$")
-files<-files[c(1:25,37,38)]
 
 for(fss in fs){
   

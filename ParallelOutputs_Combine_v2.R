@@ -8,7 +8,7 @@ reg<- loadRegistry(paste(projectname,"Registry",sep="_"))
   
   ##---- Create Jobs Table
 jobs<-getJobPars(reg=reg)
-   
+uniquevars<- unique(unlist(lapply(getJobPars(reg=reg)$job.pars,function(x) x$vars)))
   ##---- Combine all the outputs into a dataframe
   
   #results<- do.call("rbind",lapply(1:nrow(jobs),loadResult))
