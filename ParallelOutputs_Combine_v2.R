@@ -1,6 +1,7 @@
 require('batchtools')
 require('tidyr')
 require('terra')
+require('data.table')
 
 projectname="ExampleLinkage"
   ##---- Load Registry
