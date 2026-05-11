@@ -66,7 +66,7 @@ for (i in listOfPackages){
 ##REQUIRED##
 ##---- Initialize conf files and template
 ##---- Initialize batchtools
-PROJECT_NAME<-"Create_nlcdTCC"
+PROJECT_NAME<-"Create_nlcdTCC_GCMC1"
 ##---- Create a temporary registry item
 if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
   reg = loadRegistry(paste(PROJECT_NAME,"Registry",sep="_"),writeable = TRUE)
@@ -81,7 +81,8 @@ create_focalrasters<-function(rfiles,focaldist){
   require('terra')
   terraOptions(memfrac=0.2)
  
-  files<-rfiles
+  #files<-rfiles
+  files<-baddat
   fs<-focaldist
   
   frast<-rast(files)
@@ -95,7 +96,7 @@ create_focalrasters<-function(rfiles,focaldist){
 ##---- grid should contain columns for all desired variable combinations
 rasterdir<- "S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_30m/"
 rfiles<-list.files(rasterdir,full.names=T,recursive=T,pattern="*_v2.tif$")
-rfiles<-rfiles[c(37,38)]
+rfiles<-rfiles[c(8:18)]
 focaldist<-c(1230)
 
 batchgrid = function(rfiles,focaldist){
@@ -120,4 +121,35 @@ jobs<- batchMap(fun = create_focalrasters,
                 reg = reg)
 batchtools::submitJobs(jobs,resources = list(memory=100000),reg = reg)
 
+###################################
+## Check Results
+rasterdir<- "S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_1230mfs/"
+rfiles<-list.files(rasterdir,pattern="*.tif$",recursive=T,full.names = T)
 
+require('terra')
+trast<-rast(rfiles)
+
+rminmax<-sapply(rfiles,FUN = function(x){minmax(rast(x))})
+baddat<-colnames(rminmax)[which(rminmax[1,]==Inf)]
+baddat
+
+
+require('tools')
+require('terra')
+terraOptions(memfrac=0.2)
+
+#files<-rfiles
+
+for(files in baddat){
+  files<-gsub("1230mfs","30m",files)
+  fs<-c(1230)
+  
+  frast<-rast(files)
+  fw<- focalMat(x=frast,d=fs,type='circle',fillNA=T)
+  outname<-gsub("30m",paste0(fs,"mfs"),basename(files))
+  outname<-gsub("_v2","",outname)
+  outdir<- gsub("30m",paste0(fs,"mfs"),dirname(files))
+  focalfile<-focal(frast,w=fw,fun="mean",na.policy='all',fillvalue=NA,na.rm=T,filename=file.path(outdir,outname),overwrite=T)
+}
+
+######
