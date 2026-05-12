@@ -3,10 +3,15 @@ require(tools)
 require(utils)
 #########################################
 ##---Download state data from Google Drive---------############
-var="EVI"
-rasterdir<- "S:\\GCMC\\Data\\Greenness\\EVI\\states"
-outdir1<- "S:\\GCMC\\Data\\Greenness\\EVI"
-sourceraster<-rast("S:\\GCMC\\Data\\Greenness\\EVI\\30m/EVI_30m_2024-01-01.tif")
+# var="NDVI"
+# rasterdir<- "S:\\GCMC\\Data\\Greenness\\EVI\\states"
+# outdir1<- "S:\\GCMC\\Data\\Greenness\\EVI"
+# sourceraster<-rast("S:\\GCMC\\Data\\Greenness\\EVI\\30m/EVI_30m_2024-01-01.tif")
+var="NDVI"
+rasterdir<- "S:\\GCMC\\Data\\Greenness\\NDVI\\states"
+outdir1<- "S:\\GCMC\\Data\\Greenness\\NDVI"
+sourceraster<-rast("S:\\GCMC\\Data\\Greenness\\NDVI\\30m/NDVI_30m_2024-01-01.tif")
+
 
 #rasters<-list.files(path=rasterdir, pattern="*.tif$",full.names=T,recursive=T,include.dirs=F)
 #outrasters<-file.path(outdir,basename(rasters))
@@ -36,6 +41,8 @@ patterns<-paste0(patterncombos$Var1,"_",patterncombos$Var2)
 for(pattern in patterns){
   if(grepl('^30',pattern)){
     outdir = file.path(outdir1,"30m")
+  }else if(grepl('^90',pattern)){
+    outdir = file.path(outdir1,"fs90m")
   }else if(grepl('^270',pattern)){
       outdir = file.path(outdir1,"fs270m")
   }else if(grepl('^1230',pattern)){
@@ -49,7 +56,7 @@ for(pattern in patterns){
   if(!compareGeom(temp,sourceraster,stopOnError=F)){
   resample(x=temp,y=sourceraster, method= 'bilinear',threads=T,filename = file.path(
     outdir,
-    paste0(var,"_",pattern,".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
+    paste0(var,"_",gsub("_","m_",pattern),".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
   )
   }else{writeRaster(temp,
                     filename = file.path(
