@@ -214,7 +214,7 @@ if(period=="monthly"){
 
 ##---- Helper function for determining Extraction start date index
 find.StartDateIdx<-function(start_date, rdates) {
-  start_date <- as.Date(start_date,format = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
+  start_date <- as.Date(start_date,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   if (start_date > max(date_vector, na.rm = TRUE)) {
     return(0)
@@ -230,7 +230,7 @@ find.StartDateIdx<-function(start_date, rdates) {
 
 ##---- Helper function for determining Extraction end date index
 find.EndDateIdx<-function(end_date, rdates) {
-  end_date <- as.Date(end_date)
+  end_date <- as.Date(end_date,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   if (end_date < min(date_vector, na.rm = TRUE)) {
     return(0)
