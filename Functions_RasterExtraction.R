@@ -213,33 +213,78 @@ if(period=="monthly"){
 
 
 ##---- Helper function for determining Extraction start date index
-find.StartDateIdx<-function(start_date, rdates) {
+#find.StartDateIdx<-function(start_date, rdates) {
+#  start_date <- as.Date(start_date,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
+#  date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
+#  if (start_date > max(date_vector, na.rm = TRUE)) {
+#    return(0)
+#  }
+#  valid_startidx <- which(date_vector >= start_date)
+#  closest_idx <- valid_startidx[which.min(abs(date_vector[valid_startidx] - start_date))]
+#  return(closest_idx)
+#}
+find.StartDateIdx <- function(start_date, rdates) {
   start_date <- as.Date(start_date,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
-  if (start_date > max(date_vector, na.rm = TRUE)) {
-    return(0)
-  }
+  
+  # 1. Index positions of all dates ON OR AFTER the start date
   valid_startidx <- which(date_vector >= start_date)
-  closest_idx <- valid_startidx[which.min(abs(date_vector[valid_startidx] - start_date))]
-  return(closest_idx)
-}
+  
+  #If rdates are NOT daily
+  if(mean(diff(rdates))>1){
+    # 2. Nearest historical date in the same year as start_date
+    start_year <- as.integer(format(start_date, "%Y"))
+    same_year_historical <- date_vector[date_vector < start_date & as.integer(format(date_vector, "%Y")) == start_year]
 
+    if (length(same_year_historical) == 0) {
+      closest_idx<-valid_startidx[which.min(date_vector[valid_startidx] - start_date)]
+    } else {
+      nearest_historical <- max(same_year_historical)
+      nearest_historical_index <- which(date_vector == nearest_historical)
+      closest_idx<-nearest_historical_index
+    }
+  }else{closest_idx<-valid_startidx[which.min(abs(date_vector[valid_startidx] - start_date))]
+    }
+  
+ return(if(length(closest_idx)==0) 0 else closest_idx)
+}
 
 
 
 
 ##---- Helper function for determining Extraction end date index
-find.EndDateIdx<-function(end_date, rdates) {
+#find.EndDateIdx<-function(end_date, rdates) {
+#  end_date <- as.Date(end_date,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
+#  date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
+#  if (end_date < min(date_vector, na.rm = TRUE)) {
+#    return(0)
+#  }
+#  valid_endidx <- which(date_vector <= end_date)  
+#  closest_idx <- valid_endidx[which.min(abs(date_vector[valid_endidx] - end_date))]
+#  return(closest_idx)
+#}
+find.EndDateIdx <- function(end_date, rdates) {
   end_date <- as.Date(end_date,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
   date_vector <- as.Date(rdates,tryFormats = c("%m/%d/%y","%Y-%m-%d","%Y%m%d"))
-  if (end_date < min(date_vector, na.rm = TRUE)) {
-    return(0)
+  
+  # 1. Index positions of all dates ON OR AFTER the start date
+  valid_endidx <- which(date_vector <= end_date)
+  
+  #If rdates are NOT daily
+  if(mean(diff(rdates))>1){
+    # 2. Nearest historical date in the same year as end_date
+    end_year <- as.integer(format(end_date, "%Y"))
+    same_year_historical <- date_vector[date_vector < end_date & as.integer(format(date_vector, "%Y")) == end_year]
+    
+    if (length(same_year_historical) == 0) {
+      closest_idx<-valid_endidx[which.max(date_vector[valid_endidx] - end_date)]
+    } else {
+      nearest_historical <- max(same_year_historical)
+      nearest_historical_index <- which(date_vector == nearest_historical)
+      closest_idx<-nearest_historical_index
+    }
+  }else{closest_idx<-valid_endidx[which.min(abs(date_vector[valid_endidx] - end_date))]
   }
-  valid_endidx <- which(date_vector <= end_date)  
-  closest_idx <- valid_endidx[which.min(abs(date_vector[valid_endidx] - end_date))]
-  return(closest_idx)
-}
-
 
 
 
