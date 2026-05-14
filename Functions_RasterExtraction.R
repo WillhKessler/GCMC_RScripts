@@ -285,6 +285,9 @@ find.EndDateIdx <- function(end_date, rdates) {
     }
   }else{closest_idx<-valid_endidx[which.min(abs(date_vector[valid_endidx] - end_date))]
   }
+  
+  return(if(length(closest_idx)==0) 0 else closest_idx)
+}
 
 
 
