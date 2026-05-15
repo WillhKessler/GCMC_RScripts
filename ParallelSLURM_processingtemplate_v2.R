@@ -129,7 +129,7 @@ jobs<- batchMap(fun = extract.rastv2,
                           weightslayers = weights,
                           period=period),
                 reg = reg)
-jobs$chunk<-chunk(jobs$job.id,n.chunks=50)
+jobs$chunk<-batchtools::chunk(jobs$job.id,n.chunks=50)
 setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
