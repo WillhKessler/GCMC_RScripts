@@ -231,7 +231,7 @@ find.StartDateIdx <- function(start_date, rdates) {
   valid_startidx <- which(date_vector >= start_date)
   
   #If rdates are NOT daily
-  if(mean(diff(rdates))>1){
+  if(mean(diff(date_vector))>1){
     # 2. Nearest historical date in the same year as start_date
     start_year <- as.integer(format(start_date, "%Y"))
     same_year_historical <- date_vector[date_vector < start_date & as.integer(format(date_vector, "%Y")) == start_year]
@@ -271,7 +271,7 @@ find.EndDateIdx <- function(end_date, rdates) {
   valid_endidx <- which(date_vector <= end_date)
   
   #If rdates are NOT daily
-  if(mean(diff(rdates))>1){
+  if(mean(diff(date_vector))>1){
     # 2. Nearest historical date in the same year as end_date
     end_year <- as.integer(format(end_date, "%Y"))
     same_year_historical <- date_vector[date_vector < end_date & as.integer(format(date_vector, "%Y")) == end_year]
