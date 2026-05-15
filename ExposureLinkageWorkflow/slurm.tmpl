@@ -40,12 +40,7 @@ log.file = fs::path_expand(log.file)
 <%= if (array.jobs) sprintf("#SBATCH --array=1-%i", nrow(jobs)) else "" %>
 
 ## Initialize work environment like
-## source /etc/profile
-## module add ...
-## module load R/4.0.1
-##mkdir TMP
-##setenv TMPDIR "`pwd`/TMP"
-module load R/4.3.0
+module load terra/4.5.2
 
 ## Export value of DEBUGME environment var to slave
 export DEBUGME=<%= Sys.getenv("DEBUGME") %>
