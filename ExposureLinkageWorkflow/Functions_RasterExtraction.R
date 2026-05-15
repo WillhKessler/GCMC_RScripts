@@ -357,7 +357,7 @@ extract.rast= function(vars,period,piece,rasterdir,extractionlayer,layername,IDf
   require(tools)
   require(ids)
   require(lubridate)
-  source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/Functions_RasterExtraction.R")
+  source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/ExposureLinkageWorkflow/Functions_RasterExtraction.R")
   print(system("hostname",intern=TRUE))
   print(paste('Current working directory:',getwd()))
   print(paste('Current temp directory:',tempdir()))
