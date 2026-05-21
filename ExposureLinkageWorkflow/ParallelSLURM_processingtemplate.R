@@ -32,12 +32,12 @@ for (i in listOfPackages){
 ##REQUIRED##
 ##---- Initialize batchtools configuration files and template
 if(!file.exists("slurm.tmpl")){
-  download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/slurm.tmpl","slurm.tmpl")
+  download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/ExposureLinkageWorkflow/slurm.tmpl","slurm.tmpl")
 }else{
   print("template exists")
 }
 if(!file.exists("batchtools.conf.R")){
-  download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/batchtools.conf.R", "batchtools.conf.R")
+  download.file("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/ExposureLinkageWorkflow/batchtools.conf.R", "batchtools.conf.R")
 }else{
   print("conf file exists")
 }
@@ -52,7 +52,7 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 ##########Input PROCESSING HERE####################################################
 ## Call Desired functions from Functions_RasterExtraction source file
 ## The desired functions are mapped in creating the jobs via batchMap
-source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/Functions_RasterExtraction.R")
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/ExposureLinkageWorkflow/Functions_RasterExtraction.R")
 
 ##############################################################
 ##---- Set up the batch processing jobs
@@ -129,7 +129,7 @@ jobs<- batchMap(fun = extract.rastv2,
                           weightslayers = weights,
                           period=period),
                 reg = reg)
-jobs$chunk<-chunk(jobs$job.id,n.chunks=50)
+jobs$chunk<-batchtools::chunk(jobs$job.id,n.chunks=50)
 setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
@@ -146,7 +146,7 @@ execJob(makeJob(1))
 ##---- Submit jobs to scheduler
 done <- batchtools::submitJobs(jobs, 
                                reg=reg, 
-                               resources=list(partition="linux01", walltime=3600000, ntasks=1, ncpus=1, memory=5000,email=email))
+                               resources=list(partition="r9", walltime=36000000, ntasks=1, ncpus=1, memory=5000,email=email))
 #Sys.sleep(1000)
 #estimateRuntimes(jobs,reg=reg)
 getStatus()
