@@ -21,7 +21,8 @@ set -euo pipefail
 # ---------- defaults ----------------------------------------------------------
 INPUT_CSV=""
 BASELINE_CSV=""
-RMD_SCRIPT="$(dirname "$0")/qaqc_report.Rmd"
+RMD_SCRIPT="/pc/nhair0a/Tools/qaqc_report.Rmd"
+## RMD_SCRIPT="$(dirname "$0")/qaqc_report.Rmd"
 OUTPUT_DIR="$(pwd)/reports"
  
 # ---------- argument parsing --------------------------------------------------
