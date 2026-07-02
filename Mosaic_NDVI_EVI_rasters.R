@@ -4,7 +4,7 @@ require(utils)
 #########################################
 ##---Download state data from Google Drive---------############
 var="EVI"
-rasterdir<- "S:\\GCMC\\Data\\Greenness\\EVI\\states\\dump/"
+rasterdir<- "S:\\GCMC\\Data\\Greenness\\EVI\\states\\dump3/"
 outdir1<- "S:\\GCMC\\Data\\Greenness\\EVI"
 sourceraster<-rast("S:\\GCMC\\Data\\Greenness\\EVI\\30m/EVI_30m_2024-01-01.tif")
 # var="NDVI"
