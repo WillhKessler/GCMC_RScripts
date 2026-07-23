@@ -6,7 +6,7 @@ output:
     toc: true
     toc_depth: 3
     number_sections: true
-    latex_engine: xelatex
+    latex_engine: pdflatex
 params:
   input_csv: ""
   baseline_csv: ""
@@ -55,7 +55,7 @@ info <- data.frame(
   )
 )
 kable(info, booktabs = TRUE, col.names = c("Field", "Value"),
-      caption = "Run metadata") %>%
+      caption = "Run metadata") %>% 
   kable_styling(latex_options = c("hold_position", "striped"), font_size = 9)
 ```
 
@@ -65,11 +65,11 @@ kable(info, booktabs = TRUE, col.names = c("Field", "Value"),
 
 ```{r overview}
 overview <- data.frame(
-  Metric = c("Rows", "Columns", "Column names"),
-  Input    = c(
+  Metric = c("Rows", "Columns", "Column Names"),
+  Input = c(
     nrow(df),
     ncol(df),
-    paste(colnames(df), collapse = ", ")
+    paste(colnames(df), collapse = ",\n")
   ),
   Baseline = c(
     nrow(baseline),
@@ -77,8 +77,15 @@ overview <- data.frame(
     paste(colnames(baseline), collapse = ", ")
   )
 )
-kable(overview, booktabs = TRUE, caption = "Dataset dimensions") %>%
-  kable_styling(latex_options = c("hold_position", "striped"), font_size = 9)
+kbl(overview, 
+    booktabs = TRUE, 
+    col.names=c("Metric","Input","Baseline"),
+    longtable=TRUE,
+    caption = "Dataset dimensions",
+    escape=TRUE) %>%   
+  kable_styling(full_width=TRUE,
+                latex_options = c("scale_down","hold_position", "striped","repeat_header"), 
+                font_size = 9)
 ```
 
 ---
@@ -93,11 +100,15 @@ row_tbl <- data.frame(
   Metric      = c("Input rows", "Baseline rows", "Difference", "Status"),
   Value       = c(nrow(df), nrow(baseline), row_diff, row_status)
 )
-kable(row_tbl, booktabs = TRUE, caption = "Row count QC") %>%
+kbl(row_tbl, 
+    booktabs = TRUE, 
+    caption = "Row count QC",
+    col.names=c("Metric","Value"),
+    escape=TRUE) %>%
   kable_styling(latex_options = c("hold_position", "striped"), font_size = 9) %>%
   row_spec(4,
     bold      = TRUE,
-    color     = ifelse(row_status == "PASS", "darkgreen", "red")
+    color     = ifelse(row_status == "PASS", "green", "red")
   )
 ```
 
@@ -106,8 +117,8 @@ kable(row_tbl, booktabs = TRUE, caption = "Row count QC") %>%
 # ID Column Comparison
 
 ```{r id-check}
-has_id_input    <- "ID" %in% colnames(df)
-has_id_baseline <- "ID" %in% colnames(baseline)
+has_id_input    <- "id" %in% colnames(df)
+has_id_baseline <- "id" %in% colnames(baseline)
 
 if (!has_id_input || !has_id_baseline) {
   cat("**WARNING:** 'ID' column not found in",
@@ -115,8 +126,8 @@ if (!has_id_input || !has_id_baseline) {
       if (!has_id_baseline) "the baseline CSV" else "",
       "— ID comparison skipped.\n")
 } else {
-  ids_input    <- unique(df$ID)
-  ids_baseline <- unique(baseline$ID)
+  ids_input    <- unique(df$id)
+  ids_baseline <- unique(baseline$id)
 
   only_in_input    <- setdiff(ids_input,    ids_baseline)
   only_in_baseline <- setdiff(ids_baseline, ids_input)
@@ -142,11 +153,15 @@ if (!has_id_input || !has_id_baseline) {
     )
   )
 
-  kable(id_summary, booktabs = TRUE, caption = "ID column QC") %>%
+  kbl(id_summary, 
+      col.names=c("Metric","Value"),
+      booktabs = TRUE, 
+      caption = "ID column QC",
+      escape=TRUE) %>%
     kable_styling(latex_options = c("hold_position", "striped"), font_size = 9) %>%
     row_spec(6,
       bold  = TRUE,
-      color = ifelse(id_summary$Value[6] == "PASS", "darkgreen", "red")
+      color = ifelse(id_summary$Value[6] == "PASS", "green", "red")
     )
 }
 ```
@@ -155,9 +170,12 @@ if (!has_id_input || !has_id_baseline) {
 if (exists("only_in_input") && length(only_in_input) > 0) {
   cat("\n## IDs present in input but NOT in baseline\n\n")
   show_n <- min(50, length(only_in_input))
-  kable(data.frame(ID = only_in_input[seq_len(show_n)]),
+  kbl(data.frame(ID = only_in_input[seq_len(show_n)]),
         booktabs = TRUE,
-        caption  = sprintf("Extra IDs (showing %d of %d)", show_n, length(only_in_input))) %>%
+        caption  = sprintf("Extra IDs (showing %d of %d)", 
+                           show_n, 
+                           length(only_in_input)),
+        escape=TRUE) %>%
     kable_styling(latex_options = c("hold_position", "striped"), font_size = 8) %>%
     print()
 }
@@ -165,9 +183,12 @@ if (exists("only_in_input") && length(only_in_input) > 0) {
 if (exists("only_in_baseline") && length(only_in_baseline) > 0) {
   cat("\n## IDs present in baseline but NOT in input\n\n")
   show_n <- min(50, length(only_in_baseline))
-  kable(data.frame(ID = only_in_baseline[seq_len(show_n)]),
+  kbl(data.frame(ID = only_in_baseline[seq_len(show_n)]),
         booktabs = TRUE,
-        caption  = sprintf("Missing IDs (showing %d of %d)", show_n, length(only_in_baseline))) %>%
+        caption  = sprintf("Missing IDs (showing %d of %d)", 
+                           show_n, 
+                           length(only_in_baseline)),
+        escape=TRUE) %>%
     kable_styling(latex_options = c("hold_position", "striped"), font_size = 8) %>%
     print()
 }
@@ -199,8 +220,13 @@ if (length(num_cols) > 0) {
                  names_sep = "__") %>%
     pivot_wider(names_from = "Stat", values_from = "value")
 
-  kable(num_summary, booktabs = TRUE, digits = 3,
-        caption = "Numeric column summary statistics") %>%
+  kbl(num_summary, 
+      booktabs = TRUE, 
+      digits = 3,
+      caption = "Numeric column summary statistics",
+      col.names=c("Column","Min","Q1","Median","Mean","Q3","Max","SD","NAs"),
+      longtable=TRUE,
+      escape=TRUE) %>%
     kable_styling(latex_options = c("hold_position", "striped", "scale_down"),
                   font_size = 8)
 } else {
@@ -211,7 +237,7 @@ if (length(num_cols) > 0) {
 ```{r char-summary, results='asis'}
 # Character / factor columns — unique value counts
 chr_cols <- names(df)[sapply(df, function(x) is.character(x) | is.factor(x))]
-chr_cols <- chr_cols[chr_cols != "ID"]  # ID handled separately above
+chr_cols <- chr_cols[chr_cols != "id"]  # ID handled separately above
 
 if (length(chr_cols) > 0) {
   cat("\n## Categorical Column Summaries\n\n")
@@ -219,20 +245,25 @@ if (length(chr_cols) > 0) {
     tbl <- df %>%
       group_by(Value = .data[[col]]) %>%
       summarise(Count = n(), .groups = "drop") %>%
-      arrange(desc(Count)) %>%
+      arrange(desc(Value)) %>%
       slice_head(n = 20)
 
     cat(sprintf("\n### %s (top %d of %d unique values)\n\n",
                 col, nrow(tbl), n_distinct(df[[col]])))
-
-    kable(tbl, booktabs = TRUE,
-          caption = sprintf("'%s' value frequencies", col)) %>%
+    
+    cleancaption<-knitr:::escape_latex(sprintf("'%s' value frequencies",col))
+    
+    kbl(tbl, 
+        booktabs = TRUE,
+        longtable=TRUE,
+        caption = cleancaption,
+        escape=TRUE,
+        col.names=c("Value","Count")) %>%
       kable_styling(latex_options = c("hold_position", "striped"), font_size = 8) %>%
       print()
   }
 }
 ```
-
 ---
 
 # Missing Value Report
@@ -245,8 +276,12 @@ missing_tbl <- data.frame(
 ) %>%
   arrange(desc(Missing))
 
-kable(missing_tbl, booktabs = TRUE, row.names = FALSE,
-      caption = "Missing values per column") %>%
+kbl(missing_tbl, 
+    booktabs = TRUE, 
+    row.names = FALSE,
+    col.names=c("Column","Missing","Percent Missing"),
+      caption = "Missing values per column",
+      escpape=TRUE) %>%
   kable_styling(latex_options = c("hold_position", "striped"), font_size = 9)
 ```
 
@@ -268,9 +303,13 @@ qc_tbl <- data.frame(
   )
 )
 
-kable(qc_tbl, booktabs = TRUE, caption = "Overall QC checklist") %>%
+kbl(qc_tbl, 
+    booktabs = TRUE, 
+    caption = "Overall QC checklist",
+    col.names=c("Check","Result"),
+    escape=TRUE) %>%
   kable_styling(latex_options = c("hold_position", "striped")) %>%
-  row_spec(which(qc_tbl$Result == "PASS"),    bold = TRUE, color = "darkgreen") %>%
+  row_spec(which(qc_tbl$Result == "PASS"),    bold = TRUE, color = "green") %>%
   row_spec(which(qc_tbl$Result == "FAIL"),    bold = TRUE, color = "red") %>%
   row_spec(which(qc_tbl$Result == "SKIPPED"), bold = TRUE, color = "orange")
 ```
