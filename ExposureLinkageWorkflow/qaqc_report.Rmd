@@ -45,7 +45,7 @@ baseline <- read.csv(baseline_csv, stringsAsFactors = FALSE, check.names = FALSE
 ```
 # Introduction
 
-The following document provides a summary for the data linkage results presented in `r print(QAQC_INTPUT_CSV)`. The linkage results are compared against the input geocoding file provided by `r print(QAQC_BASELINE_CSV)` to evaluate the number of missing values, provide summary statistics, and ensure no data loss has occurred. 
+The following document provides a summary for the data linkage results presented in `r print(input_csv)`. The linkage results are compared against the input geocoding file provided by `r print(baseline_csv)` to evaluate the number of missing values, provide summary statistics, and ensure no data loss has occurred. 
 
 For questions or concerns, please contact:
 Jaime Hart: jaime.hart@channing.harvard.edu
