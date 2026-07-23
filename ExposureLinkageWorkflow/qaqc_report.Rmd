@@ -26,6 +26,8 @@ library(ggplot2)
 library(tidyr)
 ```
 
+\newpage
+
 ```{r load-env, include=FALSE}
 # Accept paths either from params (rmarkdown::render call) or environment vars
 # (set by the SLURM wrapper via Sys.setenv before render)
@@ -38,9 +40,17 @@ stopifnot("QAQC_BASELINE_CSV is not set" = nchar(baseline_csv) > 0)
 df       <- read.csv(input_csv,    stringsAsFactors = FALSE, check.names = FALSE)
 baseline <- read.csv(baseline_csv, stringsAsFactors = FALSE, check.names = FALSE)
 ```
+# Introduction
+
+The following document provides a summary for the data linkage results presented in `r print(QAQC_INTPUT_CSV)`. The linkage results are compared against the input geocoding file provided by `r print(QAQC_BASELINE_CSV)` to evaluate the number of missing values, provide summary statistics, and ensure no data loss has occurred. 
+
+For questions or concerns, please contact:
+Jaime Hart: jaime.hart@channing.harvard.edu
+
+
+This document was prepared `r Sys.info()[["user"]]` on `r Sys.Date()`
 
 # Job Information
-
 ```{r job-info}
 info <- data.frame(
   Field = c("Input CSV", "Baseline CSV", "R Version", "Rendered at",
@@ -274,7 +284,7 @@ missing_tbl <- data.frame(
   Missing      = sapply(df, function(x) sum(is.na(x))),
   Pct_Missing  = sapply(df, function(x) round(mean(is.na(x)) * 100, 2))
 ) %>%
-  arrange(desc(Missing))
+  arrange(desc(Column))
 
 kbl(missing_tbl, 
     booktabs = TRUE, 
