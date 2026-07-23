@@ -50,8 +50,7 @@ The following document provides a summary for the data linkage results presented
 For questions or concerns, please contact:
 Jaime Hart: jaime.hart@channing.harvard.edu
 
-
-This document was prepared `r Sys.info()[["user"]]` on `r Sys.Date()`
+This document was prepared by `r Sys.info()[["user"]]` on `r Sys.Date()`
 
 # Job Information
 ```{r job-info}
