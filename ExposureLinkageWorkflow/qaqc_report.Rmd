@@ -75,6 +75,8 @@ kable(info, booktabs = TRUE, col.names = c("Field", "Value"),
 
 # Dataset Overview
 
+The following overview provides a summary of the number of rows and columns in the input geocoding file, and the output exposure linkage. 
+
 ```{r overview}
 overview <- data.frame(
   Metric = c("Rows", "Columns", "Column Names"),
@@ -104,6 +106,8 @@ kbl(overview,
 
 # Row Count Comparison
 
+This is a comparison of the number of rows in the input and the output files. When comparing wide tables, these values should be equivalent. If the output has a different number of rows than the input, something went wrong and one or more cohort observations have been dropped. Please go back and doublecheck your linkage workflows to confirm everything has run successfully.
+
 ```{r row-comparison}
 row_diff   <- nrow(df) - nrow(baseline)
 row_status <- if (row_diff == 0) "PASS" else if (row_diff > 0) "WARNING – extra rows" else "WARNING – missing rows"
@@ -127,6 +131,8 @@ kbl(row_tbl,
 ---
 
 # ID Column Comparison
+
+Here we are confirming that all IDs present in the input geocoding file are present in the output.
 
 ```{r id-check}
 has_id_input    <- "id" %in% colnames(df)
@@ -210,6 +216,8 @@ if (exists("only_in_baseline") && length(only_in_baseline) > 0) {
 
 # Summary Statistics — Input CSV
 
+This table provides summary statistics for each COLUMN in the exposure dataset. NA values have been removed, but true zeros remain. A tabulation of the number of NA's found in each column is included. 
+
 ```{r summary-stats}
 # Numeric columns
 num_cols <- names(df)[sapply(df, is.numeric)]
@@ -245,7 +253,7 @@ if (length(num_cols) > 0) {
   cat("No numeric columns detected.\n")
 }
 ```
-
+This table summarizes the categorical (Character Columns). Exposure variables are linked as numerical values (with some minor exceptions). 
 ```{r char-summary, results='asis'}
 # Character / factor columns — unique value counts
 chr_cols <- names(df)[sapply(df, function(x) is.character(x) | is.factor(x))]
@@ -280,6 +288,8 @@ if (length(chr_cols) > 0) {
 
 # Missing Value Report
 
+This table summarizes the number of missing values for each cohort observation (Missing values by row). For cohort members with high numbers of NA's their geocoded location may be incorrect, missing, or outside of the exposure coverage area (outside the US?). 
+
 ```{r missing}
 missing_tbl <- data.frame(
   Column       = colnames(df),
@@ -300,6 +310,8 @@ kbl(missing_tbl,
 ---
 
 # QC Summary
+
+Basic QA/QC Summary that the number of rows match between input and output, and all IDs are present. 
 
 ```{r qc-final}
 row_pass <- row_diff == 0
