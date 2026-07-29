@@ -45,27 +45,34 @@ if(file.exists(paste(PROJECT_NAME,"Registry",sep="_"))){
 
 
 ##########Input PROCESSING HERE####################################################
-##---- Call Desired functions from Functions_RasterExtraction source file
-##---- The desired functions are called in batchMap
-source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/Functions_RasterExtraction.R")
+## Call Desired functions from Functions_RasterExtraction source file
+## The desired functions are mapped in creating the jobs via batchMap
+source("https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/ExposureLinkageWorkflow/Functions_RasterExtraction.R")
 
+##############################################################
 ##---- Set up the batch processing jobs
-##---- grid should contain columns for all desired variable combinations
-batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers,period){
+##---- Use the 'batchgrid' function to create a grid of variable combinations to process over. function considers input rasters, input features, and any weighting layers
+
+batchgrid = function(rasterdir,period,extractionlayer,IDfield,Xfield,Yfield,startdatefield,enddatefield,predays,weightslayers){
   require("tools")
   
   ##---- Set up the batch processing jobs
   pvars = list.dirs(path = rasterdir,full.names = FALSE,recursive = FALSE)
-  
+  ##---- 
+ 
   if(file_ext(extractionlayer)=="csv"){
     feature<-read.csv(extractionlayer,stringsAsFactors = FALSE)
     feature$OID<-1:nrow(feature)
     write.csv(x = feature,file = paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv"),row.names = FALSE)
+    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
+    IDfield="OID"
     feature<-feature$OID
     layername = NA
     weightslayers = NA
-    extractionlayer<-paste0(file_path_sans_ext(extractionlayer),"_tmp",".csv")
-    IDfield="OID"
+    dat<-read.csv(extractionlayer,stringsAsFactors = F)
+    datchunk<-split(dat,f=list(dat[[startdatefield]],dat[[enddatefield]]),drop=TRUE)
+    datchunk<-lapply(datchunk,vect,crs="EPSG:4326",geom=c(Xfield,Yfield),keepgeom=T)
+    datchunk<-sapply(X = datchunk,FUN = wrap)
   }else if(file_ext(extractionlayer) %in% c("shp","gdb")){
     require('terra')
     vectorfile<- vect(x=extractionlayer,layer=layername)
@@ -79,12 +86,17 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
     if (file_ext(extractionlayer)=="shp"){
       layername<-paste0(file_path_sans_ext(basename(extractionlayer)))
     }
+    dat<-vect(extactionlayerlayer=layername)
+    datchunk<-split(dat,f=startdatefield)
+    datchunk<-lapply(datchunk,split,f=enddatefield)
+    datchunk<-unlist(datchunk)
+    datchunk<-sapply(X = splitdat,FUN = wrap)
   }
-  
+  ##---- 
   output<- expand.grid(vars = pvars,
-                       piece = feature,
+                       period = period,
+                       datchunk = datchunk,
                        rasterdir = rasterdir,
-                       extractionlayer = extractionlayer,
                        layername = layername,
                        IDfield = IDfield,
                        Xfield = Xfield,
@@ -92,35 +104,28 @@ batchgrid = function(rasterdir,extractionlayer,layername,IDfield,Xfield,Yfield,s
                        startdatefield = startdatefield,
                        enddatefield = enddatefield,
                        predays = predays,
-                       period = period,
                        weightslayers = weightslayers,
                        stringsAsFactors = FALSE)
   return(output)
 }
-
-
-
-##---- Clear the R registry
+##----  Make sure registry is empty
 clearRegistry(reg)
 
-##---- Create jobs
 ##----  create jobs from variable grid
-jobs<- batchMap(fun = extract.rast,
+jobs<- batchMap(fun = extract.rastv2,
                 batchgrid(rasterdir = rasterdir,
                           extractionlayer = extractionlayer,
-                          layername = layername,
-                          IDfield = IDfield,
+                          IDfield = IDfield, 
                           Xfield = Xfield,
                           Yfield = Yfield,
                           startdatefield = startdatefield,
                           enddatefield = enddatefield,
                           predays = predays,
-                          period=period,
-                          weightslayers = weights),
+                          weightslayers = weights,
+                          period=period),
                 reg = reg)
-
-jobs$chunk <- chunk(jobs$job.id, chunk.size = 10)
-
+jobs$chunk<-batchtools::chunk(jobs$job.id,n.chunks=50)
+setJobNames(jobs,paste(abbreviate(PROJECT_NAME),jobs$job.id,sep=""),reg=reg)
 
 getJobTable()
 getStatus()
