@@ -2,25 +2,60 @@
 require(tools)
 
 ##Constants
-allRegions <-c("Arizona", "ArkansasLouisiana", "CaliPart1", "CaliPart2", "Colorado","Florida", "Idaho", "Illinois", "IndianaOhio", 
-               "Kansas", "KentuckyTennessee", "Michigan", "Minnesota", "MississippiAlabama", "MissouriIowa", "MontanaPart1", "MontanaPart2",
-               "Nebraska", "Nevada",   "NewMexico", "NewEngland", "NorthCarolina1","NorthCarolina2","NorthSouthDakota", 
-               "Oklahoma", "SouthCarolinaGeorgia", "Texas1","Texas2","Texas3","Utah",  
-               "WashingtonOregon", "Wisconsin","Wyoming", "MiddleAtlantic", "SouthAtlantic1")
+allRegions <-c("Arizona", 
+               "ArkansasLouisiana", 
+               "CaliPart1", 
+               "CaliPart2", 
+               "Colorado",
+               "Florida", 
+               "Idaho", 
+               "Illinois", 
+               "IndianaOhio", 
+               "Kansas", 
+               "KentuckyTennessee",
+               "Maine",
+               "Massachusetts",
+               "Michigan", 
+               "Minnesota", 
+               "MississippiAlabama", 
+               "MissouriIowa", 
+               "MontanaPart1", 
+               "MontanaPart2",
+               "Nebraska", 
+               "Nevada",   
+               "NewMexico", 
+               "NewEngland",
+               "NewHampshire",
+               "NorthCarolina1",
+               "NorthCarolina2",
+               "NorthSouthDakota", 
+               "Oklahoma", 
+               "SouthCarolinaGeorgia",
+               "Texas1",
+               "Texas2",
+               "Texas3",
+               "Utah", 
+               "Vermont",
+               "WashingtonOregon", 
+               "Wisconsin",
+               "Wyoming", 
+               "MiddleAtlantic", 
+               "SouthAtlantic1")
 allRegions<- allRegions[order(allRegions)]
 allDays<-c("01")
 allMonths<-c("01","04","07","10")
 allYears<-c("1984","1985","1986","1987","1988","1989","1990","1991","1992",
             "1993","1994","1995","1996","1997","1998","1999","2000","2001",
             "2002","2003","2004","2005","2006","2007","2008","2009","2010",
-            "2011","2012","2013","2014","2015","2016","2017","2018")
+            "2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025")
 allDates<-apply(expand.grid(allYears,allMonths,allDays),1,paste,collapse="-")
 allDates<-allDates[order(allDates)]
 
 
 
 ## Input Directory
-greennessDir<- "S:/GCMC/Data/Greenness/NDVI"
+#greennessDir<- "S:/GCMC/Data/Greenness/NDVI"
+greennessDir<- "S:/GCMC/Data/Greenness/EVI/states/dump_05042026/"
 
 #Recursively list all paths to TIFF rasters in the directory
 allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
@@ -32,23 +67,36 @@ head(allFilePaths)
 allFiles<-file_path_sans_ext(basename(allFilePaths))
 head(allFiles)
 
+bnames<-unique(sapply(
+  X = strsplit(allFiles,"-"),
+  FUN = function(x){paste(x[1:3],collapse="-")
+    
+  }))
+
 ## Return Unique Combinations of:
 #Year
 years<-unique(sapply(
-  X = strsplit(allFiles,"_"),
+  X = strsplit(bnames,"_"),
   FUN = function(x){
     strsplit(x[length(x)],"-")[[1]][1]
     
 }))
 #Season
+# dates<-unique(sapply(
+#   X = strsplit(allFiles,"_"),
+#   FUN = function(x){
+#     substring(x[length(x)],regexpr("-",x[length(x)])+1)
+#     
+#   }))
 dates<-unique(sapply(
-  X = strsplit(allFiles,"_"),
-  FUN = function(x){
-    substring(x[length(x)],regexpr("-",x[length(x)])+1)
+  X = bnames,
+  FUN = function(x){paste(strsplit(x,split = "-")[[1]][2:3],collapse="-")
     
   }))
+head(dates)
+
 #Year and Season
-dates<-unique(sapply(X = strsplit(allFiles,"_"),FUN = function(x){x[2]}))
+dates<-unique(sapply(X = strsplit(bnames,"_"),FUN = function(x){x[3]}))
 dates<-dates[order(dates)]
 #Region
 region<-unique(sapply(X =strsplit(allFiles,"_"),FUN = function(x){x[1]})
