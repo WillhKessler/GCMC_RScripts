@@ -28,7 +28,8 @@ fnames<-gsub("_wgs84_v2023-5_\\d{8}","",fnames)
 fnames<-gsub("(\\d{4})\\d{4}", "\\1-01-01", fnames)
 
 require('terra')
-old<-rast("S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_30m/nlcd_tcc_CONUS_30m_2023-01-01.tif")
+old<-rast("S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_30m/nlcd_tcc_CONUS_30m_2023-01-01_v2.tif")
+
 res(new)==res(old)
 ext(new)==ext(old)
 crs(old)==crs(new)
@@ -37,16 +38,9 @@ crs(new,describe=T)
 
 for (f in 1:length(files)) {
   new<- terra::project(rast(files[f]),old)
-  resample(new,old,filename=file.path(outdir,fnames[f]))
-}
-
-#######################################################
-files<-list.files(outdir,full.names=T,recursive=T,pattern="*.tif$")
-files<-"S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_30m/nlcd_tcc_CONUS_30m_1991-01-01.tif"
-for(f in files){
-  frast<-rast(f)
-  fname<-gsub(pattern = ".tif",replacement = "_v2.tif",f)
-  terra::clamp(frast,lower=0,upper=100,values=F,filename=fname)
+  new<-resample(new,old)
+  terra::clamp(new,lower=0,upper=100,values=F,filename=file.path(outdir,fnames[f]))
+  
 }
 
 ####################################################################
@@ -55,8 +49,8 @@ require('terra')
 outdir<-"S:\\GCMC\\Data\\Greenness\\CanopyCover\\NLCD\\nlcd_tcc_CONUS_30m/"
 fs<- c(1230)
 
-files<-list.files(outdir,full.names=T,recursive=T,pattern="*_v2.tif$")
-
+files<-list.files(outdir,full.names=T,recursive=T,pattern="*01.tif$")
+files<-files[c(37)]
 for(fss in fs){
   
   for(f in 1:length(files)){
