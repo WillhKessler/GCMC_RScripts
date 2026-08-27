@@ -5,7 +5,7 @@ require(utils)
 ##---Download state data from Google Drive---------############
 var="EVI"
 
-rasterdir<- "S:\\GCMC\\Data\\Greenness\\EVI\\states\\dump2"
+rasterdir<- "S:\\GCMC\\Data\\Greenness\\EVI\\states"
 
 outdir1<- "S:\\GCMC\\Data\\Greenness\\EVI"
 sourceraster<-rast("S:\\GCMC\\Data\\Greenness\\EVI\\30m/EVI_30m_2024-01-01.tif")
@@ -63,11 +63,9 @@ for(pattern in patterns){
   }else{writeRaster(temp,
                     filename = file.path(
                       outdir,
-<<<<<<< HEAD
-                      paste0(var,"_",pattern,".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
-=======
+
                       paste0(var,"_",gsub("_","m_",pattern),".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
->>>>>>> fc1524310e03412685fbb1ce0d5eb935c549b742
+
                     )
   
     }
