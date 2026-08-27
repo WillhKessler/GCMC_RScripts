@@ -22,21 +22,23 @@ flowchart TD
     G-->H
     H-->|combine results|I[Cohort Linked to Raster Values]
 ```
-This github repository contains all the files that are necessary for this workflow. Depending on your implementation up to 5 files are utilized, however you should only need to directly download number 1, and number 5:
+This GitHub repository contains all the files necessary for this workflow. Depending on your implementation, up to 7 files are utilized, however you should only need to directly download files 1,2,5, and 6 if you running on a unix system with SLURM:
 1. `ParallelXXXXX_processingtemplate.R`
    
-   a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate_v2.R`
+   a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
    
    b. For a multi-core standalone machine use `ParallelSocket_processingtemplate.R`
    
    c. For a normal desktop or laptop machine, use `ParallelInteractive_processingtemplate.R`
+2. `submitjob.sh`
 2. `Functions_RasterExtraction.R`
 3. `slurm.tmpl`
 4. `batchtools.conf.R`
-5. `ParallelOutputs_Combine.R`
+5. `submitrecombine.sh`
+6. `ParallelOutputs_Combine.R`
 
 In addition, a user will need to supply the following:
-1. A directory of one or more child directories containing the rasters to be extracted. The first level child directory names will be used to differentiate variables timeseries rasters. For example, the following tree would allow for the extraction of the variables NO2, Ozone, and PM_2.5:
+1. A directory of one or more child directories containing the rasters to be extracted. The first-level child directory names will be used to differentiate variable timeseries rasters. For example, the following tree would allow for the extraction of the variables NO2, Ozone, and PM_2.5:
 ```
 └── ~\AirPollution/
     ├── Methane
@@ -82,15 +84,15 @@ In addition, a user will need to supply the following:
    Xfield<- A Field containing the X coordinate (Longitude), in decimal degrees
    Yfield<- A Field containing the Y coordinate (Latitude), in decimal degrees
    ```
-4. If desired, A directory containing one or more weights raster layers. For example to weight by population over age of 65, these weights will be summed and scaled to sum to 1 within each feature. 
+4. If desired, A directory containing one or more weights raster layers. For example, to weight by population over age of 65, these weights will be summed and scaled to sum to 1 within each feature. 
    ```
    └── ~\Population/
        ├── US_M_population_over65.tif
        └── US_F_population_over65.tif
    ```
-The ParallelXXXXX_processingtemplate.R contains all organizational information required for `batchtools` to set up and execute your processing jobs; they are fairly standard implementations of `batchtools` workflows with additional user inputs specific to the raster extraction procedure outlined here. Next, you will need an R file containing one or more functions you wish to run. These functions can be placed directly in the ParallelXXXXX_processingtemplate.R or sourced from an external file. In this workflow, the required raster extraction functions are sourced from an external file called `Functions_RasterExtraction.R`. Thirdly, depending on whether you are implementing the workflow on a computing cluster with the SLURM job manager, or locally with either multisocket or interactive workflows. You may also need an R configuration file, and a `brew` `slurm.tmpl` template. 
+The ParallelXXXXX_processingtemplate.R contains all organizational information required for `batchtools` to set up and execute your processing jobs; they are fairly standard implementations of `batchtools` workflows with additional user inputs specific to the raster extraction procedure outlined here. Next, you will need an R file containing one or more functions you wish to run. These functions can be placed directly in the ParallelXXXXX_processingtemplate.R or sourced from an external file. In this workflow, the required raster extraction functions are sourced from an external file called `Functions_RasterExtraction.R`. Thirdly, depending on whether you are implementing the workflow on a computing cluster with the SLURM job manager, or locally with either multisocket or interactive workflows, you may also need the R configuration file (file 4 listed above), and a `brew` `slurm.tmpl` template (file 3 listed above). 
 
-# The Workflow Overview:
+# The Workflow Overview for running on SLURM-equipped UNIX clusters:
 The following example explains each file used in the workflow implemented on a computing cluster with the SLURM job manager. The process is nearly identical for submitting to a local multi-socket cluster or if run in series on your local machine.
 ```mermaid
 flowchart TD
@@ -114,43 +116,44 @@ flowchart TD
     G-->H
     H-->|combine results|I[Cohort Linked to Raster Values]
 ```
-1. Log into whatever machine you will be using for your computing.
-2. Get your input features and raster data organized as necessary. 
-3. Open a terminal and download the appropriate Parallel Processing Template from this repository. See section ABOUT 
+1. Log into whatever machine you will be using for your computing. For BWH cluster, make sure you log all the way into a compute node, not the head node. For example, use the r9_12h queue:
+   `salloc -p r9_12h`
+3. Get your input features and raster data organized as necessary. 
+4. Download the appropriate Parallel Processing Template from this repository. See section ABOUT for specific information on each file
 
-   a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R`
+   a. For a UNIX compute cluster with the SLURM job manager, use `ParallelSLURM_processingtemplate.R` and `submitjob.sh`
    
    b. For a multi-core standalone machine use `ParallelSocket_processingtemplate.R`
    
    c. For a normal desktop or laptop machine, use `ParallelInteractive_processingtemplate.R`
    
     ```
-    wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSLURM_processingtemplate.R"
+    wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/ExposureLinkageWorkflow/ParallelSLURM_processingtemplate.R"
+    wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/ExpsoureLinkageWorkflow/submitjob.sh"
     OR
     wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelInteractive_processingtemplate.R"
     OR
     wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSocket_processingtemplate.R"
     ```
-5. Open your favorite unix text editor or open the Parallel Processing Template in RStudio and update the required inputs, adjust the resources in `batchtools::submitJobs()` as necessary
-6. Run the R script ParallelXXXX_processingtemplate.R as normal. This script does the heavy lifting of the workflow. Other files and functions are sourced as necessary from within the script. On the BWH Channing cluster, you can use the homegrown command `sbR` as such, specifying you want R version 4.3.0, and the queue option as the "12hour" queue, add memory with memsize=XXXG.
-   On other systems you may need to write a batch script and submit to your cluster with `SBATCH`. 
-```
-sbR -v 4.3.0 -o "12hour,memsize=8G" ParallelXXXX_processingtemplate.R
+5. Open the Parallel Processing Template in RStudio or your favorite Unix text editor and update the required inputs, adjust the resources in `batchtools::submitJobs()` as necessary.
+6. Run the R script ParallelXXXX_processingtemplate_v2.R as normal. This script does the heavy lifting of the workflow. Other files and functions are sourced as necessary from within the script. On SLURM-equipped Unix clusters, you'll need to specify a Bash script to submit your job using `SBATCH`. Use the supplied `submitjob.sh` bash script, which has already been specified as necessary to run on the BWH cluster. Open the bash submission script `submitjob.sh` in RStudio or your favorite unix text editor and update the Rscript file name on the last line to match the name of your processing template file. Adjust the SLURM specifics (lines beginning with #SBATCH) as necessary.     
 
+```
+sbatch submitjob.sh
 ```
 Or hit 'run' in your RStudio session if running locally
 
-6. Run ParallelOutputs_Combine.R to reconstitute your results into a single file. The output creates a csv.
+7. Run ParallelOutputs_Combine.R to reconstitute your results into a single file. The output creates a csv.
 
 
 ## ABOUT Parallel Processing Template
 There are 3 versions of this template depending on your implementation. 
-1. ParallelSLURM_processingtemplate.R- for implementing on a compute cluster with the SLURM job scheduler
+1. ParallelSLURM_processingtemplate_v2.R- for implementing on a compute cluster with the SLURM job scheduler
 2. ParallelSocket_processingtemplate.R- For multicored local machine implementations
 3. ParallelInteractive_processingtemplate.R- For singlecore/serial jobs on a local machine. This framework is designed for a parallel implementation, so utilizing this on a local machine may be VERY slow. 
    
 The Parallel Processing Template is located here: 
-Download from terminal with ```wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelSLURM_processingtemplate.R"```
+Download from terminal with ```wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/refs/heads/main/ExposureLinkageWorkflow/ParallelSLURM_processingtemplate.R"```
 
 The following is an example of how to update the required inputs. To use the raster extraction processes outlined here, the following inputs are required. 
 ```
@@ -168,7 +171,7 @@ predays = 0 # Integer specifying how many days preceding 'startingdatefield' to 
 weights = NA # string specifying file path to raster weights, should only be used when extraction layer is a polygon layer
 ```
 
-Next, the script will load the required packages which include `batchtools`, `terra`, and `tools`, and download the slurm.tmpl file and batchtools.conf.R file. Both these files are located in this repository and can be downloaded manually if desired. Otherwise it's handled by the script. At this stage a new registry directory is also created which will hold all the necessary outputs and files.
+Next, the script will load the required packages which include `batchtools`, `terra`, and `tools`, and download the slurm.tmpl file and batchtools.conf.R file. Both these files are located in this repository and can be downloaded manually if desired. Otherwise, it's handled by the script. At this stage, a new registry directory is also created, which will hold all the necessary outputs and files.
 You shouldn't need to modify any of this information.
 ```
 ##---- Required Packages
@@ -279,7 +282,7 @@ getStatus()
 
 waitForJobs() # Wait until jobs are completed
 ```
-A quirk in the BWH compute cluster causes `waitForJobs()` to often return FALSE. It may apear that the jobs can sometimes get lost by the manager, but don't worry, they're still running. However, due to this quirk, we don't rely on this script for subsequent processing. 
+A quirk in the BWH compute cluster causes `waitForJobs()` to often return FALSE. It may appear that the jobs can sometimes get lost by the manager, but don't worry, they're still running. However, due to this quirk, we don't rely on this script for subsequent processing. 
 
 ## ABOUT Functions_RasterExtraction.R
 This file is the source for the raster extraction procedure implemented in this workflow. This file isn't downloaded directly, but `ParallelXXXXX_processingtemplate.R` sources functions from this file which is hosted in this Github Repository. Other functions could be supplied to the ParallelXXXXX_prrocesstemplate.R instead, if the appropriate changes are made to the template. 
@@ -356,7 +359,7 @@ Additional R configuration parameters can be set here, but that is not considere
 
 
 ## ABOUT ParallelOutputs_Combine.R
-The script takes all the results of all the individual jobs executed by the Parallel Processing workflow, above, and reconstitutes them into a single file. 
+The script takes all the results of all the individual jobs executed by the Parallel Processing workflow above, and reconstitutes them into a single file. 
 
 Use `wget` to download the ParallelOutputs_Combine.R script
 ```wget "https://raw.githubusercontent.com/WillhKessler/GCMC_RScripts/main/ParallelOutputs_Combine.R"```
@@ -367,7 +370,7 @@ The final results are:
 3. RDS file of results in WIDE format
    
 
-Please note that this process is very memory intensive. Your submission may fail due to OOM errors. Increase the memsize requirements in sbR or sbatch as necessary
+Please note that this process is very memory-intensive. Your submission may fail due to OOM errors. Increase the memsize requirements in sbR or sbatch as necessary
 
 ```
 require('batchtools')
@@ -404,5 +407,5 @@ for(v in as.character(unique(unlist(results[,1])))){
 }
 ```
 ## TIPS and Suggestions
-1. Get familiar with working with Batchtools commands. If your jobs are failing, you can use the batchtools commands to help trouble shoot.
+1. Get familiar with working with Batchtools commands. If your jobs are failing, you can use the batchtools commands to help troubleshoot.
 2. Consider doing a trial run with a subset of your data. This may require you to modify the ParallelXXXXX_processingtemplate to only submit a few jobs, or modify the scripts to not submit any jobs, and then submit manually using batchtools commands. 

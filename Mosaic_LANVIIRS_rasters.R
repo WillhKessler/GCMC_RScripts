@@ -3,12 +3,10 @@ require(tools)
 require(utils)
 #########################################
 ##---Download state data from Google Drive---------############
-var="EVI"
-
-rasterdir<- "S:\\GCMC\\Data\\Greenness\\EVI\\states\\dump2"
-
-outdir1<- "S:\\GCMC\\Data\\Greenness\\EVI"
-sourceraster<-rast("S:\\GCMC\\Data\\Greenness\\EVI\\30m/EVI_30m_2024-01-01.tif")
+var="VIIRS_LAN"
+rasterdir<- "S:\\GCMC\\Data\\BuiltEnvironment\\LANVIIRS\\states/dump"
+outdir1<- "S:\\GCMC\\Data\\BuiltEnvironment\\LANVIIRS\\monthly\\"
+sourceraster<-rast("S:\\GCMC\\Data\\BuiltEnvironment\\LANVIIRS\\monthly\\VIIRS_LAN_20230101.tif")
 # var="NDVI"
 # rasterdir<- "S:\\GCMC\\Data\\Greenness\\NDVI\\states"
 # outdir1<- "S:\\GCMC\\Data\\Greenness\\NDVI"
@@ -27,49 +25,39 @@ localrasters<-list.files(path=localrasterdir, pattern="*.tif$",full.names=T,recu
 rasters2<-strsplit(localrasters,"_")
 
 rasterdf<-do.call(rbind,rasters2)
-aggregate( V1~V3,rasterdf, function(x) length(unique(x)))
+aggregate( V1~V2,rasterdf, function(x) length(unique(x)))
 
 
 
 
 
 
-reso<- unique(sapply(rasters2,FUN=function(x) x[2]))
+#reso<- unique(sapply(rasters2,FUN=function(x) x[1]))
 dates<- unique(file_path_sans_ext(unique(sapply(rasters2,FUN=function(x) gsub(pattern = "-\\d{10}\\-\\d{10}","",x[3] )))))
 
-patterncombos<-expand.grid(reso,dates)
-patterns<-paste0(patterncombos$Var1,"_",patterncombos$Var2)
+#patterncombos<-expand.grid(reso,dates)
+#patterns<-paste0(patterncombos$Var1,"_",patterncombos$Var2)
 
-for(pattern in patterns){
-  if(grepl('^30',pattern)){
-    outdir = file.path(outdir1,"30m")
-  }else if(grepl('^90',pattern)){
-    outdir = file.path(outdir1,"fs90m")
-  }else if(grepl('^270',pattern)){
-      outdir = file.path(outdir1,"fs270m")
-  }else if(grepl('^1230',pattern)){
-        outdir = file.path(outdir1,"fs1230m")}
-
+for(pattern in dates){
+ outdir<-outdir1
   temp<- mosaic(sprc(localrasters[grep(pattern,localrasters)]),
-         fun="mean")
+                fun="mean")
   
-  temp<-clamp(temp,lower=-1,upper=1,values=F)
+  #temp<-clamp(temp,lower=-1,upper=1,values=F)
   
   if(!compareGeom(temp,sourceraster,stopOnError=F)){
+    #print(paste("geoms differ for",pattern))
   resample(x=temp,y=sourceraster, method= 'bilinear',threads=T,filename = file.path(
     outdir,
-    paste0(var,"_",gsub("_","m_",pattern),".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
+    paste0(var,"_",gsub("-","",pattern),".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
   )
   }else{writeRaster(temp,
                     filename = file.path(
                       outdir,
-<<<<<<< HEAD
-                      paste0(var,"_",pattern,".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
-=======
-                      paste0(var,"_",gsub("_","m_",pattern),".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
->>>>>>> fc1524310e03412685fbb1ce0d5eb935c549b742
-                    )
-  
-    }
+                      paste0(var,"_",gsub("-","",pattern),".tif")),filetype="GTiff",overwrite=T,gdal=c("COMPRESS=LZW")
+  )
+    #print("geoms are the same, all good!")
+    
+  }
 }
 

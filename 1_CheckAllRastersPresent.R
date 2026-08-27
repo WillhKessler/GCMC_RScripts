@@ -54,8 +54,10 @@ allDates<-allDates[order(allDates)]
 
 
 ## Input Directory
+
 #greennessDir<- "S:/GCMC/Data/Greenness/NDVI"
 greennessDir<- "S:/GCMC/Data/Greenness/EVI/states/dump_05042026/"
+
 
 #Recursively list all paths to TIFF rasters in the directory
 allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)

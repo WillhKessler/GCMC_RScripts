@@ -1,6 +1,7 @@
 require('batchtools')
 require('tidyr')
 require('terra')
+require('data.table')
 
 projectname="ExampleLinkage"
   ##---- Load Registry
@@ -44,9 +45,9 @@ mergeResults<- function(x){
 					value.name=x,
 					variable.factor=F,
 					na.rm=T))
-	write.csv(longout,paste(projectname,"_LONG_",x,".csv",sep=""))
+	write.csv(longout,paste(projectname,"_LONG_",x,".csv",sep=""),row.names=F)
   saveRDS(longout,paste(projectname,"_LONG_",x,".rds",sep=""))
-  write.csv(results,paste(projectname,"_",x,".csv",sep=""))
+  write.csv(results,paste(projectname,"_",x,".csv",sep=""),row.names=F)
   saveRDS(results,file=paste(projectname,"_",x,".rds",sep=""))
 }
 
