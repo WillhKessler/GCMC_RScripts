@@ -1,142 +1,92 @@
 
 require(tools)
+require(dplyr)
 
-##Constants
-allRegions <-c("Arizona", 
-               "ArkansasLouisiana", 
-               "CaliPart1", 
-               "CaliPart2", 
-               "Colorado",
-               "Florida", 
-               "Idaho", 
-               "Illinois", 
-               "IndianaOhio", 
-               "Kansas", 
-               "KentuckyTennessee",
-               "Maine",
-               "Massachusetts",
-               "Michigan", 
-               "Minnesota", 
-               "MississippiAlabama", 
-               "MissouriIowa", 
-               "MontanaPart1", 
-               "MontanaPart2",
-               "Nebraska", 
-               "Nevada",   
-               "NewMexico", 
-               "NewEngland",
-               "NewHampshire",
-               "NorthCarolina1",
-               "NorthCarolina2",
-               "NorthSouthDakota", 
-               "Oklahoma", 
-               "SouthCarolinaGeorgia",
-               "Texas1",
-               "Texas2",
-               "Texas3",
-               "Utah", 
-               "Vermont",
-               "WashingtonOregon", 
-               "Wisconsin",
-               "Wyoming", 
-               "MiddleAtlantic", 
-               "SouthAtlantic1")
-allRegions<- allRegions[order(allRegions)]
-allDays<-c("01")
-allMonths<-c("01","04","07","10")
-allYears<-c("1984","1985","1986","1987","1988","1989","1990","1991","1992",
-            "1993","1994","1995","1996","1997","1998","1999","2000","2001",
-            "2002","2003","2004","2005","2006","2007","2008","2009","2010",
-            "2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025")
-allDates<-apply(expand.grid(allYears,allMonths,allDays),1,paste,collapse="-")
-allDates<-allDates[order(allDates)]
+#CHANGE INPUTS HERE
+datefrequency<-"seasonal"
+filedirectory="S:\\GCMC\\Data\\Greenness\\EVI\\30m"
+filedirectory="S:\\GCMC\\Data\\Greenness\\NDVI/fs90m/"
 
 
 
-## Input Directory
 
-#greennessDir<- "S:/GCMC/Data/Greenness/NDVI"
-greennessDir<- "S:/GCMC/Data/Greenness/EVI/states/dump_05042026/"
-
-
-#Recursively list all paths to TIFF rasters in the directory
-allFilePaths<- list.files(path = greennessDir,pattern = "*.tif$",all.files = TRUE,full.names = TRUE,recursive = TRUE,include.dirs = FALSE)
-head(allFilePaths)
-
-
+##############################################################################################
+#List all Files
+filedir<- list.files(filedirectory,pattern="*.tif$",full.names = T)
 
 #Get file names of rasters from path
-allFiles<-file_path_sans_ext(basename(allFilePaths))
+allFiles<-file_path_sans_ext(basename(filedir))
 head(allFiles)
 
-bnames<-unique(sapply(
-  X = strsplit(allFiles,"-"),
-  FUN = function(x){paste(x[1:3],collapse="-")
-    
-  }))
+bnames<-unique(
+  sapply(
+    X = strsplit(allFiles,"-"),
+    FUN = function(x){paste(x[1:3],collapse="-")}))
 
-## Return Unique Combinations of:
-#Year
-years<-unique(sapply(
-  X = strsplit(bnames,"_"),
-  FUN = function(x){
-    strsplit(x[length(x)],"-")[[1]][1]
-    
-}))
-#Season
-# dates<-unique(sapply(
-#   X = strsplit(allFiles,"_"),
-#   FUN = function(x){
-#     substring(x[length(x)],regexpr("-",x[length(x)])+1)
-#     
-#   }))
-dates<-unique(sapply(
-  X = bnames,
-  FUN = function(x){paste(strsplit(x,split = "-")[[1]][2:3],collapse="-")
-    
-  }))
-head(dates)
+#FileName Grid
+raster_atts<-as.data.frame(do.call(rbind, strsplit(allFiles,"_")))
+colnames(raster_atts)<-c("metric","resolution","date")
 
-#Year and Season
-dates<-unique(sapply(X = strsplit(bnames,"_"),FUN = function(x){x[3]}))
-dates<-dates[order(dates)]
-#Region
-region<-unique(sapply(X =strsplit(allFiles,"_"),FUN = function(x){x[1]})
-)
-region<-region[order(region)]
+# Tabulate metrics
+actual_metrics<- raster_atts |> count(metric)
 
-datecounts<-list()
-for (date in dates){
-  count<-sum(grepl(date,allFilePaths))
-  datecounts[date]=count
-  }
-datecounts
+# Tabulate resolution
+actual_resolutions<- raster_atts |> count(resolution)
 
-regioncounts<-list()
-for (r in region){
-  count<-sum(grepl(r,allFilePaths))
-  regioncounts[r]=count
-}
-regioncounts
+# Tabulate Dates
+actual_dates<- raster_atts |> count(date)
 
+## Compare tabulated totals with expected
+#Expected metric
+metric<-unique(sapply(X =strsplit(allFiles,"_"),FUN = function(x){x[1]}))
+metric<-metric[order(metric)]
 
-##Check all season/region combinations
-rasterchecklistdf<-setNames(data.frame(matrix(ncol=length(allDates),nrow=length(allRegions)),row.names = allRegions),allDates)
-row_names<-rownames(rasterchecklistdf)
-col_names<-colnames(rasterchecklistdf)
+#Expected resolution
+spat_resolution<-unique(sapply(X = strsplit(bnames,"_"),FUN = function(x){x[2]}))
+spat_resolution<-spat_resolution[order(spat_resolution)]
 
-#Fill the raster checklist to find what is missing
-for (r in row_names){
-  for (c in col_names){
-    if (any(grepl(r,allFilePaths) & grepl(c,allFilePaths))){
-      rasterchecklistdf[r,c]=1
-    }
-    
-  }
+#Expected dates
+if(datefrequency =="seasonal"){
+  startdate=as.Date("1984-01-01")
+  enddate=as.Date(paste0(format(Sys.Date(), "%Y"), "-01-01"))
+  dateseq<-as.character(seq.Date(startdate,enddate,by = "quarter"))
+}else if(datefrequency=="daily"){
+  startdate=as.Date("1984-01-01")
+  enddate=as.Date(paste0(format(Sys.Date(), "%Y"), "-01-01"))
+  dateseq<-as.character(seq.Date(startdate,enddate,by = "day"))
+}else if(datefrequency=="yearly"){
+  startdate=as.Date("1984-01-01")
+  enddate=as.Date(paste0(format(Sys.Date(), "%Y"), "-01-01"))
+  dateseq<-as.character(seq.Date(startdate,enddate,by = "year"))
 }
 
-rasterchecklistdf["Kent",is.na(rasterchecklistdf["Kent",])]
+### Tabulate Expected Counts
+expected<-expand.grid(metric,spat_resolution,dateseq,stringsAsFactors = F)
+colnames(expected)<-c("metric","resolution","date")
+# Tabulate metrics
+expected_metrics<- data.frame(expected |> count(metric))
 
+# Tabulate resolution
+expected_resolutions<- data.frame(expected |> count(resolution))
+
+# Tabulate Dates
+expected_dates<- data.frame(expected |> count(date))
+
+
+## Compare Metrics
+if(isTRUE(all.equal(expected_metrics,actual_metrics))){
+  message("All Expected Files are Present")
+  print("All Expected Files are Present")
+}else{
+  all.equal(expected_metrics,actual_metrics)
+  all.equal(expected_resolutions,actual_resolutions)
+  all.equal(expected_dates,actual_dates)
+  message("The following files are expected but not found")
+  setdiff(expected, raster_atts)
+  
+  message("The following files were found, but not expected. Check File names for consistency")
+  setdiff(raster_atts,expected)
+  }
 
 
                
