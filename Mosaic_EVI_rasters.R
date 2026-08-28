@@ -9,15 +9,7 @@ rasterdir<- "S:\\GCMC\\Data\\Greenness\\EVI\\states"
 
 outdir1<- "S:\\GCMC\\Data\\Greenness\\EVI"
 sourceraster<-rast("S:\\GCMC\\Data\\Greenness\\EVI\\30m/EVI_30m_2024-01-01.tif")
-# var="NDVI"
-# rasterdir<- "S:\\GCMC\\Data\\Greenness\\NDVI\\states"
-# outdir1<- "S:\\GCMC\\Data\\Greenness\\NDVI"
-# sourceraster<-rast("S:\\GCMC\\Data\\Greenness\\NDVI\\30m/NDVI_30m_2024-01-01.tif")
 
-
-#rasters<-list.files(path=rasterdir, pattern="*.tif$",full.names=T,recursive=T,include.dirs=F)
-#outrasters<-file.path(outdir,basename(rasters))
-#file.copy(rasters[21:41],outdir)
 
 #################################################
 ##--- Mosaic by date and focal stats---------############
