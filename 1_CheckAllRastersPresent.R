@@ -93,4 +93,18 @@ CheckAllRastersPresent<-function(datefrequency,filedirectory){
 CheckAllRastersPresent(datefrequency = datefrequency,filedirectory = filedirectory)
 
 
+
+###################################
+##Check all rasters have values
+require('terra')
+
+dirpath<-"S:/GCMC/ZZ_GreennessRO1/Data/EVI/mosaics/"
+mosaicsfiles<-list.files(path=dirpath,full.names=T,recursive=T,pattern="*.tif$")
+
+emptyRasters<-c()
+for(i in mosaicsfiles){
+  rastinfo<-rast(i)
+  rvalues<-any(as.numeric(terra::global(rastinfo, fun = "anynotNA")[,1]) > 0)
+  if(rvalues){}else{emptyRasters<-c(emptyRasters,i)}
+}
                
