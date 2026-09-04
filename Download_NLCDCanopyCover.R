@@ -51,7 +51,7 @@ fs<- c(1230)
 
 
 files<-list.files(outdir,full.names=T,recursive=T,pattern="*01.tif$")
-files<-files[c(37)]
+files<-files[c(36)]
 
 for(fss in fs){
   
