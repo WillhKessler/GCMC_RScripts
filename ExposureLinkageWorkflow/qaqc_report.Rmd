@@ -304,9 +304,10 @@ kbl(missing_tbl,
     booktabs = TRUE, 
     row.names = FALSE,
     col.names=c("Column","Missing","Percent Missing"),
-      caption = "Missing values per column",
-      escpape=TRUE) %>%
-  kable_styling(latex_options = c("hold_position", "striped"), font_size = 9)
+    caption = "Missing values per column",
+    longtable=TRUE,
+    escape=TRUE) %>%
+  kable_styling(latex_options = c("repeat_header","hold_position", "striped"), font_size = 9)
 ```
 
 ---
