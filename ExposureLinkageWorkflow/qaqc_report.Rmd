@@ -84,7 +84,7 @@ overview <- data.frame(
   Input = c(
     nrow(df),
     ncol(df),
-    paste(colnames(df), collapse = ",\n")
+    paste(colnames(df)[1:min(length(colnames(df)),50)], collapse = ", ")
   ),
   Baseline = c(
     nrow(baseline),
@@ -100,7 +100,8 @@ kbl(overview,
     escape=TRUE) %>%   
   kable_styling(full_width=TRUE,
                 latex_options = c("scale_down","hold_position", "striped","repeat_header"), 
-                font_size = 9)
+                font_size = 9) %>%
+  column_spec(1, width= "3cm")
 ```
 
 ---
