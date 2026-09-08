@@ -68,7 +68,8 @@ info <- data.frame(
 )
 kable(info, booktabs = TRUE, col.names = c("Field", "Value"),
       caption = "Run metadata") %>% 
-  kable_styling(latex_options = c("hold_position", "striped"), font_size = 9)
+  kable_styling(latex_options = c("hold_position", "striped"), font_size = 9) %>% 
+  column_spec(2,width="15cm")
 ```
 
 ---
