@@ -218,6 +218,7 @@ if (exists("only_in_baseline") && length(only_in_baseline) > 0) {
 
 # Summary Statistics — Input CSV
 
+## Numerical Column Summaries
 This table provides summary statistics for each COLUMN in the exposure dataset. NA values have been removed, but true zeros remain. A tabulation of the number of NA's found in each column is included. 
 
 ```{r summary-stats}
@@ -255,7 +256,7 @@ if (length(num_cols) > 0) {
   cat("No numeric columns detected.\n")
 }
 ```
-This table summarizes the categorical (Character Columns). Exposure variables are linked as numerical values (with some minor exceptions). 
+
 ```{r char-summary, results='asis'}
 # Character / factor columns — unique value counts
 chr_cols <- names(df)[sapply(df, function(x) is.character(x) | is.factor(x))]
@@ -263,6 +264,7 @@ chr_cols <- chr_cols[chr_cols != "id"]  # ID handled separately above
 
 if (length(chr_cols) > 0) {
   cat("\n## Categorical Column Summaries\n\n")
+  cat("This table summarizes the categorical (Character Columns). Exposure variables are linked as numerical values (with some minor exceptions). \n"
   for (col in chr_cols) {
     tbl <- df %>%
       group_by(Value = .data[[col]]) %>%
