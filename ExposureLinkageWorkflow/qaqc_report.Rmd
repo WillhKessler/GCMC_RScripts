@@ -94,7 +94,7 @@ dictionarycolumns<- df[!colnames(df) %in% header_dd$Attribute]
 overview <- data.frame(
   Attribute = colnames(dictionarycolumns)[1:min(length(colnames(dictionarycolumns)),50)],
   DataType = sapply(dictionarycolumns[1:min(length(colnames(dictionarycolumns)),50)],typeof),
-  Description = "",
+  Description = "Linked value collumn for specified variable and date",
   row.names=NULL
 )
 datadictionary<- rbind(header_dd,overview)
