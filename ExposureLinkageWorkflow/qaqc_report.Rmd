@@ -1,5 +1,4 @@
 ---
-title: "QA/QC Report"
 date: "`r format(Sys.time(), '%Y-%m-%d %H:%M:%S')`"
 output:
   pdf_document:
@@ -11,8 +10,9 @@ header-includes:
     - \usepackage{titlesec}
     - \newcommand{\sectionbreak}{\clearpage}
 params:
-  input_csv: ""
-  baseline_csv: ""
+  input_csv: "/home/williamkessler/Documents/GCMC_RProjects/exampledata/exampleoutput_LONG30m.csv"
+  baseline_csv: "/home/williamkessler/Documents/GCMC_RProjects/exampledata/exampleinput.csv"
+title: "`r paste0(basename(params$input_csv), ' QA/QC Report')`"
 ---
 
 ```{r setup, include=FALSE}
@@ -40,12 +40,20 @@ baseline_csv <- if (nchar(params$baseline_csv) > 0) params$baseline_csv else Sys
 stopifnot("QAQC_INPUT_CSV is not set"    = nchar(input_csv)    > 0)
 stopifnot("QAQC_BASELINE_CSV is not set" = nchar(baseline_csv) > 0)
 
-df       <- read.csv(input_csv,    stringsAsFactors = FALSE, check.names = FALSE)
-baseline <- read.csv(baseline_csv, stringsAsFactors = FALSE, check.names = FALSE)
+# Extract Data Dictionary Header Info. Read the very first lines to extract the column metadata
+raw_header <- readLines(baseline_csv)
+raw_header <- grep("^#", raw_header, value = TRUE)
+
+clean_header <- gsub("^# DESCRIPTION:\\s*", "", raw_header)  # Removes leading '#' and whitespace
+col_names <- do.call(rbind,strsplit(clean_header, "\\s*[=,\\-]\\s*")) # Splits the string into a vector
+
+# Read the Clean CSV, skip any comment characters
+df       <- read.csv(input_csv,    stringsAsFactors = FALSE, check.names = FALSE, comment.char = "#")
+baseline <- read.csv(baseline_csv, stringsAsFactors = FALSE, check.names = FALSE, comment.char = "#")
 ```
 # Introduction
 
-The following document provides a summary for the data linkage results presented in `r print(input_csv)`. The linkage results are compared against the input geocoding file provided by `r print(baseline_csv)` to evaluate the number of missing values, provide summary statistics, and ensure no data loss has occurred. 
+The following document provides a summary for the data linkage results presented in `r basename(input_csv)`. The linkage results are compared against the input geocoding file provided by `r basename(baseline_csv)` to evaluate the number of missing values, provide summary statistics, and ensure no data loss has occurred. 
 
 For questions or concerns, please contact:
 Jaime Hart: jaime.hart@channing.harvard.edu
@@ -72,7 +80,38 @@ kable(info, booktabs = TRUE, col.names = c("Field", "Value"),
   column_spec(2,width="15cm")
 ```
 
----
+------------------------------------------------------------------------
+
+# Data Dictionary
+
+The following overview provides basic overview of the variables (attributes) in this dataset
+
+```{r dictionary}
+
+header_dd<-setNames(as.data.frame(col_names),c("Attribute","DataType","Description"))
+
+dictionarycolumns<- df[!colnames(df) %in% header_dd$Attribute]
+overview <- data.frame(
+  Attribute = colnames(dictionarycolumns)[1:min(length(colnames(dictionarycolumns)),50)],
+  DataType = sapply(dictionarycolumns[1:min(length(colnames(dictionarycolumns)),50)],typeof),
+  Description = "",
+  row.names=NULL
+)
+datadictionary<- rbind(header_dd,overview)
+
+kbl(datadictionary, 
+    booktabs = TRUE, 
+    col.names=c("Attribute","Data Type","Description"),
+    longtable=TRUE,
+    caption = "Dataset dimensions",
+    escape=TRUE) %>%   
+  kable_styling(full_width=TRUE,
+                latex_options = c("scale_down","hold_position", "striped","repeat_header"), 
+                font_size = 9) %>%
+  column_spec(1, width= "3cm")
+```
+
+------------------------------------------------------------------------
 
 # Dataset Overview
 
@@ -264,7 +303,7 @@ chr_cols <- chr_cols[chr_cols != "id"]  # ID handled separately above
 
 if (length(chr_cols) > 0) {
   cat("\n## Categorical Column Summaries\n\n")
-  cat("This table summarizes the categorical (Character Columns). Exposure variables are linked as numerical values (with some minor exceptions). \n"
+  cat("This table summarizes the categorical (Character Columns). Exposure variables are linked as numerical values (with some minor exceptions). \n")
   for (col in chr_cols) {
     tbl <- df %>%
       group_by(Value = .data[[col]]) %>%
