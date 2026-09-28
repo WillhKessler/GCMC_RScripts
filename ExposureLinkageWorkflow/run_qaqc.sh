@@ -57,7 +57,7 @@ module load terra/4.5.2 2>/dev/null || {
  
 # ---------- run ---------------------------------------------------------------
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-OUTPUT_PDF="${OUTPUT_DIR}/qaqc_report_${SLURM_JOB_ID:-local}_${TIMESTAMP}.pdf"
+OUTPUT_PDF="${OUTPUT_DIR}/qaqc_report_$(basename "${INPUT_CSV%.*}")_${SLURM_JOB_ID:-local}_${TIMESTAMP}.pdf"
  
 echo "=========================================="
 echo "  QA/QC Report — SLURM Job ${SLURM_JOB_ID:-local}"
