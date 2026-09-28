@@ -10,8 +10,8 @@ header-includes:
     - \usepackage{titlesec}
     - \newcommand{\sectionbreak}{\clearpage}
 params:
-  input_csv: "/home/williamkessler/Documents/GCMC_RProjects/exampledata/exampleoutput_LONG30m.csv"
-  baseline_csv: "/home/williamkessler/Documents/GCMC_RProjects/exampledata/exampleinput.csv"
+  input_csv: ""
+  baseline_csv: ""
 title: "`r paste0(basename(params$input_csv), ' QA/QC Report')`"
 ---
 
@@ -105,7 +105,7 @@ kbl(datadictionary,
     longtable=TRUE,
     caption = "Dataset dimensions",
     escape=TRUE) %>%   
-  kable_styling(full_width=TRUE,
+  kable_styling(full_width=F,
                 latex_options = c("scale_down","hold_position", "striped","repeat_header"), 
                 font_size = 9) %>%
   column_spec(1, width= "3cm")
@@ -137,7 +137,7 @@ kbl(overview,
     longtable=TRUE,
     caption = "Dataset dimensions",
     escape=TRUE) %>%   
-  kable_styling(full_width=TRUE,
+  kable_styling(full_width=F,
                 latex_options = c("scale_down","hold_position", "striped","repeat_header"), 
                 font_size = 9) %>%
   column_spec(1, width= "3cm")
