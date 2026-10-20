@@ -77,7 +77,7 @@ info <- data.frame(
     Sys.getenv("SLURMD_NODENAME", unset = "N/A")
   )
 )
-info$Value <- gsub("/", "/\\\\allowbreak ", knitr:::escape_latex(info$Value))
+info$Value <- gsub("/", "/ ", knitr:::escape_latex(info$Value),fixed=T)
 
 kable(info, booktabs = TRUE, col.names = c("Field", "Value"),
       caption = "Run metadata", escape = FALSE) %>%
