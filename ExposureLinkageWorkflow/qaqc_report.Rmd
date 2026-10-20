@@ -6,9 +6,12 @@ output:
     toc_depth: 3
     number_sections: true
     latex_engine: pdflatex
+geometry: margin=0.75in
 header-includes:
     - \usepackage{titlesec}
+    - \usepackage{longtable}
     - \newcommand{\sectionbreak}{\clearpage}
+    - setlength{tabcolsep}{4pt}
 params:
   input_csv: ""
   baseline_csv: ""
@@ -74,10 +77,13 @@ info <- data.frame(
     Sys.getenv("SLURMD_NODENAME", unset = "N/A")
   )
 )
+info$Value <- gsub("/", "/\\\\allowbreak ", knitr:::escape_latex(info$Value))
+
 kable(info, booktabs = TRUE, col.names = c("Field", "Value"),
-      caption = "Run metadata") %>% 
-  kable_styling(latex_options = c("hold_position", "striped"), font_size = 9) %>% 
-  column_spec(2,width="15cm")
+      caption = "Run metadata", escape = FALSE) %>%
+  kable_styling(latex_options = c("hold_position", "striped"), font_size = 9) %>%
+  column_spec(1, width = "3cm") %>%
+  column_spec(2, width = "12cm")
 ```
 
 ------------------------------------------------------------------------
@@ -103,12 +109,13 @@ kbl(datadictionary,
     booktabs = TRUE, 
     col.names=c("Attribute","Data Type","Description"),
     longtable=TRUE,
-    caption = "Dataset dimensions",
+    caption = "Data dictionary",
     escape=TRUE) %>%   
-  kable_styling(full_width=F,
-                latex_options = c("scale_down","hold_position", "striped","repeat_header"), 
+  kable_styling(latex_options = c("hold_position", "striped","repeat_header"), 
                 font_size = 9) %>%
-  column_spec(1, width= "3cm")
+  column_spec(1, width= "4.5cm")%>%
+  column_spec(2, width = "2.5cm") %>%
+  column_spec(3, width = "8cm")
 ```
 
 ------------------------------------------------------------------------
