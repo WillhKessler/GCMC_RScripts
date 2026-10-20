@@ -125,18 +125,14 @@ kbl(datadictionary,
 The following overview provides a summary of the number of rows and columns in the input geocoding file, and the output exposure linkage. 
 
 ```{r overview}
+trunc_names <- function(x, n = 50) {
+  s <- paste(x[seq_len(min(length(x), n))], collapse = ", ")
+  if (length(x) > n) paste0(s, ", ... (+", length(x) - n, " more)") else s
+}
 overview <- data.frame(
-  Metric = c("Rows", "Columns", "Column Names"),
-  Input = c(
-    nrow(df),
-    ncol(df),
-    paste(colnames(df)[1:min(length(colnames(df)),50)], collapse = ", ")
-  ),
-  Baseline = c(
-    nrow(baseline),
-    ncol(baseline),
-    paste(colnames(baseline), collapse = ", ")
-  )
+  Metric   = c("Rows", "Columns", "Column Names"),
+  Input    = c(nrow(df), ncol(df), trunc_names(colnames(df))),
+  Baseline = c(nrow(baseline), ncol(baseline), trunc_names(colnames(baseline)))
 )
 kbl(overview, 
     booktabs = TRUE, 
@@ -144,10 +140,11 @@ kbl(overview,
     longtable=TRUE,
     caption = "Dataset dimensions",
     escape=TRUE) %>%   
-  kable_styling(full_width=F,
-                latex_options = c("scale_down","hold_position", "striped","repeat_header"), 
+  kable_styling(latex_options = c("hold_position", "striped","repeat_header"), 
                 font_size = 9) %>%
-  column_spec(1, width= "3cm")
+  column_spec(1, width= "3cm")%>%
+  column_spec(2, width = "6.5cm") %>%
+  column_spec(3, width = "6.5cm")
 ```
 
 ---
@@ -291,13 +288,14 @@ if (length(num_cols) > 0) {
 
   kbl(num_summary, 
       booktabs = TRUE, 
-      digits = 3,
+      digits = 2, 
+      longtable = TRUE,
       caption = "Numeric column summary statistics",
-      col.names=c("Column","Min","Q1","Median","Mean","Q3","Max","SD","NAs"),
-      longtable=TRUE,
-      escape=TRUE) %>%
-    kable_styling(latex_options = c("hold_position", "striped", "scale_down"),
-                  font_size = 8)
+      col.names = c("Column","Min","Q1","Median","Mean","Q3","Max","SD","NAs"),
+      escape = TRUE) %>%
+  kable_styling(latex_options = c("hold_position", "striped", "repeat_header"),
+                font_size = 7) %>%
+  column_spec(1, width = "3.5cm")
 } else {
   cat("No numeric columns detected.\n")
 }
@@ -330,6 +328,7 @@ if (length(chr_cols) > 0) {
         escape=TRUE,
         col.names=c("Value","Count")) %>%
       kable_styling(latex_options = c("hold_position", "striped"), font_size = 8) %>%
+      column_spec(1, width = "10cm") %>%
       print()
   }
 }
@@ -355,7 +354,8 @@ kbl(missing_tbl,
     caption = "Missing values per column",
     longtable=TRUE,
     escape=TRUE) %>%
-  kable_styling(latex_options = c("repeat_header","hold_position", "striped"), font_size = 9)
+  kable_styling(latex_options = c("repeat_header","hold_position", "striped"), font_size = 9)%>% 
+  column_spec(1, width = "8cm")
 ```
 
 ---
