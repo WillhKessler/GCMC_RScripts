@@ -30,6 +30,7 @@ library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(tidyr)
+library(lubridate)
 ```
 
 \newpage
@@ -56,10 +57,12 @@ baseline <- read.csv(baseline_csv, stringsAsFactors = FALSE, check.names = FALSE
 ```
 # Introduction
 
-The following document provides a summary for the data linkage results presented in `r basename(input_csv)`. The linkage results are compared against the input geocoding file provided by `r basename(baseline_csv)` to evaluate the number of missing values, provide summary statistics, and ensure no data loss has occurred. 
+The following document provides a summary for the data linkage results presented in `r basename(input_csv)`. The linkage results are compared against the input geocoding file provided by `r basename(baseline_csv)` to evaluate the number of missing values, provide general summary statistics, and ensure no data loss has occurred. The values in this report may be used a check against subsequent analysis of this environmental exposure, however we recommend all researchers do their due diligence in double checking statistics and inputs during analysis. 
 
 For questions or concerns, please contact:
-Jaime Hart: jaime.hart@channing.harvard.edu
+Jaime Hart, Associate Professor Spatial and Contextual Exposomics and Epidemiology Laboratory, Channing Division of Network Medicine | Brigham & Women's Hospital and Harvard Medical School: jaime.hart@channing.harvard.edu
+
+William Kessler, Data Manager, HSPH NIEHS Center: williamkessler@hsph.harvard.edu
 
 This document was prepared by `r Sys.info()[["user"]]` on `r Sys.Date()`
 
@@ -90,7 +93,7 @@ kable(info, booktabs = TRUE, col.names = c("Field", "Value"),
 
 # Data Dictionary
 
-The following overview provides basic overview of the variables (attributes) in this dataset
+The following overview provides basic description of the variables (attributes) in this dataset. 
 
 ```{r dictionary}
 
@@ -151,7 +154,7 @@ kbl(overview,
 
 # Row Count Comparison
 
-This is a comparison of the number of rows in the input and the output files. When comparing wide tables, these values should be equivalent. If the output has a different number of rows than the input, something went wrong and one or more cohort observations have been dropped. Please go back and doublecheck your linkage workflows to confirm everything has run successfully.
+This is a comparison of the number of rows in the input and the output files. When comparing wide tables, these values should be equivalent. If the output has a different number of rows than the input, something went wrong and one or more cohort observations have been dropped or duplicated. Please go back and double check your linkage workflows to confirm everything has run successfully.
 
 ```{r row-comparison}
 row_diff   <- nrow(df) - nrow(baseline)
@@ -356,6 +359,83 @@ kbl(missing_tbl,
     escape=TRUE) %>%
   kable_styling(latex_options = c("repeat_header","hold_position", "striped"), font_size = 9)%>% 
   column_spec(1, width = "8cm")
+```
+
+```{r expectedVactual}
+
+#Rename Columns for Clarity
+colnames(df)<-gsub("X","",colnames(df))
+exposureColumns<-names(df)[grep("\\d{8}",colnames(df))]
+df <- df[, c(setdiff(names(df),exposureColumns), sort(names(df[exposureColumns]), decreasing = TRUE))]
+df$dstart_date<-as.Date(df$start_date,tryFormats = "%m/%d/%y")
+
+df<-df %>%
+  mutate(
+    expectedcount = as.numeric(df$last_extract -df$first_extract + 1)
+  )
+
+df$actualcount<- rowSums(!is.na(df[,exposureColumns]))
+df$missingrate<- 1-abs(df$actualcount/df$expectedcount) * 100
+
+
+missingdata<-df[!((df$expectedcount - df$actualcount==0) |is.na(df$expectedcount - df$actualcount)),]
+
+columnNArate<-round(colMeans(is.na(df)) * 100, 2)
+#startdate NA rate due to observation before available data
+startNA_predata<- (sum(as.Date(df$start_date,tryFormats = "%m/%d/%y")<as.Date("01/01/2000",tryFormats="%m/%d/%Y")))/nrow(df)*100
+
+#stopdate NA rate due to observation before available data
+stopNA_predata<- (sum(as.Date(df$stop_date,tryFormats = "%m/%d/%y")<as.Date("01/01/2000",tryFormats="%m/%d/%Y")))/nrow(df)*100
+
+#start date NA rate due to observation after available data
+startNA_postdata<- (sum(as.Date(df$start_date,tryFormats = "%m/%d/%y")>as.Date("01/01/2016",tryFormats="%m/%d/%Y")))/nrow(df)*100
+
+#stop date NA rate due to observation after available data
+stopNA_postdata<- (sum(as.Date(df$stop_date,tryFormats = "%m/%d/%y")>as.Date("01/01/2016",tryFormats="%m/%d/%Y")))/nrow(df)*100
+
+#Observations Out of Range
+obs_out_of_range<- as.data.frame(X=c("Start Date precedes Data Coverage",
+                                     "Stop Date precedes Data Coverage",
+                                     "Start Date postdates Data Coverage",
+                                     "Stop Date postdates Data Coverage"),
+                                NArate=c(startNA_predata,
+                                         stopNA_predata,
+                                         startNA_postdata,
+                                         stopNA_postdata))
+kbl(obs_out_of_range, 
+    booktabs = TRUE, 
+    row.names = FALSE,
+    col.names=c("NA due to data coverage","Proportion NA"),
+    caption = "NAs introduced due to lack of adequate temporal data coverage",
+    longtable=TRUE,
+    escape=TRUE) %>%
+  kable_styling(latex_options = c("repeat_header","hold_position", "striped"), font_size = 9)%>% 
+  column_spec(1, width = "8cm")
+
+
+# NA rate by date
+missingrate <- df %>%
+  group_by(start_date) %>%
+  summarise(
+    n_observed      = n(),
+    total_expected  = sum(expectedcount),
+    total_actual    = sum(actualcount),
+    rate            = 1- (total_actual / total_expected),   # actual/expected
+    .groups = "drop"
+  ) %>%
+  arrange(as.Date(start_date,tryFormat="%m/%d/%y"))
+
+
+kbl(missingrate, 
+    booktabs = TRUE, 
+    row.names = FALSE,
+    col.names=c("Start Date","Observed (n)","Expected Exposure Observations","Actual Exposure Observations on Date","NA rate (1-actual/observed)"),
+    caption = "Rate of Missing values per Observation Date",
+    longtable=TRUE,
+    escape=TRUE) %>%
+  kable_styling(latex_options = c("repeat_header","hold_position", "striped"), font_size = 9)%>% 
+  column_spec(1, width = "8cm")
+
 ```
 
 ---
